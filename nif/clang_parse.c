@@ -242,5 +242,4 @@ int upgrade(ErlNifEnv* env, void** priv_data, void** old_priv_data, ERL_NIF_TERM
 	return 0;
 }
 
-
 ERL_NIF_INIT(clang_parse, nif_funcs, NULL, NULL, upgrade, NULL);

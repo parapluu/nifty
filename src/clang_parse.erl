@@ -3,7 +3,7 @@
 -on_load(init/0).
 
 init() ->
-	ok = erlang:load_nif("./clang_parse", 0).
+	ok = erlang:load_nif("nif/clang_parse", 0).
 
 cparse(_) ->
 	exit(nif_library_not_loaded).
