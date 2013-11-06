@@ -1,0 +1,1 @@
+	enif_get_int(env, {{arg}}, &{{cname}});

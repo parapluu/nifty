@@ -1,6 +1,5 @@
-{#
- # registrate types here
- #}
 {% for rettype, args in data %}
-{% include "build_retval/int.tpl" %}
+{% with tplname="build_retval/"|add:rettype|add:".tpl" %}
+{% include tplname %}
+{% endwith %}
 {% endfor %}
