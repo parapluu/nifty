@@ -1,1 +1,0 @@
-	retval = enif_make_int(env, c_retval);
