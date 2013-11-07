@@ -10,39 +10,37 @@ erl2c_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 	
 	{% for aname, atype in args %}
 	ERL_NIF_TERM arg_{{aname}} = argv[{{forloop.counter0}}];
-	{{atype}} c_arg_{{aname}};
+	{{atype}} c_arg_{{forloop.counter0}};
 	{% endfor %}{% endfor %}
 
 /*
  * build arguments
  */
 {% for rettype, args in data %}{% for rawname, type in args %}
-{% with cname="c_arg_"|add:rawname %}
-{% with erlname="argv["|add:forloop.counter0|add:"]" %}
-{% include "from_erl/build.tpl" %}
-{% endwith %}{% endwith %}{% endfor %}
+{% include "from_erl/build.tpl"  with cname="c_arg_"|add:forloop.counter0 erlname="argv["|add:forloop.counter0|add:"]" %}
+{% endfor %}{% endfor %}
 
 /*
  * call the c function
  */
 	c_retval = {{name}}(
 {% for rettype, args in data %}{% for aname, atype in args %}
-		c_arg_{{aname}}{% if not forloop.parentloop.last %},{%endif%}
+		c_arg_{{forloop.counter0}}{% if not forloop.parentloop.last %},{%endif%}
 {% endfor %}{% endfor %}
 	);
 
 /*
  * build return value
  */
-{% for type, args in data %}{% with cname="c_retval" %}{% with erlname="retval" %}
-{% include "to_erl/build.tpl" %}
-{% endwith %}{% endwith %}{% endfor %}
+{% for type, args in data %}
+{% include "to_erl/build.tpl" with cname="c_retval"  erlname="retval" %}
+{% endfor %}
 /*
  * cleanup
  */
-{% for rettype, args in data %}{% for erlname, type in args %}
-{% with cname="c_arg_"|add:erlname %}
-{% endwith %}{% endfor %}
+{% for rettype, args in data %}{% for rawname, type in args %}
+{% include "cleanup/build.tpl" with cname="c_arg_"|add:forloop.counter0 %}
+{% endfor %}{% endfor %}
 /*
  * return value
  */
@@ -51,6 +49,5 @@ erl2c_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
  * error handling
  */
 }
-
 
 {% endfor %}

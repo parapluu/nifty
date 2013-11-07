@@ -1,0 +1,1 @@
+	enif_free({{cname}});

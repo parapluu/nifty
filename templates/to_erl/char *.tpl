@@ -1,1 +1,1 @@
-	{{erlname}} = enif_make_uint(env, {{cname}});
+	{{erlname}} = enif_make_string(env, {{cname}}, ERL_NIF_LATIN1);
