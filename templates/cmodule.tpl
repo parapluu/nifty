@@ -2,18 +2,23 @@
 
 #include <{{header}}>
 
-{#
- # Build Function Definitions
- #}
+/*
+ * conversion functions
+ */
+{% include "structs.tpl" %}
+
+/*
+ * Build Function Definitions
+ */
 {% include "function.tpl" %}
 
-{#
- # Function definitions for ErLang
- #}
+/*
+ * Function definitions for ErLang
+ */
 static ErlNifFunc nif_funcs[] = {
 {% for name, data in functions %}
 {% for rettype, args in data %}
-	{"{{name}}", {{args|length}}, erl2c_{{name}}},
+	{"{{name}}", {{args|length}}, erl2c_{{name}}}{% if not forloop.parentloop.last %},{%endif%}
 {% endfor %}{% endfor %}
 	};
 

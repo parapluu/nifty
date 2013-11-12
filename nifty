@@ -1,3 +1,4 @@
+#!/usr/bin/env escript
 -module(test).
 -export([main/1]).
 
@@ -6,11 +7,11 @@ test_header(Header, Module) ->
 	% c parse stuff
 	PathToH = Header,
 	{Token, _} = clang_parse:parse([PathToH]),
-	{Functions, Structs, Typedefs} = clang_parse:build_vars(Token),
+	{Functions, Typedefs, Structs} = clang_parse:build_vars(Token),
 	% template stuff
 	CTemplate = erlang:list_to_atom("C"++Header),
 	ETemplate = erlang:list_to_atom("E"++Header),
-	ok = erlydtl:compile("templates/cmodule.tpl", CTemplate),
+	ok = erlydtl:compile("templates/cmodule.tpl", CTemplate, [{force_recompile, true},{custom_tags_modules, [nifty_tags]}]),
 	ok = erlydtl:compile("templates/emodule.tpl", ETemplate),
 	RenderVars = [
 		{"functions", dict:to_list(Functions)},

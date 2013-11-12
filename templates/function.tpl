@@ -9,7 +9,6 @@ erl2c_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 	ERL_NIF_TERM retval;
 	
 	{% for aname, atype in args %}
-	ERL_NIF_TERM arg_{{aname}} = argv[{{forloop.counter0}}];
 	{{atype}} c_arg_{{forloop.counter0}};
 	{% endfor %}{% endfor %}
 
@@ -25,7 +24,7 @@ erl2c_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
  */
 	c_retval = {{name}}(
 {% for rettype, args in data %}{% for aname, atype in args %}
-		c_arg_{{forloop.counter0}}{% if not forloop.parentloop.last %},{%endif%}
+	c_arg_{{forloop.counter0}}{% if not forloop.last %},{%endif%}
 {% endfor %}{% endfor %}
 	);
 
