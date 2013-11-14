@@ -4,12 +4,13 @@ erl2c_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
 	/* make flag dependent */
 	unsigned l;
+	ERL_NIF_TERM head, tail;
 	{% for rettype, args in data %}
-	{{rettype}} c_retval;
+	{{rettype|norm_type}} c_retval;
 	ERL_NIF_TERM retval;
 	
 	{% for aname, atype in args %}
-	{{atype}} c_arg_{{forloop.counter0}};
+	{{atype|norm_type}} c_arg_{{forloop.counter0}};
 	{% endfor %}{% endfor %}
 
 /*

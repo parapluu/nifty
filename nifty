@@ -11,7 +11,12 @@ test_header(Header, Module) ->
 	% template stuff
 	CTemplate = erlang:list_to_atom("C"++Header),
 	ETemplate = erlang:list_to_atom("E"++Header),
-	ok = erlydtl:compile("templates/cmodule.tpl", CTemplate, [{force_recompile, true},{custom_tags_modules, [nifty_tags]}]),
+	ok = erlydtl:compile(
+		"templates/cmodule.tpl",
+		CTemplate,
+		[{force_recompile, true},
+	   {custom_tags_modules, [nifty_tags]},
+	   {custom_filters_modules, [nifty_filters]}]),
 	ok = erlydtl:compile("templates/emodule.tpl", ETemplate),
 	RenderVars = [
 		{"functions", dict:to_list(Functions)},
