@@ -18,8 +18,8 @@ erl2c_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 /*
  * build arguments
  */
-{% for rettype, args in data %}{% for rawname, type in args %}
-{% include "from_erl/build.tpl"  with cname="c_arg_"|add:forloop.counter0 erlname="argv["|add:forloop.counter0|add:"]" %}
+{% for rettype, args in data %}{% for rawname, atype in args %}
+{% include "from_erl/build.tpl"  with cname="c_arg_"|add:forloop.counter0 erlname="argv["|add:forloop.counter0|add:"]" type=atype|discard_const %}
 {% endfor %}{% endfor %}
 
 /*
@@ -40,8 +40,8 @@ erl2c_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 /*
  * cleanup
  */
-{% for rettype, args in data %}{% for rawname, type in args %}
-{% include "cleanup/build.tpl" with cname="c_arg_"|add:forloop.counter0 %}
+{% for rettype, args in data %}{% for rawname, rtype in args %}
+{% include "cleanup/build.tpl" with cname="c_arg_"|add:forloop.counter0 type=rtype|discard_const %}
 {% endfor %}{% endfor %}
 /*
  * return value

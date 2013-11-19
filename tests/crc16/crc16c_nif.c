@@ -129,8 +129,8 @@ erl2c_crc16_data(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
 
 	enif_get_list_length(env, argv[0], &l);
-	c_arg_0 = enif_alloc(sizeof(const unsigned char *)*(l+1));
-	enif_get_string(env, argv[0], c_arg_0, l+1, ERL_NIF_LATIN1);
+	c_arg_0 = enif_alloc(sizeof(char)*(l+1));
+	enif_get_string(env, argv[0], (char*)c_arg_0, l+1, ERL_NIF_LATIN1);
 
 
 
@@ -184,7 +184,7 @@ erl2c_crc16_data(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
  * cleanup
  */
 
-	enif_free(c_arg_0);
+	enif_free((void*)c_arg_0);
 
 	
 

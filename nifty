@@ -2,11 +2,11 @@
 -module(test).
 -export([main/1]).
 
-test_header(Header, Module) ->
+test_header(Header, Module, CompileOptions) ->
 	io:format("processing ~s -> ~s ~s ~n", [Header, Module++"_nif.c", Module++".erl"]),
 	% c parse stuff
 	PathToH = Header,
-	{Token, _} = clang_parse:parse([PathToH]),
+	{Token, _} = clang_parse:parse([PathToH|CompileOptions]),
 	{Functions, Typedefs, Structs} = clang_parse:build_vars(Token),
 	% template stuff
 	CTemplate = erlang:list_to_atom("C"++Header),
@@ -32,8 +32,9 @@ test_header(Header, Module) ->
 	ok = file:write_file(Module++".erl", io_lib:fwrite("~s", [EOutput])),
 	ok.
 
-main([Header, Module]) ->
+
+main([Header, Module| Options]) ->
 	true = code:add_pathz(filename:dirname(escript:script_name())++ "/src"),
-	test_header(Header, Module);
+	test_header(Header, Module, Options);
 main(_) ->
 	io:format("Error~n").

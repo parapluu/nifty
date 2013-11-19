@@ -2,7 +2,7 @@
  # forced buildins
  #}
 {% if type=="char *" %}{% include "from_erl/char *.tpl" %}{% else %}
-{% if type=="const unsigned char *" %}{% include "from_erl/const unsigned char *.tpl" %}{% else %}
+{% if type=="unsigned char *" %}{% include "from_erl/unsigned char *.tpl" %}{% else %}
 {#
  # structures
  #}

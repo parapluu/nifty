@@ -45,6 +45,7 @@
 
 calc(List) ->
    calc(List,0).
+
 calc(<<>>,CRC) ->
    CRC;
 calc([],CRC) ->
@@ -57,5 +58,6 @@ calc([Value|Rest],CRC) when Value =< 255->
 	Index = (((CRC bsr 8) band 16#FF) bxor Value),
 	NewCRC = ((CRC bsl 8) band 16#FF00) bxor crc_index(Index),
 	calc(Rest,NewCRC).
+
 crc_index(N) ->
    lists:nth(N+1,?CRC16Def).

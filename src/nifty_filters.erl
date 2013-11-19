@@ -1,8 +1,11 @@
 -module(nifty_filters).
 -export([
 	lookup/2,
+	fetch/2,
+	is_key/2,
 	norm_type/1,
 	dereference_type/1,
+	discard_const/1,
 	loopcounter/2]).
 
 norm_type(Type) ->
@@ -21,6 +24,9 @@ dereference_type(Type) ->
 		0 -> NType;
 		S -> string:strip(string:substr(NType, 1, S-1) ++ string:substr(NType, S+1))
 	end.
+
+discard_const(Type) ->
+	string:join(lists:filter(fun(Value)->not (Value=:="const") end, string:tokens(Type, " ")), " ").
 
 loopcounter(Type, Name) ->
 	NType = "#"++norm_type(Type)++"#",
