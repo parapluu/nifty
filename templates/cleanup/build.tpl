@@ -1,1 +1,1 @@
-	{% if "*" in tplname %}enif_free({{cname}}){% endif %};
+	{% if "*" in type %}enif_free({{cname}});{% endif %}

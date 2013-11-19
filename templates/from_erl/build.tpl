@@ -2,6 +2,7 @@
  # forced buildins
  #}
 {% if type=="char *" %}{% include "from_erl/char *.tpl" %}{% else %}
+{% if type=="const unsigned char *" %}{% include "from_erl/const unsigned char *.tpl" %}{% else %}
 {#
  # structures
  #}
@@ -18,4 +19,4 @@
  # simple types
  #}
 {% with tplname="from_erl/"|add:type|add:".tpl" %}{% include tplname %}{% endwith %}
-{% endif %}{% endif %}{% endif %}
+{% endif %}{% endif %}{% endif %}{% endif %}

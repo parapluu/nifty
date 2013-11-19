@@ -65,7 +65,8 @@ build_param([Ident|T], Definitions) ->
 	end.
 
 build_params(T, Definitions) ->
-	build_params(T, Definitions, []).
+	{NT, Data, Params} = build_params(T, Definitions, []),
+	{NT, Data, lists:reverse(Params)}.
 
 build_params([], Definitions, Params) ->
 	{[], Definitions, Params};

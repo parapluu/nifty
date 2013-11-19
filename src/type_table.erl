@@ -2,8 +2,37 @@
 -export([build/2]).
 
 build({Functions, Typedefs, Structs}) ->
-	% returns a symbol table and a type table
+	Empty_Tables = {dict:new(), dict:new()}, % { Types, Symbols }
+	Tables_With_Functions = build_entries(
+		Empty_Tables,
+		fun build_function_entries/3,
+		Functions,
+		dict:fetch_keys(Functions)),
+	Tables_With_TypeDefs  = build_entries(
+		Tables_With_Functions,
+		fun build_typedef_entries/3,
+		Typedefs,
+		dict:fetch_keys(Typedefs)),
+	Tables_With_Structs   = build_entries(
+		Tables_With_TypeDefs,
+		fun build_struct_entries/3,
+		Structs,
+		dict:fetch_keys(Typedefs)),
+	Tables_With_Structs.
+
+check_types(Tables) -> 
+	% check if every type is resolvable to a base type
 	ok.
+
+build_entries(Tables, Builder, Dict, [H|T]) ->
+	[Data] = dict:fetch(H, Dict),
+	Tables_With_New_Entry = Builder(Tables, H, Data),
+	build_entries(Tables_With_New_Entry, Functions, T).
+
+build_function_entries({Types, Symbols}, Name, Data) -> ok.
+build_typedef_entries({Types, Symbols}, Name, Data) -> ok.
+build_struct_entries({Types, Symbols}, Name, Data) -> ok.
+
 
 build_type_entry(TypeTable, Type) ->
 	% is a dict

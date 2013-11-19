@@ -23,7 +23,8 @@ test_header(Header, Module) ->
 		{"structs", dict:to_list(Structs)},
 		{"typedefs", dict:to_list(Typedefs)},
 		{"module", Module},
-		{"header", Header}
+		{"header", Header},
+		{"root", filename:dirname(escript:script_name())++"/"}
 		],
 	{ok, COutput} = CTemplate:render(RenderVars),
  	{ok, EOutput} = ETemplate:render(RenderVars),
