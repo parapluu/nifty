@@ -35,7 +35,7 @@ build_entries(Tables, Builder, Dict, [H|T], Dicts) ->
 build_function_entries({Types, Symbols}, Name, Data, Dicts) ->
 	{ReturnType, ArgumentList} = Data,
 	Types_With_Return = build_type_entry(Types, Dicts, ReturnType),
-	Symbol_With_Return = build_symbol_entry(Symbols, [Name], ReturnType), 
+	Symbol_With_Return = build_symbol_entry(Symbols, Name, {return, ReturnType}), 
 	build_arguments(
 		{Types_With_Return, Symbol_With_Return},
 		Dicts,
@@ -46,16 +46,16 @@ build_arguments(Tables, Dicts, FName, Args) -> build_arguments(Tables, Dicts, FN
 
 build_arguments(Tables, _, _, _, []) -> Tables;
 build_arguments({Types, Symbols}, Dicts, FunctionName, Pos, [Arg|T]) ->
-	{ArgName, ArgType} = Arg,
+	{_, ArgType} = Arg,
 	Types_With_Arg = build_type_entry(Types, Dicts, ArgType),
-	Symbol_With_Arg = build_symbol_entry(Symbols, [FunctionName, integer_to_list(Pos), ArgName], ArgType),
+	Symbol_With_Arg = build_symbol_entry(Symbols, FunctionName, {argument, integer_to_list(Pos), ArgType, input}),
 	build_arguments({Types_With_Arg, Symbol_With_Arg}, Dicts, FunctionName, Pos+1, T).
 
 build_typedef_entries({Types, Symbols}, Alias, Type, _) ->
 	case lists:member(Alias, ?CLANG_BUILTINS) of
 		true -> {Types, Symbols};
 		false ->
-			io:format("~p -> ~p ~n", [Alias, Type]),
+% 			io:format("~p -> ~p ~n", [Alias, Type]),
 			{dict:append(Alias, {typedef, Type}, Types), Symbols}
 	end.
 
@@ -129,10 +129,10 @@ build_type_entry(TypeTable, Dicts, Type) ->
 		false->
 			case parse_type(string:tokens(Type, " "), Dicts) of
 				{Def, base} ->
-					io:format("~p -> ~p base~n", [Type, Def]),
+% 					io:format("~p -> ~p base~n", [Type, Def]),
 					dict:append(Type, {base, Def}, TypeTable);
 				{Def, userdef} ->
-					io:format("~p -> ~p userdef~n", [Type, Def]),
+% 					io:format("~p -> ~p userdef~n", [Type, Def]),
 					dict:append(Type, {userdef, Def}, TypeTable);
 				_ ->
 					TypeTable
@@ -148,9 +148,6 @@ build_type_entry(TypeTable, Dicts, Type) ->
 	%    typeref  -> full typename of reftype, typedef can be empty
 
 
-build_symbol_entry(SymbolTable, Name, Type) ->
-	dict:append(Name, Type, SymbolTable).
-	% is a dict
-	%    symbolname -> e.a. [functionname, return] [functionname, return] [struct1name, struct2name, membername]
-	%    type       -> full type name
+build_symbol_entry(SymbolTable, Name, Data) ->
+	dict:append(Name, Data, SymbolTable).
 

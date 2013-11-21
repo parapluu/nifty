@@ -1,1 +1,2 @@
-	{% if "*" in type %}enif_free((void*){{cname}});{% endif %}
+	{% if "*" in type %}enif_free((void*){{cname}});
+{% endif %}
