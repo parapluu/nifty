@@ -11,7 +11,7 @@ test_header(Header, Module, CompileOptions) ->
 	{Types, Symbols} = type_table:build({Functions, Typedefs, Structs}),
 	% template stuff
 	CTemplate = erlang:list_to_atom("C"++Header),
-	%ETemplate = erlang:list_to_atom("E"++Header),
+	ETemplate = erlang:list_to_atom("E"++Header),
 	ok = erlydtl:compile(
 		"templates_new/cmodule.tpl",
 		CTemplate,

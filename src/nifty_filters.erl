@@ -45,8 +45,13 @@ loopcounter(Type, Name) ->
 	"index_"++Name++"_"++string:substr(Enclosed, 2, length(Enclosed)-2).
 
 % general
-getNth(Tuple, N) ->
-	lists:nth(N,tuple_to_list(Tuple)).
+getNth(I, N) ->
+	case is_list(I) of
+		true ->  lists:nth(N, I);
+		false -> lists:nth(N,tuple_to_list(I))
+	end.
+
+
 
 % ETS lookup Element
 lookup(Tab, Key) ->

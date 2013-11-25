@@ -91,7 +91,7 @@ parse_type(Token, Dicts) ->
 	parse_type(Token, Dicts, [], none).
 
 parse_type([], Dicts, TypeDef, none) -> parse_type(["int"], Dicts, TypeDef, none);
-parse_type([], _, TypeDef, Kind) -> {lists:reverse(TypeDef), Kind};
+parse_type([], _, TypeDef, Kind) -> {TypeDef, Kind};
 parse_type([E|T], Dicts, TypeDef, Kind) ->
 	case E of
 		% special cases
@@ -102,7 +102,7 @@ parse_type([E|T], Dicts, TypeDef, Kind) ->
 		_ ->
 			% simple type
 			case lists:member(E, ?BASE_TYPES) of
-				 true -> parse_type(T, Dicts, simplify_specifiers(TypeDef) ++ [E], base);
+				 true -> parse_type(T, Dicts, [E|simplify_specifiers(TypeDef)], base);
 				 false -> 
 			case lists:member(E, ?SPECIFIER) of
 					true -> parse_type(T, Dicts, [E|TypeDef], none);
