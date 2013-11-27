@@ -5,7 +5,7 @@
 	{% if argument|is_argument %}
 	uint64_t {{carg}};
 	{% else %}
-	uint64_t retval;
+	uint64_t c_retval;
 	ERL_NIF_TERM retval;
 	{% endif %}
 {% endif %}
