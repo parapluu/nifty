@@ -1,1 +1,0 @@
-	{{cname}} = {% struct_reference name=type %}(nifty_tuple2struct_{% struct_name name=type %}(env, {{erlname}}));

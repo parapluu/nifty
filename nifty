@@ -8,7 +8,7 @@ test_header(Header, Module, CompileOptions) ->
 	PathToH = Header,
 	{Token, _} = clang_parse:parse([PathToH|CompileOptions]),
 	{Functions, Typedefs, Structs} = clang_parse:build_vars(Token),
-	type_table:build({Functions, Typedefs, Structs}),
+	{Types, Symbols} = type_table:build({Functions, Typedefs, Structs}),
 	% template stuff
 	CTemplate = erlang:list_to_atom("C"++Header),
 	ETemplate = erlang:list_to_atom("E"++Header),
@@ -18,19 +18,27 @@ test_header(Header, Module, CompileOptions) ->
 		[{force_recompile, true},
 	   {custom_tags_modules, [nifty_tags]},
 	   {custom_filters_modules, [nifty_filters]}]),
-	ok = erlydtl:compile("templates/emodule.tpl", ETemplate),
+	ok = erlydtl:compile(
+		"templates/emodule.tpl",
+		ETemplate,
+		[{force_recompile, true},
+		{custom_tags_modules, [nifty_tags]},
+		{custom_filters_modules, [nifty_filters]}]),
 	RenderVars = [
-		{"functions", dict:to_list(Functions)},
-		{"structs", dict:to_list(Structs)},
-		{"typedefs", dict:to_list(Typedefs)},
+		{"functions", Functions},  % ?
+		{"structs", Structs},      % ?
+		{"typedefs", Typedefs},    % ? 
 		{"module", Module},
 		{"header", Header},
-		{"root", filename:dirname(escript:script_name())++"/"}
+		{"types", Types},
+		{"symbols", Symbols},
+		{"root", filename:dirname(escript:script_name())++"/"},
+		{"ets", ets:new(nifty_template_ets, [])},
+		{"none", none}
 		],
 	{ok, COutput} = CTemplate:render(RenderVars),
  	{ok, EOutput} = ETemplate:render(RenderVars),
- 	BetterC = lists:filter(fun(E) -> case E of <<"\n">> -> false; _-> true end end, lists:flatten(COutput)),
-	ok = file:write_file(Module++"_nif.c", io_lib:fwrite("~s", [BetterC])),
+	ok = file:write_file(Module++"_nif.c", io_lib:fwrite("~s", [COutput])),
 	ok = file:write_file(Module++".erl", io_lib:fwrite("~s", [EOutput])),
 	ok.
 
@@ -38,4 +46,4 @@ main([Header, Module| Options]) ->
 	true = code:add_pathz(filename:dirname(escript:script_name())++ "/src"),
 	test_header(Header, Module, Options);
 main(_) ->
-	io:format("Error~n").
+	io:format("ussage <nifty> <header> <module name> [<compiler options>").

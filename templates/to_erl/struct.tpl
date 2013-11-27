@@ -1,1 +1,0 @@
-	{{erlname}} = nifty_struct2tuple_{% struct_name name=type %}(env, {% struct_dereference name=type %}{{cname}});
