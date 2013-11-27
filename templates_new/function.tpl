@@ -37,6 +37,7 @@ erl2c_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 				{% with type=argument|getNth:3 phase="to_c" %}
 					{% include "lib/builtin_type.tpl" %}
 	if (!err) {
+		printf("{{name}} {{argument|getNth:2}} %d\n\n", err);
 		goto error;
 	}
 				{% endwith %}
@@ -86,8 +87,12 @@ erl2c_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 			{% endif %}
 		{% endfor %}
 	{% endwith %}
+	
+	return retval;
 error:
-	return enif_make_badarg(env);
+	printf("{{name}} %d\n\n", err);
+	return enif_make_atom(env, "ok");
+	//return enif_make_badarg(env);
 }
 
 {% endfor %}{% endwith %}

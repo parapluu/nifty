@@ -18,7 +18,12 @@ test_header(Header, Module, CompileOptions) ->
 		[{force_recompile, true},
 	   {custom_tags_modules, [nifty_tags]},
 	   {custom_filters_modules, [nifty_filters]}]),
-	%ok = erlydtl:compile("templates_new/emodule.tpl", ETemplate),
+	ok = erlydtl:compile(
+		"templates_new/emodule.tpl",
+		ETemplate,
+		[{force_recompile, true},
+		{custom_tags_modules, [nifty_tags]},
+		{custom_filters_modules, [nifty_filters]}]),
 	RenderVars = [
 		{"functions", Functions},  % ?
 		{"structs", Structs},      % ?
@@ -32,9 +37,9 @@ test_header(Header, Module, CompileOptions) ->
 		{"none", none}
 		],
 	{ok, COutput} = CTemplate:render(RenderVars),
- 	%{ok, EOutput} = ETemplate:render(RenderVars),
+ 	{ok, EOutput} = ETemplate:render(RenderVars),
 	ok = file:write_file(Module++"_nif.c", io_lib:fwrite("~s", [COutput])),
-	%ok = file:write_file(Module++".erl", io_lib:fwrite("~s", [EOutput])),
+	ok = file:write_file(Module++".erl", io_lib:fwrite("~s", [EOutput])),
 	ok.
 
 main([Header, Module| Options]) ->
