@@ -11,8 +11,8 @@ generator_function() ->
 
 prop_com_ref() ->
 	?FORALL({S, Start, Stop}, generator_function(),
-				 substr:cstr_to_list(
-					 substr:mysubstr(
+				 strstr:cstr_to_list(
+					 strstr:strstr(
 						 42,
-						 substr:list_to_cstr(string:sub_string(S, Start, Stop)))) =:= string:sub_string(S, Start)
+						 strstr:list_to_cstr(string:sub_string(S, Start, Stop)))) =:= string:sub_string(S, Start)
 				 ).

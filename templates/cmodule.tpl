@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 
-#include <{{header}}>
+#include "{{header|raw_include}}"
 
 #if _WIN32 || _WIN64
 	#if _WIN64
@@ -28,7 +28,6 @@ typedef unsigned __int32 uint32_t;
  * Build Function Definitions
  */
 {% include "function.tpl" %}
-
 
 /*
  * conversion functions
