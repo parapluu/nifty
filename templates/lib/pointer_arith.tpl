@@ -1,5 +1,5 @@
 static ERL_NIF_TERM
-free_pointer(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+raw_free(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
 	int err;
 	uint64_t ptr;
@@ -14,3 +14,11 @@ error:
 }
 
 
+static ERL_NIF_TERM
+raw_deref(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+{
+	int err;
+	uint64_t ptr;
+	
+	
+}

@@ -7,7 +7,7 @@
 
 
 build(Dicts) ->
-    {Functions, Typedefs, _} = Dicts,
+    {Functions, Typedefs, Structs} = Dicts,
     Empty_Tables = {dict:new(), dict:new()}, % { Types, Symbols }
     Tables_With_Functions = build_entries(
 			      Empty_Tables,
@@ -15,11 +15,17 @@ build(Dicts) ->
 			      Functions,
 			      dict:fetch_keys(Functions),
 			      Dicts),
-    build_entries(
+    Tables_With_TypeDefs = build_entries(
       Tables_With_Functions,
       fun build_typedef_entries/4,
       Typedefs,
       dict:fetch_keys(Typedefs),
+      Dicts),
+		build_entries(
+      Tables_With_TypeDefs,
+      fun build_struct_entries/4,
+      Structs,
+      dict:fetch_keys(Structs),
       Dicts).
 
 check_types(_) -> 
@@ -59,6 +65,9 @@ build_typedef_entries({Types, Symbols}, Alias, Type, _) ->
 	    {dict:append(Alias, {typedef, Type}, Types), Symbols}
     end.
 
+build_struct_entries({Types, Symbols}, Alias, Type, Dict) ->
+	io:format("~p~p~n", [Alias, dict:fetch(Alias, Dict)]),
+	{Types, Symbols}.
 
 count_in_list(L, E) ->
     count_in_list(L,E,0).
@@ -95,8 +104,9 @@ parse_type([], _, TypeDef, Kind) -> {TypeDef, Kind};
 parse_type([E|T], Dicts, TypeDef, Kind) ->
     case E of
 	%% special cases
-	%% 		"struct" ->
-	%% 			io:format("TODO Parse Struct ~n");
+		"struct" ->
+			[StructName|TT] = T,
+			parse_type(TT, Dicts, [StructName|TypeDef], struct);
 	%% 		"union" ->
 	%% 			io:format("TODO Parse Union ~n");
 	_ ->
@@ -123,6 +133,7 @@ parse_type([E|T], Dicts, TypeDef, Kind) ->
 
 
 build_type_entry(TypeTable, Dicts, Type) ->
+%%    {_,_, Structs} = Dicts,
     case dict:is_key(Type, TypeTable) of
 	true -> TypeTable;
 	false->
@@ -133,6 +144,9 @@ build_type_entry(TypeTable, Dicts, Type) ->
 		{Def, userdef} ->
 		    %% io:format("~p -> ~p userdef~n", [Type, Def]),
 		    dict:append(Type, {userdef, Def}, TypeTable);
+		{Def, struct} ->
+		    %% io:format("~p -> ~p struct~n", [Type, Def]),
+		    dict:append(Type, {struct, Def}, TypeTable);
 		_ ->
 		    TypeTable
 	    end
