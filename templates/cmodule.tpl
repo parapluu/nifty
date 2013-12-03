@@ -24,6 +24,10 @@ typedef unsigned __int32 uint32_t;
 #endif 
 
 /*
+ * Stucts
+ */
+{% include "structures.tpl" %}
+/*
  * Build Function Definitions
  */
 {% include "function.tpl" %}
@@ -33,8 +37,10 @@ typedef unsigned __int32 uint32_t;
  */
 static ErlNifFunc nif_funcs[] = {
 	{% with fn=functions|fetch_keys %}{% for name in fn %}
-	{"{{name}}", {{ functions|fetch:name|getNth:2|length }}, erl2c_{{name}}}{% if not forloop.last %},{% endif %}
+	{"{{name}}", {{ functions|fetch:name|getNth:2|length }}, erl2c_{{name}}},
 	{% endfor %}{% endwith %}
+	{"erlptr_to_record", 2, erlptr_to_record},
+	{"record_to_erlptr", 1, record_to_erlptr}
 	};
 
 int upgrade(ErlNifEnv* env, void** priv_data, void** old_priv_data, ERL_NIF_TERM load_info)

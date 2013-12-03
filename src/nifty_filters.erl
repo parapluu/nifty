@@ -2,6 +2,8 @@
 -export([
 	 raw_include/1,
 	 getNth/2,
+	 resolved/2,
+	 reversed/1,
 	 lookup/2,
 	 fetch/2,
 	 fetch_keys/1,
@@ -55,6 +57,15 @@ getNth(I, N) ->
 	true ->  lists:nth(N, I);
 	false -> lists:nth(N,tuple_to_list(I))
     end.
+
+reversed(L) ->
+	lists:reverse(L).
+
+resolved(Type, Types) ->
+	case dict:fetch(Type, Types) of
+		[{typedef, RefType}] -> resolved(RefType, Types);
+		_ -> Type
+	end.
 
 %%% ETS lookup Element
 lookup(Tab, Key) ->

@@ -23,7 +23,7 @@
 
 {% if phase=="argument" %}
 {% if argument|is_argument %}
-({{type}}){{carg}}
+({{raw_type}}){{carg}}
 {% else %}
 ({{type}})
 {% endif %}
