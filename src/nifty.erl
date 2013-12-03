@@ -52,14 +52,34 @@ generate(Header, Module, CompileOptions, TemplatePath) ->
     {ok, EOutput} = ETemplate:render(RenderVars),
     {EOutput, COutput}.
 
+
+get_derefed_type(Type, Module) ->
+	Types = Module:get_types(),
+	[{_, [H|_]}] = dict:fetch(Type, Types),
+	 case (H=:="*") orelse string:str(H, "[") of
+		 true -> 
+			[_|Token] = lists:reverse(string:tokens(Type, " ")),
+			NType = string:join(lists:reverse(Token), " "),
+			case get_derefed_type(NType, Module) of
+				fail -> {final, NType};
+				_    -> {pointer, NType}
+			end;
+		_ -> 
+			fail
+	end.
+
+%% pointer arithmetic
 dereference(Pointer) ->
 	{Address, Module, Type} = Pointer,
-	NType = Module:get_derefed_type(Type),
+	NType = get_derefed_type(Type, Module),
 	case NType of
 		fail ->
 			erlang:error(badpointer);
 		{pointer, NType} ->
 			{raw_deref(Address), Module, NType};
+		{final, NType} ->
+			%% do something smart
+			ok;
 		_ -> 
 			Module:build_type(Address, Type)
 	end.

@@ -111,24 +111,18 @@ build_fields(T, Definitions, Name, Fields) ->
 
 build_named_struct(T, Definitions, Name) ->
     {NT, {Functions, TypeDefs, Structs}, Fields} = build_fields(T, Definitions, Name),
-    NewStructs = dict:append(Name, Fields, Structs),
+    NewStructs =  case dict:is_key(Name, Structs) of
+			true -> Structs;
+			false -> dict:append(Name, Fields, Structs)
+		end,
     {NT, {Functions, TypeDefs, NewStructs}}.
 
 build_struct([Name|T], Definitions) ->
     build_named_struct(T, Definitions, Name).
 
 build_typedef([Name| T], Definitions) ->
-						% special case with anonymous structs
     {NT, {Functions, TypeDefs, Structs}, Type} = build_type(T, Definitions),
-    Expr = ((string:str(Type, "struct")>0) andalso (not (dict:is_key(Type, Structs)))),
-    case Expr of
-	true ->
-	    TypeName = string:substr(Type, 8),
-	    [_|[_|RestToken]] = NT,
-	    build_named_struct(RestToken, {Functions, dict:append(Name, Type, TypeDefs), Structs}, TypeName);
-	false ->
-	    {NT, {Functions, dict:append(Name, Type, TypeDefs), Structs}}
-    end.
+    {NT, {Functions, dict:append(Name, Type, TypeDefs), Structs}}.
 
 strip_type_name(Name) ->
     Index = string:str(Name, "::"),

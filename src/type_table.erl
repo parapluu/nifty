@@ -21,16 +21,42 @@ build(Dicts) ->
       Typedefs,
       dict:fetch_keys(Typedefs),
       Dicts),
-		build_entries(
+		{Types, Symbols} = build_entries(
       Tables_With_TypeDefs,
       fun build_struct_entries/4,
       Structs,
       dict:fetch_keys(Structs),
-      Dicts).
+      Dicts),
+		{fill_type_table(Types), Symbols}.
 
 check_types(_) -> 
     %% check if every type is resolvable to a base type
     ok.
+
+fill_type_table(Types) ->
+	fill_type_table(Types, dict:fetch_keys(Types)).
+
+fill_type_table(Types, []) -> Types;
+fill_type_table(Types, [Type|TypeNames]) ->
+	[{Kind, [H|T]}] = dict:fetch(Type, Types),
+	case Kind of
+		base -> fill_type_table(Types, TypeNames);
+		struct -> fill_type_table(Types, TypeNames);
+		typedef -> fill_type_table(Types, TypeNames);
+		_ ->
+			case (H=:="*") orelse string:str(H, "[")>0 of
+				true ->
+					[P|Token] = lists:reverse(string:tokens(Type, " ")),
+					NewP = string:sub_string(P, length(H)+1),
+					NType = string:strip(string:join(lists:reverse(Token)++[NewP], " ")),
+					case dict:is_key(NType, Types) of 
+						true -> fill_type_table(Types, TypeNames);
+						false -> fill_type_table(dict:append(NType, {Kind, T}, Types), [NType|TypeNames])
+					end;
+				false -> fill_type_table(Types, TypeNames)
+			end
+	end.
+
 
 build_entries(Tables, _, _, [], _) -> Tables;
 build_entries(Tables, Builder, Dict, [H|T], Dicts) ->
@@ -57,17 +83,17 @@ build_arguments({Types, Symbols}, Dicts, FunctionName, Pos, [Arg|T]) ->
     Symbol_With_Arg = build_symbol_entry(Symbols, FunctionName, {argument, integer_to_list(Pos), ArgType, input}),
     build_arguments({Types_With_Arg, Symbol_With_Arg}, Dicts, FunctionName, Pos+1, T).
 
-build_typedef_entries({Types, Symbols}, Alias, Type, _) ->
+build_typedef_entries({Types, Symbols}, Alias, Type, Dicts) ->
     case lists:member(Alias, ?CLANG_BUILTINS) of
 	true -> {Types, Symbols};
 	false ->
-	    %% io:format("~p -> ~p ~n", [Alias, Type]),
-	    {dict:append(Alias, {typedef, Type}, Types), Symbols}
+	    NTypes = build_type_entry(Types, Dicts, Type),
+	    {dict:append(Alias, {typedef, Type}, dict:erase(Alias, NTypes)), Symbols}
     end.
 
-build_struct_entries({Types, Symbols}, Alias, Type, Dict) ->
-	io:format("~p~p~n", [Alias, dict:fetch(Alias, Dict)]),
-	{Types, Symbols}.
+build_struct_entries({Types, Symbols}, Alias, _, Dict) ->
+	[Members] =  dict:fetch(Alias, Dict),
+	{dict:append(Alias, {struct, Members}, Types), Symbols}.
 
 count_in_list(L, E) ->
     count_in_list(L,E,0).
@@ -106,7 +132,7 @@ parse_type([E|T], Dicts, TypeDef, Kind) ->
 	%% special cases
 		"struct" ->
 			[StructName|TT] = T,
-			parse_type(TT, Dicts, [StructName|TypeDef], struct);
+			parse_type(TT, Dicts, [StructName|TypeDef], userdef);
 	%% 		"union" ->
 	%% 			io:format("TODO Parse Union ~n");
 	_ ->
@@ -131,35 +157,35 @@ parse_type([E|T], Dicts, TypeDef, Kind) ->
 	    end
     end.
 
+type_extend(Type) ->
+	R = type_extend(Type, []),
+	R.
+
+type_extend([], Acc) -> Acc;
+type_extend([H|T], Acc) ->
+	case [H] of
+		"*" -> type_extend(T, Acc++" * ");
+		"[" -> type_extend(T, Acc++" [");
+		C -> type_extend(T, Acc++C)
+	end.
+
 
 build_type_entry(TypeTable, Dicts, Type) ->
-%%    {_,_, Structs} = Dicts,
     case dict:is_key(Type, TypeTable) of
 	true -> TypeTable;
 	false->
-	    case parse_type(string:tokens(Type, " "), Dicts) of
+	    case parse_type(string:tokens(type_extend(Type), " "), Dicts) of
+	    %%case parse_type(string:tokens(Type, " "), Dicts) of
 		{Def, base} ->
 		    %% io:format("~p -> ~p base~n", [Type, Def]),
 		    dict:append(Type, {base, Def}, TypeTable);
 		{Def, userdef} ->
 		    %% io:format("~p -> ~p userdef~n", [Type, Def]),
 		    dict:append(Type, {userdef, Def}, TypeTable);
-		{Def, struct} ->
-		    %% io:format("~p -> ~p struct~n", [Type, Def]),
-		    dict:append(Type, {struct, Def}, TypeTable);
 		_ ->
 		    TypeTable
 	    end
     end.
-%% is a dict
-%%    typename -> full typename "int **"
-%%    typedef  -> ["*","*","int"] or ["*", "struct point"] with basetype at the end (or reversed
-%%    kind     -> [simple, struct, typedef, ... evtl. union, enum]
-%%    if struct 
-%%    members  -> dict with name -> full typename
-%%    if typedef
-%%    typeref  -> full typename of reftype, typedef can be empty
-
 
 build_symbol_entry(SymbolTable, Name, Data) ->
     dict:append(Name, Data, SymbolTable).

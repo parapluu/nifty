@@ -3,8 +3,9 @@ struct S {
 	int b;
 };
 
-struct Buu {
+typedef struct boo {
 	int har;
-};
+} **XXX;
 
-extern struct S * getS(struct S * aaa, struct Buu uub, int x, int* y);
+
+extern struct S * getS(struct S * aaa, XXX uub, int x, int*** y[100]);
