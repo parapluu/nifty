@@ -13,6 +13,7 @@
 	 with_key/2,
 	 is_argument/1,
 	 is_return/1,
+	 is_field/1,
 	 is_input/1,
 	 is_output/1,
 
@@ -101,6 +102,9 @@ is_argument(Arg) ->
 
 is_return(Arg) ->
     getNth(Arg, 1)=:=return.
+
+is_field(Arg) ->
+	getNth(Arg, 1)=:=field.
 
 is_input(Arg) ->
     (getNth(Arg, 4)=:=input) orelse (getNth(Arg, 4)=:=inoutput).

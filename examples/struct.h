@@ -1,11 +1,7 @@
-struct S {
-	int a;
-	int b;
-};
-
 typedef struct boo {
 	int har;
-} **XXX;
+} XXX;
 
 
-extern struct S * getS(struct S * aaa, XXX uub, int x, int*** y[100]);
+extern XXX getS(XXX uub);
+extern int plus1(int a);

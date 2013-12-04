@@ -93,7 +93,11 @@ build_typedef_entries({Types, Symbols}, Alias, Type, Dicts) ->
 
 build_struct_entries({Types, Symbols}, Alias, _, Dict) ->
 	[Members] =  dict:fetch(Alias, Dict),
-	{dict:append(Alias, {struct, Members}, Types), Symbols}.
+	{dict:append(Alias, {struct, build_fields(Members,[])}, Types), Symbols}.
+
+build_fields([], Fields) -> Fields;
+build_fields([{Name, Type}|T], Fields) ->
+	build_fields(T, [{field,Name, Type}|Fields]).
 
 count_in_list(L, E) ->
     count_in_list(L,E,0).

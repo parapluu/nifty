@@ -4,7 +4,7 @@
 			{% include "lib/int_type.tpl" %}
 		{% else %}{% if "float" == typedef|getNth:1 or "double" == typedef|getNth:1 %}
 			{% include "lib/float_type.tpl" %}
-		{% else %}{% if "struct" == kind and not ("*" in typedef|getNth:1) %}
+		{% else %}{% if "userdef" == kind and not ("*" in typedef|getNth:1) and ("struct" in type) %}
 			{% include "lib/struct_type.tpl" %}
 		{% else %}{% if "union" == kind and not ("*" in typedef|getNth:1) %}
 			// TODO Union

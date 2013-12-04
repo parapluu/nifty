@@ -1,17 +1,19 @@
-{% with N=argument|getNth:2 %}
-	{% with carg="carg_"|add:N erlarg="erlarg_"|add:N %}
-
-
 {% if phase=="prepare" %}
-	{% if argument|is_argument %}
+	{% if argument|is_argument or argument|is_field %}
 	{{type}} {{carg}};
 		{% if typedef|getNth:1=="float" %}
 	double {{carg}}_helper;
 		{% endif %}
 	{% endif %}
-{% else %}
+
+	{% if argument|is_return %}
 	{{type}} c_retval;
 	ERL_NIF_TERM retval;
+	{% endif %}
+
+	{% if argument|is_field %}
+	ERL_NIF_TERM {{erlarg}};
+	{% endif %}
 {% endif %}
 
 {% if phase=="to_c" %}
@@ -30,10 +32,7 @@
 {% endif %}
 
 {% if phase=="to_erl"%}
-	retval = {{type}}enif_make_double(env, c_retval);
+	{{erlarg}} = {{type}}enif_make_double(env, {{carg}});
 {% endif %}
 
 {# no cleanup phase #}
-
-	{% endwith %}
-{% endwith %}

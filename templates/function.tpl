@@ -21,14 +21,22 @@ erl2c_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 			{% if argument|is_argument %}
 				{% with raw_type=argument|getNth:3 phase="prepare" %}
 					{% with type=raw_type|resolved:types %}
-						{% include "lib/builtin_type.tpl" with %}
+						{% with N=argument|getNth:2 %}
+							{% with carg="carg_"|add:N erlarg="argv["|add:N|add:"]" %}
+								{% include "lib/builtin_type.tpl" %}
+							{% endwith %}
+						{% endwith %}
 					{% endwith %}
 				{% endwith %}
 			{% endif %}
 			{% if argument|is_return %}
 				{% with raw_type=argument|getNth:2 phase="prepare" %}
 					{% with type=raw_type|resolved:types %}
-						{% include "lib/builtin_type.tpl" with %}
+						{% with N=argument|getNth:2 %}
+							{% with carg="carg_"|add:N erlarg="argv["|add:N|add:"]" %}
+								{% include "lib/builtin_type.tpl" %}
+							{% endwith %}
+						{% endwith %}
 					{% endwith %}
 				{% endwith %}
 			{% endif %}
@@ -40,7 +48,11 @@ erl2c_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 			{% if argument|is_argument %}
 				{% with raw_type=argument|getNth:3 phase="to_c" %}
 					{% with type=raw_type|resolved:types %}
-						{% include "lib/builtin_type.tpl" with %}
+						{% with N=argument|getNth:2 %}
+							{% with carg="carg_"|add:N erlarg="argv["|add:N|add:"]" %}
+								{% include "lib/builtin_type.tpl" %}
+							{% endwith %}
+						{% endwith %}
 					{% endwith %}
 	if (!err) {
 		goto error;
@@ -56,7 +68,11 @@ erl2c_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 			{% if argument|is_return %}
 				{% with raw_type=argument|getNth:2 phase="argument" %}
 					{% with type=raw_type|resolved:types %}
-						{% include "lib/builtin_type.tpl" with %}
+						{% with N=argument|getNth:2 %}
+							{% with carg="carg_"|add:N erlarg="argv["|add:N|add:"]" %}
+								{% include "lib/builtin_type.tpl" %}
+							{% endwith %}
+						{% endwith %}
 					{% endwith %}
 				{% endwith %}
 			{% endif %}
@@ -67,9 +83,13 @@ erl2c_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 			{% for argument in arguments %}
 				{% if argument|is_argument %}
 					{% with raw_type=argument|getNth:3 phase="argument" %}
-					{% with type=raw_type|resolved:types %}
-						{% include "lib/builtin_type.tpl" with %}
-					{% endwith %}
+						{% with type=raw_type|resolved:types %}
+							{% with N=argument|getNth:2 %}
+								{% with carg="carg_"|add:N erlarg="argv["|add:N|add:"]" %}
+									{% include "lib/builtin_type.tpl" %}
+								{% endwith %}
+							{% endwith %}
+						{% endwith %}
 					{% endwith %}
 				{% endif %}
 				{% if not forloop.last and argument|is_argument %},{%endif%}
@@ -82,7 +102,11 @@ erl2c_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 			{% if argument|is_return %}
 				{% with raw_type=argument|getNth:2 phase="to_erl" %}
 					{% with type=raw_type|resolved:types %}
-						{% include "lib/builtin_type.tpl" with %}
+						{% with N=argument|getNth:2 %}
+							{% with carg="c_retval" erlarg="retval" %}
+								{% include "lib/builtin_type.tpl" %}
+							{% endwith %}
+						{% endwith %}
 					{% endwith %}
 				{% endwith %}
 			{% endif %}
@@ -94,7 +118,11 @@ erl2c_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 			{% if argument|is_argument %}
 				{% with raw_type=argument|getNth:3 phase="cleanup" %}
 					{% with type=raw_type|resolved:types %}
-						{% include "lib/builtin_type.tpl" with %}
+						{% with N=argument|getNth:2 %}
+							{% with carg="carg_"|add:N erlarg="argv["|add:N|add:"]" %}
+								{% include "lib/builtin_type.tpl" %}
+							{% endwith %}
+						{% endwith %}
 					{% endwith %}
 				{% endwith %}
 			{% endif %}
