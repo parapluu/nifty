@@ -66,7 +66,7 @@ build_entries(Tables, Builder, Dict, [H|T], Dicts) ->
 
 build_function_entries({Types, Symbols}, Name, Data, Dicts) ->
     {ReturnType, ArgumentList} = Data,
-    Types_With_Return = build_type_entry(Types, Dicts, ReturnType),
+    Types_With_Return = build_type_entry(Types, ReturnType),
     Symbol_With_Return = build_symbol_entry(Symbols, Name, {return, ReturnType}), 
     build_arguments(
       {Types_With_Return, Symbol_With_Return},
@@ -79,25 +79,27 @@ build_arguments(Tables, Dicts, FName, Args) -> build_arguments(Tables, Dicts, FN
 build_arguments(Tables, _, _, _, []) -> Tables;
 build_arguments({Types, Symbols}, Dicts, FunctionName, Pos, [Arg|T]) ->
     {_, ArgType} = Arg,
-    Types_With_Arg = build_type_entry(Types, Dicts, ArgType),
+    Types_With_Arg = build_type_entry(Types, ArgType),
     Symbol_With_Arg = build_symbol_entry(Symbols, FunctionName, {argument, integer_to_list(Pos), ArgType, input}),
     build_arguments({Types_With_Arg, Symbol_With_Arg}, Dicts, FunctionName, Pos+1, T).
 
-build_typedef_entries({Types, Symbols}, Alias, Type, Dicts) ->
+build_typedef_entries({Types, Symbols}, Alias, Type, _) ->
     case lists:member(Alias, ?CLANG_BUILTINS) of
 	true -> {Types, Symbols};
 	false ->
-	    NTypes = build_type_entry(Types, Dicts, Type),
+	    NTypes = build_type_entry(Types, Type),
 	    {dict:append(Alias, {typedef, Type}, dict:erase(Alias, NTypes)), Symbols}
     end.
 
 build_struct_entries({Types, Symbols}, Alias, _, Dict) ->
 	[Members] =  dict:fetch(Alias, Dict),
-	{dict:append(Alias, {struct, build_fields(Members,[])}, Types), Symbols}.
+	{NTypes, Fields} = build_fields(lists:reverse(Members),[],0, Types),
+	{dict:append(Alias, {struct, Fields}, NTypes), Symbols}.
 
-build_fields([], Fields) -> Fields;
-build_fields([{Name, Type}|T], Fields) ->
-	build_fields(T, [{field,Name, Type}|Fields]).
+build_fields([], Fields, _, Types) -> {Types, lists:reverse(Fields)};
+build_fields([{Name, Type}|T], Fields, I, Types) ->
+	NTypes = build_type_entry(Types, Type),
+	build_fields(T, [{field,Name, Type, I}|Fields], I+1, NTypes).
 
 count_in_list(L, E) ->
     count_in_list(L,E,0).
@@ -126,36 +128,36 @@ simplify_specifiers(Specifiers) ->
     end.
 
 
-parse_type(Token, Dicts) ->
-    parse_type(Token, Dicts, [], none).
+parse_type(Token) ->
+    parse_type(Token, [], none).
 
-parse_type([], Dicts, TypeDef, none) -> parse_type(["int"], Dicts, TypeDef, none);
-parse_type([], _, TypeDef, Kind) -> {TypeDef, Kind};
-parse_type([E|T], Dicts, TypeDef, Kind) ->
+parse_type([], TypeDef, none) -> parse_type(["int"], TypeDef, none);
+parse_type([], TypeDef, Kind) -> {TypeDef, Kind};
+parse_type([E|T], TypeDef, Kind) ->
     case E of
 	%% special cases
 		"struct" ->
 			[StructName|TT] = T,
-			parse_type(TT, Dicts, [StructName|TypeDef], userdef);
+			parse_type(TT, [StructName|TypeDef], userdef);
 	%% 		"union" ->
 	%% 			io:format("TODO Parse Union ~n");
 	_ ->
 	    %% simple type
 	    case lists:member(E, ?BASE_TYPES) of
-		true -> parse_type(T, Dicts, [E|simplify_specifiers(TypeDef)], base);
+		true -> parse_type(T, [E|simplify_specifiers(TypeDef)], base);
 		false -> 
 		    case lists:member(E, ?SPECIFIER) of
-			true -> parse_type(T, Dicts, [E|TypeDef], none);
+			true -> parse_type(T, [E|TypeDef], none);
 			false -> 
 			    case ((E=:="*") or lists:member($[, E)) of
 				true ->
 				    case Kind of
-					none -> parse_type(["int"|[E|T]], Dicts, TypeDef, base);
-					_ -> parse_type(T, Dicts, [E|TypeDef], Kind)
+					none -> parse_type(["int"|[E|T]], TypeDef, base);
+					_ -> parse_type(T, [E|TypeDef], Kind)
 				    end;
 				false ->
 				    %% user defined type
-				    parse_type(T, Dicts, [E|TypeDef], userdef)
+				    parse_type(T, [E|TypeDef], userdef)
 			    end
 		    end
 	    end
@@ -174,11 +176,11 @@ type_extend([H|T], Acc) ->
 	end.
 
 
-build_type_entry(TypeTable, Dicts, Type) ->
+build_type_entry(TypeTable, Type) ->
     case dict:is_key(Type, TypeTable) of
 	true -> TypeTable;
 	false->
-	    case parse_type(string:tokens(type_extend(Type), " "), Dicts) of
+	    case parse_type(string:tokens(type_extend(Type), " ")) of
 	    %%case parse_type(string:tokens(Type, " "), Dicts) of
 		{Def, base} ->
 		    %% io:format("~p -> ~p base~n", [Type, Def]),

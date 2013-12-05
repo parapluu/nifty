@@ -16,7 +16,7 @@ erl2c_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 #}
 
 
-	{% with arguments=symbols|fetch:name %}
+	{% with arguments=symbols|fetchl:name %}
 		{% for argument in arguments %}
 			{% if argument|is_argument %}
 				{% with raw_type=argument|getNth:3 phase="prepare" %}
@@ -43,7 +43,7 @@ erl2c_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 		{% endfor %}
 	{% endwith %}
 
-	{% with arguments=symbols|fetch:name %}
+	{% with arguments=symbols|fetchl:name %}
 		{% for argument in arguments %}
 			{% if argument|is_argument %}
 				{% with raw_type=argument|getNth:3 phase="to_c" %}
@@ -63,7 +63,7 @@ erl2c_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 	{% endwith %}
 
 	c_retval =
-	{% with arguments=symbols|fetch:name %}
+	{% with arguments=symbols|fetchl:name %}
 		{% for argument in arguments %}
 			{% if argument|is_return %}
 				{% with raw_type=argument|getNth:2 phase="argument" %}
@@ -79,7 +79,7 @@ erl2c_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 		{% endfor %}
 	{% endwith %}
 	{{name}}(
-		{% with arguments=symbols|fetch:name %}
+		{% with arguments=symbols|fetchl:name %}
 			{% for argument in arguments %}
 				{% if argument|is_argument %}
 					{% with raw_type=argument|getNth:3 phase="argument" %}
@@ -97,7 +97,7 @@ erl2c_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 		{% endwith %}
 		);
 
-	{% with arguments=symbols|fetch:name %}
+	{% with arguments=symbols|fetchl:name %}
 		{% for argument in arguments %}
 			{% if argument|is_return %}
 				{% with raw_type=argument|getNth:2 phase="to_erl" %}
@@ -113,7 +113,7 @@ erl2c_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 		{% endfor %}
 	{% endwith %}
 
-	{% with arguments=symbols|fetch:name %}
+	{% with arguments=symbols|fetchl:name %}
 		{% for argument in arguments %}
 			{% if argument|is_argument %}
 				{% with raw_type=argument|getNth:3 phase="cleanup" %}

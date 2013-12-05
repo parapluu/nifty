@@ -9,7 +9,7 @@ ptr_to_record_{{type}}(ErlNifEnv* env, uint64_t ptr)
 				{% with raw_type=argument|getNth:3 phase="prepare" %}
 					{% with type=raw_type|resolved:types %}
 						{% with N=argument|getNth:2 %}
-							{% with carg="carg_"|add:N erlarg="erlarg_"|add:N %}
+							{% with erlarg="erlarg_"|add:N %}
 								{% include "lib/builtin_type.tpl" %}
 							{% endwith %}
 						{% endwith %}
@@ -25,7 +25,7 @@ ptr_to_record_{{type}}(ErlNifEnv* env, uint64_t ptr)
 				{% with raw_type=argument|getNth:3 phase="to_erl" %}
 					{% with type=raw_type|resolved:types %}
 						{% with N=argument|getNth:2 %}
-							{% with carg="carg_"|add:N erlarg="erlarg_"|add:N %}
+							{% with carg="(cstruct->"|add:N|add:")" erlarg="erlarg_"|add:N %}
 								{% include "lib/builtin_type.tpl" %}
 							{% endwith %}
 						{% endwith %}
@@ -34,7 +34,12 @@ ptr_to_record_{{type}}(ErlNifEnv* env, uint64_t ptr)
 		{% endfor %}
 	{% endwith %}
 
-	retval = enif_make_tuple(env, enif_make_string(env, "{{type}}", ERL_NIF_LATIN1),
+{% with fields=types|fetch:type|getNth:2 %}{% with tpl_length=fields|length|add:1 %}{% if tpl_length>9 %}
+	retval = enif_make_tuple(env, enif_make_atom(
+{% else %}
+	retval = enif_make_tuple{{tpl_length}}(env, enif_make_atom(
+{% endif %}{% endwith %}{% endwith %}
+		env, "{{type|resolved:types}}"),
 	{% with fields=types|fetch:type|getNth:2 %}
 		{% for argument in fields %}
 						{% with N=argument|getNth:2 %}
@@ -49,7 +54,42 @@ ptr_to_record_{{type}}(ErlNifEnv* env, uint64_t ptr)
 static ERL_NIF_TERM
 record_to_erlptr_{{type}}(ErlNifEnv* env, ERL_NIF_TERM record)
 {
-	return enif_make_atom(env, "ok");
+	struct {{type}}* cstruct;
+	int ar, err;
+	ERL_NIF_TERM *tpl;
+
+	cstruct = (struct {{type}}*)enif_alloc(sizeof(struct {{type}}*));
+
+	err = enif_get_tuple(env, record, &ar, (const ERL_NIF_TERM**)(&tpl));
+	if (!err) {
+		goto error;
+	}
+
+	{% with fields=types|fetch:type|getNth:2 %}
+		{% for argument in fields %}
+				{% with raw_type=argument|getNth:3 phase="to_c" %}
+					{% with type=raw_type|resolved:types %}
+						{% with N=argument|getNth:2 I=argument|getNth:4|add:1 %}
+							{% with carg="(cstruct->"|add:N|add:")" erlarg="tpl["|add:I|add:"]" %}
+								{% include "lib/builtin_type.tpl" %}
+							{% endwith %}
+						{% endwith %}
+					{% endwith %}
+	if (!err) {
+		goto error;
+	}
+				{% endwith %}
+		{% endfor %}
+	{% endwith %}
+
+	return enif_make_tuple3(
+		env,
+		enif_make_uint64(env, (uint64_t)cstruct),
+		enif_make_atom(env, "{{module}}"),
+		enif_make_string(env, "{{type}}", ERL_NIF_LATIN1));
+
+error:
+	return enif_make_badarg(env);
 }
 {% endif %}{% endwith%}{% endfor %}{% endwith %}
 
@@ -65,7 +105,7 @@ record_to_erlptr(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 	if (!err) {
 		goto error;
 	}
-	cstr = enif_alloc(sizeof(char)*1);
+	cstr = enif_alloc(sizeof(char)*l);
 	written = 0;
 	while (written<(l)) {
 		tmp = enif_get_string(env, argv[0], cstr+written, l-written, ERL_NIF_LATIN1);
@@ -91,14 +131,26 @@ erlptr_to_record(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 	uint64_t ptr;
 	char* cstr;
 
-	err = enif_get_list_length(env, argv[0], &l);
+	ERL_NIF_TERM *tpl;
+
+	err = enif_get_tuple(env, argv[0], &tmp, (const ERL_NIF_TERM**)(&tpl));
 	if (!err) {
 		goto error;
 	}
-	cstr = enif_alloc(sizeof(char)*1);
+
+	err = enif_get_list_length(env, tpl[2], &l);
+	if (!err) {
+		goto error;
+	}
+
+	l+=1;
+	cstr = enif_alloc(sizeof(char)*l);
 	written = 0;
 	while (written<(l)) {
-		tmp = enif_get_string(env, argv[0], cstr+written, l-written, ERL_NIF_LATIN1);
+		tmp = enif_get_string(env, tpl[2], cstr+written, l-written, ERL_NIF_LATIN1);
+		if (tmp==-(l-written)) {
+			tmp=-tmp;
+		}
 		if (tmp<=0) {
 			enif_free(cstr);
 			goto error;
@@ -106,10 +158,12 @@ erlptr_to_record(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 		written += tmp;
 	}
 
-	err = enif_get_uint64(env, argv[1], &ptr);
+	err = enif_get_uint64(env, tpl[0], &ptr);
 	if (!err) {
 		goto error;
 	}
+
+
 
 {% with type_keys=types|fetch_keys %}{% for type in type_keys %}{% with kind=types|fetch:type|getNth:1 %}{% if kind=="struct" %}
 	if (!(strcmp((const char*)cstr, "{{type}}"))) { return  ptr_to_record_{{type}}(env, ptr); }

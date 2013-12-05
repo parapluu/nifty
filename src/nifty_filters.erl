@@ -6,6 +6,7 @@
 	 reversed/1,
 	 lookup/2,
 	 fetch/2,
+	 fetchl/2,
 	 fetch_keys/1,
 	 has_key/2,
 	 new_dict/1,
@@ -80,6 +81,9 @@ fetch(Dict, Key) ->
 	1 -> [R] = V,R;
 	_ -> V
     end.
+
+fetchl(Dict, Key) ->
+    dict:fetch(Key, Dict).
 
 fetch_keys(Dict) ->
     dict:fetch_keys(Dict).

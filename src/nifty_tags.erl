@@ -3,6 +3,7 @@
 	 insert/1,
 	 append_dict/1,
 	 struct_name/1,
+	 debug/1,
 	 struct_dereference/1,
 	 struct_reference/1]).
 
@@ -32,6 +33,15 @@ struct_reference([{name, Type}]) ->
 	["struct", _] ->
 	    "*"
     end.
+
+debug(DBM) ->
+	io:format("DEBUG: ~n"),
+	print_dbg(DBM),
+	"".
+print_dbg([]) -> ok;
+print_dbg([{Key, Value}|T]) ->
+	io:format("~p -> ~p~n", [Key, Value]),
+	print_dbg([T]).
 
 %%% ETS insert tag
 insert([{table, ETSString}|T]) ->

@@ -45,13 +45,11 @@ generate(Header, Module, CompileOptions, TemplatePath) ->
 		  {"header", Header},
 		  {"types", Types},
 		  {"symbols", Symbols},
-		  %{"ets", ets:new(nifty_template_ets, [])},
 		  {"none", none}
 		 ],
     {ok, COutput} = CTemplate:render(RenderVars),
     {ok, EOutput} = ETemplate:render(RenderVars),
     {EOutput, COutput}.
-
 
 get_derefed_type(Type, Module) ->
 	Types = Module:get_types(),

@@ -1,5 +1,5 @@
 {% if phase=="prepare" %}
-	{% if argument|is_argument or argument|is_field %}
+	{% if argument|is_argument %}
 	{{type}} {{carg}};
 		{% if typedef|getNth:3=="short" %}
 			{% if typedef|getNth:2=="unsigned" %}

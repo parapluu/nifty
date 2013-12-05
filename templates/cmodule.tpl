@@ -39,7 +39,7 @@ static ErlNifFunc nif_funcs[] = {
 	{% with fn=functions|fetch_keys %}{% for name in fn %}
 	{"{{name}}", {{ functions|fetch:name|getNth:2|length }}, erl2c_{{name}}},
 	{% endfor %}{% endwith %}
-	{"erlptr_to_record", 2, erlptr_to_record},
+	{"erlptr_to_record", 1, erlptr_to_record},
 	{"record_to_erlptr", 1, record_to_erlptr}
 	};
 
