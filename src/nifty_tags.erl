@@ -41,7 +41,7 @@ debug(DBM) ->
 print_dbg([]) -> ok;
 print_dbg([{Key, Value}|T]) ->
 	io:format("~p -> ~p~n", [Key, Value]),
-	print_dbg([T]).
+	print_dbg(T).
 
 %%% ETS insert tag
 insert([{table, ETSString}|T]) ->
