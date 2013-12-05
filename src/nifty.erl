@@ -53,18 +53,31 @@ generate(Header, Module, CompileOptions, TemplatePath) ->
 
 get_derefed_type(Type, Module) ->
 	Types = Module:get_types(),
-	[{_, [H|_]}] = dict:fetch(Type, Types),
-	 case (H=:="*") orelse string:str(H, "[") of
-		 true -> 
-			[_|Token] = lists:reverse(string:tokens(Type, " ")),
+	ResType = resolve_type(Type, Types),
+	[{_, TypeDef}] = dict:fetch(ResType, Types),
+	[H|_] = TypeDef,
+	case (H=:="*") orelse (string:str(H, "[")>0) of
+		true -> 
+			[_|Token] = lists:reverse(string:tokens(ResType, " ")),
 			NType = string:join(lists:reverse(Token), " "),
-			case get_derefed_type(NType, Module) of
-				fail -> {final, NType};
-				_    -> {pointer, NType}
+			ResNType = resolve_type(NType, Types),
+			[{_, DTypeDef}] = dict:fetch(ResNType, Types),
+			[DH|_] = DTypeDef,
+			case (DH=:="*") orelse (string:str(DH, "[")>0) of
+				true -> {pointer, ResNType};
+				false -> {final, ResNType}
 			end;
-		_ -> 
-			fail
+		false ->
+			{final, ResType}
 	end.
+
+resolve_type(Type, Types) ->
+	[{Kind, TypeDef}] = dict:fetch(Type, Types),
+	case Kind of
+		typedef -> resolve_type(TypeDef, Types);
+		_ -> Type
+	end.
+
 
 %% pointer arithmetic
 dereference(Pointer) ->
@@ -75,11 +88,30 @@ dereference(Pointer) ->
 			erlang:error(badpointer);
 		{pointer, NType} ->
 			{raw_deref(Address), Module, NType};
-		{final, NType} ->
-			%% do something smart
-			ok;
+		{final, DType} ->
+			build_type(Module, DType, Address);
 		_ -> 
-			Module:build_type(Address, Type)
+			undef
+	end.
+
+build_type(Module, Type, Address) ->
+	Types = Module:get_types(),
+	[{Kind, Def}] = dict:fetch(Type, Types),
+	case Kind of
+		userdef ->
+			[Name] = Def,
+			[RR] = dict:fetch(Name, Types),
+			case  RR of
+				{struct, _} -> 
+					Module:erlptr_to_record({Address, Module, Name});
+				_ -> 
+					undef
+			end;
+		base ->
+			io:format("Base Type conversion~n"),
+			ok;
+		_ ->
+			undef
 	end.
 
 free({Addr, _, _}) ->

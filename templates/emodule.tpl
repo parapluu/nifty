@@ -6,6 +6,8 @@
 	record_to_erlptr/1
 	]).
 
+-compile(nowarn_unused_record).
+
 -define(TYPES, {{types}}).
 
 -on_load(init/0).
@@ -31,11 +33,3 @@ record_to_erlptr(_) ->
 	exit(nif_library_not_loaded).
 
 get_types() -> ?TYPES.
-
-{% comment %}
-c(structs).
-MyS = structs:getS().
-{Ptr, Md, _} = MyS.
-MySD = {Ptr, Md, "s_t"}.
-structs:erlptr_to_record(MySD).
-{% endcomment %}
