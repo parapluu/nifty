@@ -76,17 +76,17 @@ record_to_erlptr_{{type}}(ErlNifEnv* env, ERL_NIF_TERM record)
 						{% endwith %}
 					{% endwith %}
 	if (!err) {
+		printf("ERR: {{argument|getNth:2}}\n");
 		goto error;
 	}
 				{% endwith %}
 		{% endfor %}
 	{% endwith %}
 
-	return enif_make_tuple3(
+	return enif_make_tuple2(
 		env,
 		enif_make_uint64(env, (uint64_t)cstruct),
-		enif_make_atom(env, "{{module}}"),
-		enif_make_string(env, "{{type}}", ERL_NIF_LATIN1));
+		enif_make_string(env, "{{module}}.{{type}}", ERL_NIF_LATIN1));
 
 error:
 	return enif_make_badarg(env);
@@ -97,18 +97,29 @@ error:
 static ERL_NIF_TERM
 record_to_erlptr(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-	int err, written, tmp;
+	int err, written, tmp, ar;
 	unsigned int l;
 	char* cstr;
+	ERL_NIF_TERM *tpl;
 	
-	err = enif_get_list_length(env, argv[0], &l);
+	err = enif_get_tuple(env, argv[0], &ar, (const ERL_NIF_TERM**)(&tpl));
 	if (!err) {
 		goto error;
 	}
+
+	err = enif_get_atom_length(env, tpl[0], &l, ERL_NIF_LATIN1);
+	if (!err) {
+		goto error;
+	}
+
+	l+=1;
 	cstr = enif_alloc(sizeof(char)*l);
 	written = 0;
 	while (written<(l)) {
-		tmp = enif_get_string(env, argv[0], cstr+written, l-written, ERL_NIF_LATIN1);
+		tmp = enif_get_atom(env, tpl[0], cstr+written, l-written, ERL_NIF_LATIN1);
+		if (tmp==-(l-written)) {
+				tmp=-tmp;
+		}
 		if (tmp<=0) {
 			enif_free(cstr);
 			goto error;
@@ -138,7 +149,7 @@ erlptr_to_record(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 		goto error;
 	}
 
-	err = enif_get_list_length(env, tpl[2], &l);
+	err = enif_get_list_length(env, tpl[1], &l);
 	if (!err) {
 		goto error;
 	}
@@ -147,7 +158,7 @@ erlptr_to_record(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 	cstr = enif_alloc(sizeof(char)*l);
 	written = 0;
 	while (written<(l)) {
-		tmp = enif_get_string(env, tpl[2], cstr+written, l-written, ERL_NIF_LATIN1);
+		tmp = enif_get_string(env, tpl[1], cstr+written, l-written, ERL_NIF_LATIN1);
 		if (tmp==-(l-written)) {
 			tmp=-tmp;
 		}

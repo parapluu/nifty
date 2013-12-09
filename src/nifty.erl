@@ -1,6 +1,6 @@
 -module(nifty).
 -export([
-	generate/4,
+	generate/5,
 	dereference/1,
 	free/1,
 	%% nif functions
@@ -15,7 +15,7 @@
 init() ->
     ok = erlang:load_nif("nifty", 0).
 
-generate(Header, Module, CompileOptions, TemplatePath) ->
+generate(Header, Module, CompileOptions, Path, Rebuild) ->
     io:format("processing ~s -> ~s ~s ~n", [Header, Module++"_nif.c", Module++".erl"]),
     %% c parse stuff
     PathToH = Header,
@@ -23,20 +23,30 @@ generate(Header, Module, CompileOptions, TemplatePath) ->
     {Functions, Typedefs, Structs} = clang_parse:build_vars(Token),
     {Types, Symbols} = type_table:build({Functions, Typedefs, Structs}),
     %% template stuff
-    CTemplate = erlang:list_to_atom("C"++Header),
-    ETemplate = erlang:list_to_atom("E"++Header),
-    ok = erlydtl:compile(
-	   filename:join([TemplatePath,"templates/cmodule.tpl"]),
-	   CTemplate,
-	   [{force_recompile, true},
-	    {custom_tags_modules, [nifty_tags]},
-	    {custom_filters_modules, [nifty_filters]}]),
-    ok = erlydtl:compile(
-	   filename:join([TemplatePath,"templates/emodule.tpl"]),
-	   ETemplate,
-	   [{force_recompile, true},
-	    {custom_tags_modules, [nifty_tags]},
-	    {custom_filters_modules, [nifty_filters]}]),
+    CTemplate = erlang:list_to_atom("NiftyCTemplate"),
+    ETemplate = erlang:list_to_atom("NiftyETemplate"),
+    case Rebuild of
+			true ->
+				io:format("Compiling Templates..."),
+				ok = erlydtl:compile(
+				filename:join([Path,"templates/cmodule.tpl"]),
+				CTemplate,
+				[{out_dir, filename:join([Path,"src"])},
+					{force_recompile, true},
+					{custom_tags_modules, [nifty_tags]},
+					{custom_filters_modules, [nifty_filters]}]),
+				ok = erlydtl:compile(
+				filename:join([Path,"templates/emodule.tpl"]),
+				ETemplate,
+				[{out_dir, filename:join([Path,"src"])},
+					{force_recompile, true},
+					{custom_tags_modules, [nifty_tags]},
+				{	custom_filters_modules, [nifty_filters]}]),
+				io:format("done~n"),
+				io:format("Rendering templates...");
+			false ->
+				ok
+		end,
     RenderVars = [
 		  {"functions", Functions},  % ?
 		  {"structs", Structs},      % ?
@@ -49,6 +59,7 @@ generate(Header, Module, CompileOptions, TemplatePath) ->
 		 ],
     {ok, COutput} = CTemplate:render(RenderVars),
     {ok, EOutput} = ETemplate:render(RenderVars),
+    io:format("done~n"),
     {EOutput, COutput}.
 
 get_derefed_type(Type, Module) ->
@@ -81,13 +92,15 @@ resolve_type(Type, Types) ->
 
 %% pointer arithmetic
 dereference(Pointer) ->
-	{Address, Module, Type} = Pointer,
+	{Address, ModuleType} = Pointer,
+	[ModuleName, Type] = string:tokens(ModuleType, "."),
+	Module = list_to_atom(ModuleName),
 	NType = get_derefed_type(Type, Module),
 	case NType of
 		fail ->
 			erlang:error(badpointer);
 		{pointer, NType} ->
-			{raw_deref(Address), Module, NType};
+			{raw_deref(Address), Module++"."++NType};
 		{final, DType} ->
 			build_type(Module, DType, Address);
 		_ -> 
@@ -103,7 +116,7 @@ build_type(Module, Type, Address) ->
 			[RR] = dict:fetch(Name, Types),
 			case  RR of
 				{struct, _} -> 
-					Module:erlptr_to_record({Address, Module, Name});
+					Module:erlptr_to_record({Address, Name});
 				_ -> 
 					undef
 			end;

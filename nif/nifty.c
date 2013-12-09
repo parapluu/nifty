@@ -91,7 +91,7 @@ static ErlNifFunc nif_funcs[] = {
   {"raw_deref", 1, raw_deref},
   {"raw_free", 1, raw_free},
   {"list_to_cstr", 1, list_to_cstr},
-  {"cstr_to_list", 1, cstr_to_list}
+  {"cstr_to_list", 1, cstr_to_list},
 };
 
 int upgrade(ErlNifEnv* env, void** priv_data, void** old_priv_data, ERL_NIF_TERM load_info)

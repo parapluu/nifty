@@ -29,9 +29,8 @@
 {% endif %}
 
 {% if phase=="to_erl" %}
-	{{erlarg}} = enif_make_tuple3(
+	{{erlarg}} = enif_make_tuple2(
 		env,
 		enif_make_uint64(env, {{carg}}),
-		enif_make_atom(env, "{{module}}"),
-		enif_make_string(env, "{{type}}", ERL_NIF_LATIN1));
+		enif_make_string(env, "{{module}}.{{type}}", ERL_NIF_LATIN1));
 {% endif %}
