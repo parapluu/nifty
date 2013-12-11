@@ -16,46 +16,46 @@ build(Dicts) ->
 			      dict:fetch_keys(Functions),
 			      Dicts),
     Tables_With_TypeDefs = build_entries(
-      Tables_With_Functions,
-      fun build_typedef_entries/4,
-      Typedefs,
-      dict:fetch_keys(Typedefs),
-      Dicts),
-		{Types, Symbols} = build_entries(
-      Tables_With_TypeDefs,
-      fun build_struct_entries/4,
-      Structs,
-      dict:fetch_keys(Structs),
-      Dicts),
-		{fill_type_table(Types), Symbols}.
+			     Tables_With_Functions,
+			     fun build_typedef_entries/4,
+			     Typedefs,
+			     dict:fetch_keys(Typedefs),
+			     Dicts),
+    {Types, Symbols} = build_entries(
+			 Tables_With_TypeDefs,
+			 fun build_struct_entries/4,
+			 Structs,
+			 dict:fetch_keys(Structs),
+			 Dicts),
+    {fill_type_table(Types), Symbols}.
 
 check_types(_) -> 
     %% check if every type is resolvable to a base type
     ok.
 
 fill_type_table(Types) ->
-	fill_type_table(Types, dict:fetch_keys(Types)).
+    fill_type_table(Types, dict:fetch_keys(Types)).
 
 fill_type_table(Types, []) -> Types;
 fill_type_table(Types, [Type|TypeNames]) ->
-	[{Kind, [H|T]}] = dict:fetch(Type, Types),
-	case Kind of
-		base -> fill_type_table(Types, TypeNames);
-		struct -> fill_type_table(Types, TypeNames);
-		typedef -> fill_type_table(Types, TypeNames);
-		_ ->
-			case (H=:="*") orelse string:str(H, "[")>0 of
-				true ->
-					[P|Token] = lists:reverse(string:tokens(Type, " ")),
-					NewP = string:sub_string(P, length(H)+1),
-					NType = string:strip(string:join(lists:reverse(Token)++[NewP], " ")),
-					case dict:is_key(NType, Types) of 
-						true -> fill_type_table(Types, TypeNames);
-						false -> fill_type_table(dict:append(NType, {Kind, T}, Types), [NType|TypeNames])
-					end;
-				false -> fill_type_table(Types, TypeNames)
-			end
-	end.
+    [{Kind, [H|T]}] = dict:fetch(Type, Types),
+    case Kind of
+	base -> fill_type_table(Types, TypeNames);
+	struct -> fill_type_table(Types, TypeNames);
+	typedef -> fill_type_table(Types, TypeNames);
+	_ ->
+	    case (H=:="*") orelse string:str(H, "[")>0 of
+		true ->
+		    [P|Token] = lists:reverse(string:tokens(Type, " ")),
+		    NewP = string:sub_string(P, length(H)+1),
+		    NType = string:strip(string:join(lists:reverse(Token)++[NewP], " ")),
+		    case dict:is_key(NType, Types) of 
+			true -> fill_type_table(Types, TypeNames);
+			false -> fill_type_table(dict:append(NType, {Kind, T}, Types), [NType|TypeNames])
+		    end;
+		false -> fill_type_table(Types, TypeNames)
+	    end
+    end.
 
 
 build_entries(Tables, _, _, [], _) -> Tables;
@@ -92,14 +92,14 @@ build_typedef_entries({Types, Symbols}, Alias, Type, _) ->
     end.
 
 build_struct_entries({Types, Symbols}, Alias, _, Dict) ->
-	[Members] =  dict:fetch(Alias, Dict),
-	{NTypes, Fields} = build_fields(lists:reverse(Members),[],0, Types),
-	{dict:append(Alias, {struct, Fields}, NTypes), Symbols}.
+    [Members] =  dict:fetch(Alias, Dict),
+    {NTypes, Fields} = build_fields(lists:reverse(Members),[],0, Types),
+    {dict:append(Alias, {struct, Fields}, NTypes), Symbols}.
 
 build_fields([], Fields, _, Types) -> {Types, lists:reverse(Fields)};
 build_fields([{Name, Type}|T], Fields, I, Types) ->
-	NTypes = build_type_entry(Types, Type),
-	build_fields(T, [{field,Name, Type, I}|Fields], I+1, NTypes).
+    NTypes = build_type_entry(Types, Type),
+    build_fields(T, [{field,Name, Type, I}|Fields], I+1, NTypes).
 
 count_in_list(L, E) ->
     count_in_list(L,E,0).
@@ -136,9 +136,9 @@ parse_type([], TypeDef, Kind) -> {TypeDef, Kind};
 parse_type([E|T], TypeDef, Kind) ->
     case E of
 	%% special cases
-		"struct" ->
-			[StructName|TT] = T,
-			parse_type(TT, [StructName|TypeDef], userdef);
+	"struct" ->
+	    [StructName|TT] = T,
+	    parse_type(TT, [StructName|TypeDef], userdef);
 	%% 		"union" ->
 	%% 			io:format("TODO Parse Union ~n");
 	_ ->
@@ -164,16 +164,16 @@ parse_type([E|T], TypeDef, Kind) ->
     end.
 
 type_extend(Type) ->
-	R = type_extend(Type, []),
-	R.
+    R = type_extend(Type, []),
+    R.
 
 type_extend([], Acc) -> Acc;
 type_extend([H|T], Acc) ->
-	case [H] of
-		"*" -> type_extend(T, Acc++" * ");
-		"[" -> type_extend(T, Acc++" [");
-		C -> type_extend(T, Acc++C)
-	end.
+    case [H] of
+	"*" -> type_extend(T, Acc++" * ");
+	"[" -> type_extend(T, Acc++" [");
+	C -> type_extend(T, Acc++C)
+    end.
 
 
 build_type_entry(TypeTable, Type) ->
@@ -181,7 +181,7 @@ build_type_entry(TypeTable, Type) ->
 	true -> TypeTable;
 	false->
 	    case parse_type(string:tokens(type_extend(Type), " ")) of
-	    %%case parse_type(string:tokens(Type, " "), Dicts) of
+		%%case parse_type(string:tokens(Type, " "), Dicts) of
 		{Def, base} ->
 		    %% io:format("~p -> ~p base~n", [Type, Def]),
 		    dict:append(Type, {base, Def}, TypeTable);

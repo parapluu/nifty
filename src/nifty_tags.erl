@@ -35,13 +35,13 @@ struct_reference([{name, Type}]) ->
     end.
 
 debug(DBM) ->
-	io:format("DEBUG: ~n"),
-	print_dbg(DBM),
-	"".
+    io:format("DEBUG: ~n"),
+    print_dbg(DBM),
+    "".
 print_dbg([]) -> ok;
 print_dbg([{Key, Value}|T]) ->
-	io:format("~p -> ~p~n", [Key, Value]),
-	print_dbg(T).
+    io:format("~p -> ~p~n", [Key, Value]),
+    print_dbg(T).
 
 %%% ETS insert tag
 insert([{table, ETSString}|T]) ->

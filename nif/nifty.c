@@ -76,22 +76,52 @@ list_to_cstr(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 		written += tmp;
 	}
 
-	return enif_make_tuple3(
+	return enif_make_tuple2(
 		env,
 		enif_make_int64(env, (uint64_t)cstr),
-		enif_make_atom(env, "nifty"),
-		enif_make_string(env, "char *", ERL_NIF_LATIN1));
+		enif_make_string(env, "nifty.char *", ERL_NIF_LATIN1));
 
 error:
 	return enif_make_badarg(env);
 }
 
+static ERL_NIF_TERM
+pointer0(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+{
+	void *ptr;
+	ptr = malloc(sizeof(void*));
+	return enif_make_tuple2(
+		env,
+		enif_make_int64(env, (uint64_t)ptr),
+		enif_make_string(env, "nifty.void *", ERL_NIF_LATIN1));
+}
+
+static ERL_NIF_TERM
+pointer1(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+{
+	void *ret_ptr;
+	int err;
+	uint64_t ptr;
+	err = enif_get_uint64(env, argv[0], &ptr);
+	if (!err) {
+		goto error;
+	}
+
+	ret_ptr = malloc(sizeof(void*));
+	*((uint64_t *)ret_ptr) = ptr;
+
+	return enif_make_int64(env, (uint64_t)ret_ptr);
+error:
+	return enif_make_badarg(env);
+}
 
 static ErlNifFunc nif_funcs[] = {
   {"raw_deref", 1, raw_deref},
   {"raw_free", 1, raw_free},
   {"list_to_cstr", 1, list_to_cstr},
   {"cstr_to_list", 1, cstr_to_list},
+  {"pointer", 0, pointer0},
+  {"raw_pointer_of", 1, pointer1}
 };
 
 int upgrade(ErlNifEnv* env, void** priv_data, void** old_priv_data, ERL_NIF_TERM load_info)

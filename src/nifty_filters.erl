@@ -61,13 +61,13 @@ getNth(I, N) ->
     end.
 
 reversed(L) ->
-	lists:reverse(L).
+    lists:reverse(L).
 
 resolved(Type, Types) ->
-	case dict:fetch(Type, Types) of
-		[{typedef, RefType}] -> resolved(RefType, Types);
-		_ -> Type
-	end.
+    case dict:fetch(Type, Types) of
+	[{typedef, RefType}] -> resolved(RefType, Types);
+	_ -> Type
+    end.
 
 %%% ETS lookup Element
 lookup(Tab, Key) ->
@@ -108,7 +108,7 @@ is_return(Arg) ->
     getNth(Arg, 1)=:=return.
 
 is_field(Arg) ->
-	getNth(Arg, 1)=:=field.
+    getNth(Arg, 1)=:=field.
 
 is_input(Arg) ->
     (getNth(Arg, 4)=:=input) orelse (getNth(Arg, 4)=:=inoutput).
