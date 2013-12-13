@@ -9,7 +9,7 @@ ptr_to_record_{{type}}(ErlNifEnv* env, uint64_t ptr)
 				{% with raw_type=argument|getNth:3 phase="prepare" %}
 					{% with type=raw_type|resolved:types %}
 						{% with N=argument|getNth:2 %}
-							{% with erlarg="erlarg_"|add:N %}
+							{% with erlarg="erlarg_"|add:N carg="_"|add:N %}
 								{% include "lib/builtin_type.tpl" %}
 							{% endwith %}
 						{% endwith %}
@@ -58,6 +58,20 @@ record_to_erlptr_{{type}}(ErlNifEnv* env, ERL_NIF_TERM record)
 	int ar, err;
 	ERL_NIF_TERM *tpl;
 
+	{% with fields=types|fetch:type|getNth:2 %}
+		{% for argument in fields %}
+				{% with raw_type=argument|getNth:3 phase="prepare" %}
+					{% with type=raw_type|resolved:types %}
+						{% with N=argument|getNth:2 %}
+							{% with erlarg="erlarg_"|add:N carg="_"|add:N %}
+								{% include "lib/builtin_type.tpl" %}
+							{% endwith %}
+						{% endwith %}
+					{% endwith %}
+				{% endwith %}
+		{% endfor %}
+	{% endwith %}
+
 	cstruct = (struct {{type}}*)enif_alloc(sizeof(struct {{type}}*));
 
 	err = enif_get_tuple(env, record, &ar, (const ERL_NIF_TERM**)(&tpl));
@@ -86,7 +100,7 @@ record_to_erlptr_{{type}}(ErlNifEnv* env, ERL_NIF_TERM record)
 	return enif_make_tuple2(
 		env,
 		enif_make_uint64(env, (uint64_t)cstruct),
-		enif_make_string(env, "{{module}}.{{type}}", ERL_NIF_LATIN1));
+		enif_make_string(env, "{{module}}.{{type}} *", ERL_NIF_LATIN1));
 
 error:
 	return enif_make_badarg(env);
@@ -180,6 +194,57 @@ erlptr_to_record(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 	if (!(strcmp((const char*)cstr, "{{type}}"))) { return  ptr_to_record_{{type}}(env, ptr); }
 {% endif %}{% endwith%}{% endfor %}{% endwith %}
 
+error:
+	return enif_make_badarg(env);
+}
+
+static ERL_NIF_TERM
+new_type_object(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+{
+	int err, written, tmp;
+	unsigned int l;
+	char* cstr;
+	uint64_t type_holder;
+	ERL_NIF_TERM retval;
+
+	err = enif_get_list_length(env, argv[0], &l);
+	if (!err) {
+		goto error;
+	}
+
+	l+=1;
+	cstr = enif_alloc(sizeof(char)*l);
+	written = 0;
+	while (written<(l)) {
+		tmp = enif_get_string(env, argv[0], cstr+written, l-written, ERL_NIF_LATIN1);
+		if (tmp==-(l-written)) {
+			tmp=-tmp;
+		}
+		if (tmp<=0) {
+			enif_free(cstr);
+			goto error;
+		}
+		written += tmp;
+	}
+/* structs */
+{% with type_keys=types|fetch_keys %}
+	{% for type in type_keys %}
+		{% with kind=types|fetch:type|getNth:1 %}
+			{% if kind=="struct" %}
+	if ((!(strcmp((const char*)cstr, "{{type}}")))
+		|| (!(strcmp((const char*)cstr, "struct {{type}}"))))
+	{
+		type_holder = (uint64_t)enif_alloc(sizeof(struct {{type}}));
+		retval=ptr_to_record_{{type}}(env, type_holder);
+		enif_free((void*)type_holder);
+		return retval;
+	}
+			{% endif %}
+			{% if kind=="userdef" %}
+			{% endif %}
+		{% endwith%}
+	{% endfor %}
+{% endwith %}
 error:
 	return enif_make_badarg(env);
 }

@@ -14,9 +14,13 @@
 {% endif %}
 
 {% if phase=="to_c" %}
-	err = enif_get_tuple(env, {{erlarg}}, &arity{{N}}, (const ERL_NIF_TERM**)(&tpl{{N}}));
-	if (err) {
-		err = enif_get_uint64(env, tpl{{N}}[0], &{{carg}});
+	if (!enif_compare({{erlarg}}, enif_make_atom(env, "null"))) {
+		{{carg}} = 0;
+	} else {
+		err = enif_get_tuple(env, {{erlarg}}, &arity{{N}}, (const ERL_NIF_TERM**)(&tpl{{N}}));
+		if (err) {
+			err = enif_get_uint64(env, tpl{{N}}[0], (uint64_t*)&{{carg}});
+		}
 	}
 {% endif %}
 
@@ -31,6 +35,6 @@
 {% if phase=="to_erl" %}
 	{{erlarg}} = enif_make_tuple2(
 		env,
-		enif_make_uint64(env, {{carg}}),
+		enif_make_uint64(env, (uint64_t){{carg}}),
 		enif_make_string(env, "{{module}}.{{type}}", ERL_NIF_LATIN1));
 {% endif %}

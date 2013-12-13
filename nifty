@@ -3,9 +3,12 @@
 -export([main/1]).
 
 generate_files(HeaderName, ModuleName, Options) ->
-	{EOutput, COutput} = nifty:generate(HeaderName, ModuleName, Options, filename:dirname(escript:script_name()), true),
-	ok = file:write_file(ModuleName++"_nif.c", io_lib:fwrite("~s", [COutput])),
-	ok = file:write_file(ModuleName++".erl", io_lib:fwrite("~s", [EOutput])).
+	case nifty:generate(HeaderName, ModuleName, Options, filename:dirname(escript:script_name()), true) of
+		fail -> fail;
+		{EOutput, COutput} ->
+			ok = file:write_file(ModuleName++"_nif.c", io_lib:fwrite("~s", [COutput])),
+			ok = file:write_file(ModuleName++".erl", io_lib:fwrite("~s", [EOutput]))
+	end.
 
 main([Header, Module| Options]) ->
     true = code:add_pathz(filename:dirname(escript:script_name())++ "/src"),

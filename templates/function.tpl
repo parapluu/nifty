@@ -61,8 +61,20 @@ erl2c_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 			{% endif %}
 		{% endfor %}
 	{% endwith %}
-
+	
+	{% with arguments=symbols|fetchl:name %}
+		{% for argument in arguments %}
+			{% if argument|is_return %}
+				{% with raw_type=argument|getNth:2 phase="argument" %}
+					{% with type=raw_type|resolved:types %}
+						{% if not type=="void" %}
 	c_retval =
+						{% endif %}
+					{% endwith %}
+				{% endwith %}
+			{% endif %}
+		{% endfor %}
+	{% endwith %}
 	{% with arguments=symbols|fetchl:name %}
 		{% for argument in arguments %}
 			{% if argument|is_return %}

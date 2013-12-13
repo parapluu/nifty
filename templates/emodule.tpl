@@ -3,7 +3,8 @@
 	{{name}}/{{ functions|fetch:name|getNth:2|length }},{% endfor %}{% endwith %}
 	get_types/0,
 	erlptr_to_record/1,
-	record_to_erlptr/1
+	record_to_erlptr/1,
+	new/1
 	]).
 
 -compile(nowarn_unused_record).
@@ -33,3 +34,6 @@ record_to_erlptr(_) ->
 	exit(nif_library_not_loaded).
 
 get_types() -> ?TYPES.
+
+new(_) ->
+    exit(nif_library_not_loaded).

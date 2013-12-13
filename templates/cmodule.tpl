@@ -40,7 +40,8 @@ static ErlNifFunc nif_funcs[] = {
 	{"{{name}}", {{ functions|fetch:name|getNth:2|length }}, erl2c_{{name}}},
 	{% endfor %}{% endwith %}
 	{"erlptr_to_record", 1, erlptr_to_record},
-	{"record_to_erlptr", 1, record_to_erlptr}
+	{"record_to_erlptr", 1, record_to_erlptr},
+	{"new", 1, new_type_object}
 	};
 
 int upgrade(ErlNifEnv* env, void** priv_data, void** old_priv_data, ERL_NIF_TERM load_info)

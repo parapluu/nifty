@@ -29,48 +29,51 @@ generate(Header, Module, CompileOptions, Path, Rebuild) ->
     io:format("processing ~s -> ~s ~s ~n", [Header, Module++"_nif.c", Module++".erl"]),
     %% c parse stuff
     PathToH = Header,
-    {Token, _} = clang_parse:parse([PathToH|CompileOptions]),
-    {Functions, Typedefs, Structs} = clang_parse:build_vars(Token),
-    {Types, Symbols} = type_table:build({Functions, Typedefs, Structs}),
-    %% template stuff
-    CTemplate = erlang:list_to_atom("NiftyCTemplate"),
-    ETemplate = erlang:list_to_atom("NiftyETemplate"),
-    case Rebuild of
-	true ->
-	    io:format("Compiling Templates..."),
-	    ok = erlydtl:compile(
-		   filename:join([Path,"templates/cmodule.tpl"]),
-		   CTemplate,
-		   [{out_dir, filename:join([Path,"src"])},
-		    {force_recompile, true},
-		    {custom_tags_modules, [nifty_tags]},
-		    {custom_filters_modules, [nifty_filters]}]),
-	    ok = erlydtl:compile(
-		   filename:join([Path,"templates/emodule.tpl"]),
-		   ETemplate,
-		   [{out_dir, filename:join([Path,"src"])},
-		    {force_recompile, true},
-		    {custom_tags_modules, [nifty_tags]},
-		    {	custom_filters_modules, [nifty_filters]}]),
+    case clang_parse:parse([PathToH|CompileOptions]) of
+	{fail, _} -> fail;
+	{Token, _} -> 
+	    {Functions, Typedefs, Structs} = clang_parse:build_vars(Token),
+	    {Types, Symbols} = type_table:build({Functions, Typedefs, Structs}),
+	    %% template stuff
+	    CTemplate = erlang:list_to_atom("NiftyCTemplate"),
+	    ETemplate = erlang:list_to_atom("NiftyETemplate"),
+	    case Rebuild of
+		true ->
+		    io:format("Compiling Templates..."),
+		    ok = erlydtl:compile(
+			   filename:join([Path,"templates/cmodule.tpl"]),
+			   CTemplate,
+			   [{out_dir, filename:join([Path,"src"])},
+			    {force_recompile, true},
+			    {custom_tags_modules, [nifty_tags]},
+			    {custom_filters_modules, [nifty_filters]}]),
+		    ok = erlydtl:compile(
+			   filename:join([Path,"templates/emodule.tpl"]),
+			   ETemplate,
+			   [{out_dir, filename:join([Path,"src"])},
+			    {force_recompile, true},
+			    {custom_tags_modules, [nifty_tags]},
+			    {	custom_filters_modules, [nifty_filters]}]),
+		    io:format("done~n"),
+		    io:format("Rendering templates...");
+		false ->
+		    ok
+	    end,
+	    RenderVars = [
+			  {"functions", Functions},  % ?
+			  {"structs", Structs},      % ?
+			  {"typedefs", Typedefs},    % ? 
+			  {"module", Module},
+			  {"header", Header},
+			  {"types", Types},
+			  {"symbols", Symbols},
+			  {"none", none}
+			 ],
+	    {ok, COutput} = CTemplate:render(RenderVars),
+	    {ok, EOutput} = ETemplate:render(RenderVars),
 	    io:format("done~n"),
-	    io:format("Rendering templates...");
-	false ->
-	    ok
-    end,
-    RenderVars = [
-		  {"functions", Functions},  % ?
-		  {"structs", Structs},      % ?
-		  {"typedefs", Typedefs},    % ? 
-		  {"module", Module},
-		  {"header", Header},
-		  {"types", Types},
-		  {"symbols", Symbols},
-		  {"none", none}
-		 ],
-    {ok, COutput} = CTemplate:render(RenderVars),
-    {ok, EOutput} = ETemplate:render(RenderVars),
-    io:format("done~n"),
-    {EOutput, COutput}.
+	    {EOutput, COutput}
+    end.
 
 get_derefed_type(Type, Module) ->
     Types = Module:get_types(),
@@ -160,7 +163,7 @@ build_type(Module, Type, Address) ->
 	    undef
     end.
 
-free({Addr, _, _}) ->
+free({Addr, _}) ->
     raw_free(Addr).
 
 %%% NIF Functions
