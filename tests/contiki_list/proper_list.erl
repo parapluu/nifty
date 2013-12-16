@@ -13,7 +13,7 @@
 
 -include_lib("proper/include/proper.hrl").
 
--type llist() :: term().
+-type llist() :: {integer(), string()}.
 -record(state, {ls :: [llist()]}).
 
 % generator
@@ -26,9 +26,9 @@ create_list() ->
 	c_list:list_init(LIST),
 	LIST.
 
-
 llist(#state{ls = Lists}) ->
 	elements(Lists).
+
 
 initial_state() ->
 	#state{ls=[]}.
