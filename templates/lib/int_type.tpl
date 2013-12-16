@@ -44,8 +44,8 @@
 
 {% if phase=="to_erl"%}
 	{{erlarg}} = 
-	{% if typedef|getNth:2=="unsigned" and typedef|getNth:3=="short" %}({{type}})enif_make_uint{% endif %}
-	{% if typedef|getNth:2=="signed" and typedef|getNth:3=="short" %}({{type}})enif_make_int{% endif %}
+	{% if typedef|getNth:2=="unsigned" and typedef|getNth:3=="short" %}enif_make_uint{% endif %}
+	{% if typedef|getNth:2=="signed" and typedef|getNth:3=="short" %}enif_make_int{% endif %}
 	{% if typedef|getNth:2=="unsigned" and typedef|getNth:3=="none" %}enif_make_uint{% endif %}
 	{% if typedef|getNth:2=="signed" and typedef|getNth:3=="none" %}enif_make_int{% endif %}
 	{% if typedef|getNth:2=="unsigned" and typedef|getNth:3=="long" %}enif_make_ulong{% endif %}
