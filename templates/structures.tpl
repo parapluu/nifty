@@ -100,7 +100,7 @@ record_to_erlptr_{{type}}(ErlNifEnv* env, ERL_NIF_TERM record)
 	return enif_make_tuple2(
 		env,
 		enif_make_uint64(env, (uint64_t)cstruct),
-		enif_make_string(env, "{{module}}.{{type}} *", ERL_NIF_LATIN1));
+		enif_make_string(env, "{{module}}.struct {{type}} *", ERL_NIF_LATIN1));
 
 error:
 	return enif_make_badarg(env);

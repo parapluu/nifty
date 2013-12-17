@@ -26,3 +26,4 @@ extern void   list_copy(list_t dest, list_t src);
 extern void   list_insert(list_t list, void *previtem, void *newitem);
 
 extern void * list_item_next(void *item);
+

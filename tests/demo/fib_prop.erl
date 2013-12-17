@@ -2,7 +2,7 @@
 -include_lib("proper/include/proper.hrl").
 
 prop_fib() ->
-	?FORALL(N,
-		integer(), 
-		fibonacci:fib(N)=:=fibonacci:fast_fib(N)
-		).
+    ?FORALL(N,
+	    integer(0,35), 
+	    fibonacci:fib(N)=:=fibonacci:fast_fib(N)
+	   ).
