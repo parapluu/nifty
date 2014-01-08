@@ -115,13 +115,82 @@ error:
 	return enif_make_badarg(env);
 }
 
+static ERL_NIF_TERM
+mem_write(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+{
+	unsigned int i, l, data, err;
+	char* ptr;
+	ERL_NIF_TERM head, tail, list;
+
+	err = enif_get_list_length(env, argv[0], &l);
+	if (!err) {
+		goto error;
+	}
+
+	ptr = enif_alloc(l);
+	list = argv[0];
+	i = 0;
+
+	while (enif_is_empty_list(env, list)) {
+		err = enif_get_list_cell(env, list, &head, &tail);
+		if (!err) {
+			goto da_error;
+		}
+		err = enif_get_uint(env, head, &data);
+		if (!err) {
+			goto da_error;
+		}
+		*(ptr+i) = (char)data;
+		i++;
+	}
+
+	return enif_make_uint64(env, (uint64_t)ptr);
+
+da_error:
+	enif_free(ptr);
+error:
+	return enif_make_badarg(env);
+}
+
+static ERL_NIF_TERM
+mem_read(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+{
+	unsigned int err, l, i, tmp;
+	char* ptr;
+	ERL_NIF_TERM list, head;
+
+
+	err = enif_get_uint64(env, argv[0], (uint64_t*)&ptr);
+	if (!err) {
+		goto error;
+	}
+
+	err = enif_get_uint(env, argv[0], &l);
+	if (!err) {
+		goto error;
+	}
+
+	list = enif_make_list(env, 0);
+
+	for (i=0;i<l;i++) {
+		tmp = *(ptr+(l-1)-i);
+		head = enif_make_uint(env, tmp);
+		list = enif_make_list_cell(env, head, list);
+	}
+	return list;
+error:
+	return enif_make_badarg(env);
+}
+
 static ErlNifFunc nif_funcs[] = {
   {"raw_deref", 1, raw_deref},
   {"raw_free", 1, raw_free},
   {"list_to_cstr", 1, list_to_cstr},
   {"cstr_to_list", 1, cstr_to_list},
   {"pointer", 0, pointer0},
-  {"raw_pointer_of", 1, pointer1}
+  {"raw_pointer_of", 1, pointer1},
+  {"mem_write", 1, mem_write},
+  {"mem_read", 2, mem_read}
 };
 
 int upgrade(ErlNifEnv* env, void** priv_data, void** old_priv_data, ERL_NIF_TERM load_info)

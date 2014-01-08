@@ -4,12 +4,14 @@
 	 dereference/1,
 	 free/1,
 	 %% nif functions
+	 raw_deref/1,
 	 raw_free/1, 
 	 list_to_cstr/1,
 	 cstr_to_list/1,
 	 pointer/0,
 	 raw_pointer_of/1,
-	 raw_deref/1,
+	 mem_write/1,
+	 mem_read/2,
 	 as_type/3,
 	 get_types/0
 	]).
@@ -185,6 +187,13 @@ raw_pointer_of(_) ->
     exit(nif_library_not_loaded).
 
 raw_deref(_) ->
+    exit(nif_library_not_loaded).
+
+%% memory operation
+mem_write(_) ->
+    exit(nif_library_not_loaded).
+
+mem_read(_,_) ->
     exit(nif_library_not_loaded).
 
 as_type({Address, _}, Module, Type) ->
