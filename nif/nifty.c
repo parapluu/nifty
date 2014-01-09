@@ -1,5 +1,6 @@
 #include <erl_nif.h>
 #include <stdio.h>
+#include <string.h>
 
 #if _WIN32 || _WIN64
 	#if _WIN64
@@ -81,6 +82,9 @@ list_to_cstr(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 	}
 	l+=1; // Null Termination
 	cstr = enif_alloc(sizeof(char)*1);
+	if (!cstr) {
+		goto error;
+	}
 	written = 0;
 	while (written<(l)) {
 		tmp = enif_get_string(env, argv[0], cstr+written, l-written, ERL_NIF_LATIN1);
@@ -98,17 +102,6 @@ list_to_cstr(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
 error:
 	return enif_make_badarg(env);
-}
-
-static ERL_NIF_TERM
-pointer0(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
-{
-	void *ptr;
-	ptr = malloc(sizeof(void*));
-	return enif_make_tuple2(
-		env,
-		enif_make_int64(env, (uint64_t)ptr),
-		enif_make_string(env, "nifty.void *", ERL_NIF_LATIN1));
 }
 
 static ERL_NIF_TERM
@@ -134,15 +127,24 @@ static ERL_NIF_TERM
 mem_write(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
 	unsigned int i, l, data, err;
+	int ar;
 	char* ptr;
-	ERL_NIF_TERM head, tail, list;
+	ERL_NIF_TERM head, tail, list, *tpl;
 
 	err = enif_get_list_length(env, argv[0], &l);
 	if (!err) {
 		goto error;
 	}
 
-	ptr = enif_alloc(l);
+	
+	err = enif_get_tuple(env, argv[1], &ar, (const ERL_NIF_TERM**)(&tpl));
+	if (err) {
+		err = enif_get_uint64(env, tpl[0], (uint64_t*)&ptr);
+	}
+	if (!err) {
+		goto error;
+	}
+
 	list = argv[0];
 	i = 0;
 
@@ -150,32 +152,64 @@ mem_write(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 		err = enif_get_list_cell(env, list, &head, &tail);
 		list = tail;
 		if (!err) {
-			goto da_error;
+			goto error;
 		}
 		err = enif_get_uint(env, head, &data);
 		if (!err) {
-			goto da_error;
+			goto error;
 		}
 		*(ptr+i++) = (char)data;
 	}
 
-	return enif_make_uint64(env, (uint64_t)ptr);
+	return argv[1];
 
-da_error:
-	enif_free(ptr);
 error:
 	return enif_make_badarg(env);
 }
 
 static ERL_NIF_TERM
+mem_writer(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+{
+	unsigned int i, l, data, err;
+	int ar;
+	unsigned char* ptr;
+	ERL_NIF_TERM *tpl;
+	ErlNifBinary bin;
+
+	if (!enif_inspect_binary(env, argv[0], &bin)) {
+        goto error;
+    }
+
+    err = enif_get_tuple(env, argv[1], &ar, (const ERL_NIF_TERM**)(&tpl));
+	if (err) {
+		err = enif_get_uint64(env, tpl[0], (uint64_t*)&ptr);
+	}
+	if (!err) {
+		goto error;
+	}
+
+	memcpy(ptr, bin.data, bin.size);
+
+	return argv[1];
+
+error:
+	return enif_make_badarg(env);
+}
+
+
+static ERL_NIF_TERM
 mem_read(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
 	unsigned int err, l, i, tmp;
+	int ar;
 	char* ptr;
-	ERL_NIF_TERM list, head;
+	ERL_NIF_TERM list, head, *tpl;
 
 
-	err = enif_get_uint64(env, argv[0], (uint64_t*)&ptr);
+    err = enif_get_tuple(env, argv[0], &ar, (const ERL_NIF_TERM**)(&tpl));
+	if (err) {
+		err = enif_get_uint64(env, tpl[0], (uint64_t*)&ptr);
+	}
 	if (!err) {
 		goto error;
 	}
@@ -193,6 +227,31 @@ mem_read(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 		list = enif_make_list_cell(env, head, list);
 	}
 	return list;
+error:
+	return enif_make_badarg(env);
+}
+
+static ERL_NIF_TERM
+mem_alloc(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+{
+	uint64_t ptr, size, err;
+
+	err = enif_get_uint64(env, argv[0], &size);
+	if (!err) {
+		goto error;
+	}
+
+	ptr = (uint64_t)enif_alloc(size);
+	if (!ptr) {
+		goto error;
+	}
+
+	return enif_make_tuple2(
+		env,
+		enif_make_int64(env, (uint64_t)ptr),
+		enif_make_string(env, "nifty.void *", ERL_NIF_LATIN1));
+da_error:
+	enif_free((void*)ptr);
 error:
 	return enif_make_badarg(env);
 }
@@ -218,12 +277,16 @@ get_config(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 		enif_make_tuple2(
 			env,
 			enif_make_string(env, "arch", ERL_NIF_LATIN1),
+			enif_make_tuple2(
+				env,
 #ifdef ENV64BIT
-			enif_make_string(env, "64bit", ERL_NIF_LATIN1)
+				enif_make_string(env, "64bit", ERL_NIF_LATIN1),
 #endif
 #ifdef ENV32BIT
-			enif_make_string(env, "32bit", ERL_NIF_LATIN1)
+				enif_make_string(env, "32bit", ERL_NIF_LATIN1),
 #endif
+				enif_make_uint(env, sizeof(char*))
+			)
 		)
 	);
 }
@@ -233,10 +296,11 @@ static ErlNifFunc nif_funcs[] = {
   {"raw_free", 1, raw_free},
   {"list_to_cstr", 1, list_to_cstr},
   {"cstr_to_list", 1, cstr_to_list},
-  {"pointer", 0, pointer0},
   {"raw_pointer_of", 1, pointer1},
-  {"mem_write", 1, mem_write},
+  {"mem_write", 2, mem_write},
+  {"mem_writer", 2, mem_writer},
   {"mem_read", 2, mem_read},
+  {"mem_alloc", 1, mem_alloc},
   {"get_config", 0, get_config}
 };
 

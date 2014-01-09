@@ -9,6 +9,14 @@
 	{{raw_type}} c_retval;
 	ERL_NIF_TERM retval;
 	{% endif %}
+	{% if argument|is_field %}
+		{% if record=="to_record" %}
+	ERL_NIF_TERM {{carg}}_ptr;
+	ERL_NIF_TERM *{{carg}}_tpl;
+	int {{carg}}_ar;
+	ERL_NIF_TERM {{erlarg}};
+		{% endif %}
+	{% endif %}
 {% endif %}
 
 {% if phase=="to_c" %}

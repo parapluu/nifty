@@ -3,7 +3,7 @@
 -export([main/1]).
 
 generate_files(HeaderName, ModuleName, Options) ->
-	case nifty:generate(HeaderName, ModuleName, Options, filename:dirname(escript:script_name()), false) of
+	case nifty:generate(HeaderName, ModuleName, Options, filename:dirname(escript:script_name()), true) of
 		fail -> fail;
 		{EOutput, COutput} ->
 			ok = file:write_file(ModuleName++"_nif.c", io_lib:fwrite("~s", [COutput])),

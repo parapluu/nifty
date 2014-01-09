@@ -11,7 +11,10 @@
 	 pointer/0,
 	 raw_pointer_of/1,
 	 mem_write/1,
+	 mem_write/2,
+	 mem_writer/2,
 	 mem_read/2,
+	 mem_alloc/1,
 	 get_config/0,
 	 as_type/3,
 	 get_types/0
@@ -182,7 +185,8 @@ cstr_to_list(_) ->
 
 %% pointer arithmetic
 pointer() ->
-    exit(nif_library_not_loaded).
+    {_, Size} = proplists:get_value("arch", nifty:get_config()),
+    nifty:mem_alloc(Size).
 
 raw_pointer_of(_) ->
     exit(nif_library_not_loaded).
@@ -191,10 +195,24 @@ raw_deref(_) ->
     exit(nif_library_not_loaded).
 
 %% memory operation
-mem_write(_) ->
+mem_write(Data) ->
+    case erlang:is_binary(Data) of
+		true ->
+			mem_writer(Data, mem_alloc(size(Data)));
+		false ->
+			mem_write(Data, mem_alloc(length(Data)))
+	end.
+
+mem_write(_,_) ->
+    exit(nif_library_not_loaded).
+
+mem_writer(_,_) ->
     exit(nif_library_not_loaded).
 
 mem_read(_,_) ->
+    exit(nif_library_not_loaded).
+
+mem_alloc(_) ->
     exit(nif_library_not_loaded).
 
 %% config

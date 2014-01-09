@@ -1,15 +1,21 @@
 {% if phase=="prepare" %}
-	{% if argument|is_argument or argument|is_field %}
+	{% if argument|is_argument %}
 	ERL_NIF_TERM *tpl{{N}};
 	int arity{{N}};
 	uint64_t {{carg}};
 	{% endif %}
 	{% if argument|is_return %}
-	uint64_t c_retval;
+	uint64_t c_retval; 
 	ERL_NIF_TERM retval;
 	{% endif %}
 	{% if argument|is_field %}
+		{% if record=="to_record" %}
 	ERL_NIF_TERM {{erlarg}};
+		{% endif %}
+		{% if record=="to_ptr" %}
+	ERL_NIF_TERM *tpl{{N}};
+	int arity{{N}};
+		{% endif %}
 	{% endif %}
 {% endif %}
 

@@ -3,7 +3,7 @@
 static ERL_NIF_TERM
 erl2c_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-	int err;
+	int err=0;
 {#
 /*
  * Variable transition inside of a function:

@@ -14,7 +14,9 @@
 	ERL_NIF_TERM retval;
 	{% endif %}
 	{% if argument|is_field %}
+		{% if record=="to_record" %}
 	ERL_NIF_TERM {{erlarg}};
+		{% endif %}
 	{% endif %}
 {% endif %}
 

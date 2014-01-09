@@ -1,5 +1,5 @@
 {% if phase=="prepare" %}
-	{% if argument|is_argument or argument|is_field %}
+	{% if argument|is_argument%}
 	{{type}} {{carg}};
 		{% if typedef|getNth:1=="float" %}
 	double {{carg}}_helper;
@@ -12,7 +12,9 @@
 	{% endif %}
 
 	{% if argument|is_field %}
+		{% if record=="to_record" %}
 	ERL_NIF_TERM {{erlarg}};
+		{% endif %}
 	{% endif %}
 {% endif %}
 

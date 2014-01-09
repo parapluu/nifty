@@ -9,7 +9,7 @@ ptr_to_record_{{type}}(ErlNifEnv* env, uint64_t ptr)
 				{% with raw_type=argument|getNth:3 phase="prepare" %}
 					{% with type=raw_type|resolved:types %}
 						{% with N=argument|getNth:2 %}
-							{% with erlarg="erlarg_"|add:N carg="_"|add:N %}
+							{% with erlarg="erlarg_"|add:N carg=N record="to_record" %}
 								{% include "lib/builtin_type.tpl" %}
 							{% endwith %}
 						{% endwith %}
@@ -63,7 +63,7 @@ record_to_erlptr_{{type}}(ErlNifEnv* env, ERL_NIF_TERM record)
 				{% with raw_type=argument|getNth:3 phase="prepare" %}
 					{% with type=raw_type|resolved:types %}
 						{% with N=argument|getNth:2 %}
-							{% with erlarg="erlarg_"|add:N carg="_"|add:N %}
+							{% with record="to_ptr" %}
 								{% include "lib/builtin_type.tpl" %}
 							{% endwith %}
 						{% endwith %}
@@ -90,7 +90,6 @@ record_to_erlptr_{{type}}(ErlNifEnv* env, ERL_NIF_TERM record)
 						{% endwith %}
 					{% endwith %}
 	if (!err) {
-		printf("ERR: {{argument|getNth:2}}\n");
 		goto error;
 	}
 				{% endwith %}
