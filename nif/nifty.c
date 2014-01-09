@@ -1,7 +1,22 @@
 #include <erl_nif.h>
-#include <stdint.h>
-
 #include <stdio.h>
+
+#if _WIN32 || _WIN64
+	#if _WIN64
+typedef unsigned __int64 uint64_t;
+		#define ENV64BIT
+	#else
+typedef unsigned __int32 uint32_t;
+		#define ENV32BIT
+	#endif
+#else // clang gcc
+#include <stdint.h>
+	#if __x86_64__
+		#define ENV64BIT
+	#else
+		#define ENV32BIT
+	#endif
+#endif 
 
 static ERL_NIF_TERM
 raw_free(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
@@ -131,8 +146,9 @@ mem_write(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 	list = argv[0];
 	i = 0;
 
-	while (enif_is_empty_list(env, list)) {
+	while (!enif_is_empty_list(env, list)) {
 		err = enif_get_list_cell(env, list, &head, &tail);
+		list = tail;
 		if (!err) {
 			goto da_error;
 		}
@@ -140,8 +156,7 @@ mem_write(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 		if (!err) {
 			goto da_error;
 		}
-		*(ptr+i) = (char)data;
-		i++;
+		*(ptr+i++) = (char)data;
 	}
 
 	return enif_make_uint64(env, (uint64_t)ptr);
@@ -165,7 +180,7 @@ mem_read(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 		goto error;
 	}
 
-	err = enif_get_uint(env, argv[0], &l);
+	err = enif_get_uint(env, argv[1], &l);
 	if (!err) {
 		goto error;
 	}
@@ -182,6 +197,37 @@ error:
 	return enif_make_badarg(env);
 }
 
+static ERL_NIF_TERM
+get_config(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+{
+	return enif_make_list2(
+		env,
+		enif_make_tuple2(
+			env,
+			enif_make_string(env,"sizes", ERL_NIF_LATIN1),
+			enif_make_tuple6(
+				env,
+				enif_make_uint(env, sizeof(short int)),
+				enif_make_uint(env, sizeof(int)),
+				enif_make_uint(env, sizeof(long int)),
+				enif_make_uint(env, sizeof(long long int)),
+				enif_make_uint(env, sizeof(float)),
+				enif_make_uint(env, sizeof(double))
+			)
+		),
+		enif_make_tuple2(
+			env,
+			enif_make_string(env, "arch", ERL_NIF_LATIN1),
+#ifdef ENV64BIT
+			enif_make_string(env, "64bit", ERL_NIF_LATIN1)
+#endif
+#ifdef ENV32BIT
+			enif_make_string(env, "32bit", ERL_NIF_LATIN1)
+#endif
+		)
+	);
+}
+
 static ErlNifFunc nif_funcs[] = {
   {"raw_deref", 1, raw_deref},
   {"raw_free", 1, raw_free},
@@ -190,7 +236,8 @@ static ErlNifFunc nif_funcs[] = {
   {"pointer", 0, pointer0},
   {"raw_pointer_of", 1, pointer1},
   {"mem_write", 1, mem_write},
-  {"mem_read", 2, mem_read}
+  {"mem_read", 2, mem_read},
+  {"get_config", 0, get_config}
 };
 
 int upgrade(ErlNifEnv* env, void** priv_data, void** old_priv_data, ERL_NIF_TERM load_info)

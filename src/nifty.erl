@@ -12,6 +12,7 @@
 	 raw_pointer_of/1,
 	 mem_write/1,
 	 mem_read/2,
+	 get_config/0,
 	 as_type/3,
 	 get_types/0
 	]).
@@ -194,6 +195,10 @@ mem_write(_) ->
     exit(nif_library_not_loaded).
 
 mem_read(_,_) ->
+    exit(nif_library_not_loaded).
+
+%% config
+get_config() ->
     exit(nif_library_not_loaded).
 
 as_type({Address, _}, Module, Type) ->
