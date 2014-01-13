@@ -22,8 +22,16 @@
 
 -on_load(init/0).
 
-init() ->
-    ok = erlang:load_nif("nifty", 0).
+init() -> %% loading code from jiffy
+    PrivDir = case code:priv_dir(?MODULE) of
+        {error, _} ->
+            EbinDir = filename:dirname(code:which(?MODULE)),
+            AppPath = filename:dirname(EbinDir),
+            filename:join(AppPath, "priv");
+        Path ->
+            Path
+    end,
+    erlang:load_nif(filename:join(PrivDir, "nifty"), 0).'
 
 get_types() ->
 	dict:from_list(

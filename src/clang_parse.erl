@@ -2,9 +2,16 @@
 -export([parse/1, build_vars/1]).
 -on_load(init/0).
 
-init() ->
-    ok = erlang:load_nif("clang_parse", 0).
-
+init() -> %% loading code from jiffy
+    PrivDir = case code:priv_dir(?MODULE) of
+        {error, _} ->
+            EbinDir = filename:dirname(code:which(?MODULE)),
+            AppPath = filename:dirname(EbinDir),
+            filename:join(AppPath, "priv");
+        Path ->
+            Path
+    end,
+    erlang:load_nif(filename:join(PrivDir, "clang_parse"), 0).'
 cparse(_) ->
     exit(nif_library_not_loaded).
 

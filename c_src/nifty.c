@@ -170,7 +170,7 @@ error:
 static ERL_NIF_TERM
 mem_writer(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-	unsigned int i, l, data, err;
+	unsigned int err;
 	int ar;
 	unsigned char* ptr;
 	ERL_NIF_TERM *tpl;
@@ -250,8 +250,7 @@ mem_alloc(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 		env,
 		enif_make_int64(env, (uint64_t)ptr),
 		enif_make_string(env, "nifty.void *", ERL_NIF_LATIN1));
-da_error:
-	enif_free((void*)ptr);
+
 error:
 	return enif_make_badarg(env);
 }

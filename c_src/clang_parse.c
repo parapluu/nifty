@@ -153,7 +153,8 @@ visitor_cb(CXCursor cursor, CXCursor parent, CXClientData client_data)
 
 static void print_fails(CXTranslationUnit t)
 {
-  for (unsigned i = 0, n = clang_getNumDiagnostics(t); i!=n; i++) {
+  unsigned i, n;
+  for (i = 0, n = clang_getNumDiagnostics(t); i!=n; i++) {
     CXDiagnostic diag = clang_getDiagnostic(t, i);
     CXString s = clang_formatDiagnostic(diag, clang_defaultDiagnosticDisplayOptions());
     fprintf(stderr, "%s\r\n", clang_getCString(s));
@@ -193,7 +194,7 @@ term2string(ErlNifEnv* env, ERL_NIF_TERM s)
 static ERL_NIF_TERM
 parse_impl(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-  char **cargv, *arg;
+  char **cargv;
   unsigned arg_count, i;
   ERL_NIF_TERM head, tail, list, retval;
   int errorval=0;

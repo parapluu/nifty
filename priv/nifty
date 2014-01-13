@@ -11,7 +11,7 @@ generate_files(HeaderName, ModuleName, Options) ->
 	end.
 
 main([Header, Module| Options]) ->
-    true = code:add_pathz(filename:dirname(escript:script_name())++ "/src"),
+    %%true = code:add_pathz(filename:dirname(escript:script_name())++ "../ebin"),
     generate_files(Header, Module, Options);
 main(_) ->
     io:format("ussage <nifty> <header> <module name> [<compiler options>~n").
