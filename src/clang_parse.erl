@@ -11,7 +11,8 @@ init() -> %% loading code from jiffy
         Path ->
             Path
     end,
-    erlang:load_nif(filename:join(PrivDir, "clang_parse"), 0).'
+    erlang:load_nif(filename:join(PrivDir, "clang_parse"), 0).
+
 cparse(_) ->
     exit(nif_library_not_loaded).
 

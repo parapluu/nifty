@@ -31,7 +31,7 @@ init() -> %% loading code from jiffy
         Path ->
             Path
     end,
-    erlang:load_nif(filename:join(PrivDir, "nifty"), 0).'
+    erlang:load_nif(filename:join(PrivDir, "nifty"), 0).
 
 get_types() ->
 	dict:from_list(
