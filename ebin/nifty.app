@@ -10,7 +10,9 @@
 			clang_parse, 
 			nifty, 
 			nifty_filters, 
-			nifty_tags, 
+			nifty_tags,
+			nifty_rebar,
+			nifty_compiler,
 			type_table]},
 		{applications,[kernel,stdlib,compile]}
 	]
