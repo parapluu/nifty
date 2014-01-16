@@ -1,7 +1,8 @@
 -module(nifty_compiler).
 -export([
 	render/3,
-	store_files/4
+	store_files/4,
+	compile/3
 	]).
 
 render(InterfaceFile, Module, CompileOptions) ->
@@ -40,7 +41,7 @@ store_files(InterfaceFile, Module, CompileOptions, RenderOutput) ->
 	{ok, Path} = file:get_cwd(),
 	store_files(InterfaceFile, Module, CompileOptions, RenderOutput, Path).
 
-store_files(InterfaceFile, Module, CompileOptions, RenderOutput, Path) ->
+store_files(_, Module, _, RenderOutput, Path) ->
 	ok = file:make_dir(filename:join([Path,Module])),
 	ok = file:make_dir(filename:join([Path,Module, "src"])),
 	ok = file:make_dir(filename:join([Path,Module, "c_src"])),
@@ -52,26 +53,14 @@ store_files(InterfaceFile, Module, CompileOptions, RenderOutput, Path) ->
 	file:write_file(filename:join([Path,Module, "rebar.config"]), [ConfigOutput]).
 
 
+compile(_, Module, _) ->
+	{ok, Path} = file:get_cwd(),
+	file:set_cwd(filename:join([Path, Module])),
+	rebar_commands(["compile"]).
 
-% compile(Module, ReBarOptions) ->
-% 	
-
-% % TODO
-% %
-% % create:
-% % 
-% % 	module/src/
-% % 	module/src/module.erl
-% % 	module/c_src/
-% % 	module/c_src/module_nif.c
-% % 	module/ebin/module.app
-% 
-% rebar_commands(Commands) ->
-% 	RawArgs = Commands,
-% 	Args = nifty_rebar:parse_args(RawArgs),
-% 	BaseConfig = nifty_rebar:init_config(Args),
-% 	{BaseConfig1, Cmds} = nifty_rebar:save_options(BaseConfig, Args),
-% 	nifty_rebar:run(BaseConfig1, Cmds).
-
-% build_compiler_options(CompileOptions) ->
-% 	
+rebar_commands(Commands) ->
+	RawArgs = Commands,
+	Args = nifty_rebar:parse_args(RawArgs),
+	BaseConfig = nifty_rebar:init_config(Args),
+	{BaseConfig1, Cmds} = nifty_rebar:save_options(BaseConfig, Args),
+	nifty_rebar:run(BaseConfig1, Cmds).
