@@ -1,6 +1,8 @@
 -module(nifty_filters).
 -export([
 	 raw_include/1,
+	 raw_path/1,
+	 absname/1,
 	 getNth/2,
 	 resolved/2,
 	 reversed/1,
@@ -52,6 +54,12 @@ loopcounter(Type, Name) ->
 %%% special
 raw_include(Path) ->
     lists:last(filename:split(Path)).
+
+raw_path(Path) ->
+    filename:dirname(Path).
+
+absname(Path) ->
+    filename:absname(Path).
 
 %%% general
 getNth(I, N) ->
