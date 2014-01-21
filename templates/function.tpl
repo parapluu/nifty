@@ -144,6 +144,8 @@ erl2c_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 	return retval;
 error:
 	return enif_make_badarg(env);
+goto error;
+	err++;
 }
 
 {% endfor %}{% endwith %}

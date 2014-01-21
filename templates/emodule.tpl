@@ -13,8 +13,16 @@
 
 -on_load(init/0).
 
-init() ->
-	ok = erlang:load_nif("{{module}}_nif", 0).
+init() -> %% loading code from jiffy
+    PrivDir = case code:priv_dir(?MODULE) of
+        {error, _} ->
+            EbinDir = filename:dirname(code:which(?MODULE)),
+            AppPath = filename:dirname(EbinDir),
+            filename:join(AppPath, "priv");
+        Path ->
+            Path
+    end,
+    erlang:load_nif(filename:join(PrivDir, "{{module}}_nif"), 0).
 
 {% with fn=functions|fetch_keys %}{% for name in fn %}{{name}}({% with arguments=symbols|fetchl:name %}{% for argument in arguments %}{% if argument|is_argument %}_{% if not forloop.last %},{%endif%}{% endif %}{% endfor %}{% endwith %}) ->
 	exit(nif_library_not_loaded).

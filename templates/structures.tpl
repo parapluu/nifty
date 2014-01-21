@@ -246,4 +246,7 @@ new_type_object(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {% endwith %}
 error:
 	return enif_make_badarg(env);
+/* supress warnings */
+	type_holder++;
+	retval++;
 }

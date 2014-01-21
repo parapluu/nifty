@@ -1,16 +1,7 @@
 -module(nifty_config).
 -export([
-	new_config/1,
 	update_config/2
 	]).
-
-%% the config options are the same that are used for rebar (thus not inventing the weel twice)
-%% a plain new config contains the information on how to compile the wrapper 
-new_config(_) ->
-	[
-		{port_env, []},
-		{port_spec, []}
-	].
 
 update_config(UserConfig, Config) ->
 	NewPort_Spec = case proplists:get_value(port_spec, UserConfig) of
@@ -34,3 +25,4 @@ join_proplist(Proplist1, Proplist2) ->
 		fun(_,X,Y) -> [X,Y] end,
 		orddict:from_list(Proplist1),
 		orddict:from_list(Proplist2)).
+
