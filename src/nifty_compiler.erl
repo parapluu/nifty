@@ -132,8 +132,14 @@ module_spec(ARCH, Sources, Options, InterfaceFile,  ModuleName) ->
       ARCH, 
       libname(ModuleName),
       ["c_src/"++ModuleName++"_nif.c"|abspath_sources(Sources)],
-      [{env, [{"CFLAGS", "$CFLAGS -I"++filename:absname(filename:dirname(InterfaceFile))}]}|Options]
+      join_options([{env, [{"CFLAGS", "$CFLAGS -I"++filename:absname(filename:dirname(InterfaceFile))}]}], Options)
     }.
+
+join_options(Proplist1, Proplist2) ->
+	orddict:merge(
+		fun(_,X,Y) -> X++Y end,
+		orddict:from_list(Proplist1),
+		orddict:from_list(Proplist2)).
 
 abspath_sources(S) -> abspath_sources(S, []).
 
