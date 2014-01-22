@@ -44,15 +44,31 @@ store_files(InterfaceFile, Module, Options, RenderOutput) ->
     store_files(InterfaceFile, Module, Options, RenderOutput, Path).
 
 store_files(_, Module, _, RenderOutput, Path) ->
-    ok = file:make_dir(filename:join([Path,Module])),
-    ok = file:make_dir(filename:join([Path,Module, "src"])),
-    ok = file:make_dir(filename:join([Path,Module, "c_src"])),
-    ok = file:make_dir(filename:join([Path,Module, "ebin"])),
+	ok = case file:make_dir(filename:join([Path,Module])) of
+		ok -> ok;
+		{error,eexist} -> ok;
+		_ -> fail
+	end,
+	ok = case file:make_dir(filename:join([Path,Module, "src"])) of
+		ok -> ok;
+		{error,eexist} -> ok;
+		_ -> fail
+	end,
+	ok = case file:make_dir(filename:join([Path,Module, "c_src"])) of
+		ok -> ok;
+		{error,eexist} -> ok;
+		_ -> fail
+	end,
+	ok = case file:make_dir(filename:join([Path,Module, "ebin"])) of
+		ok -> ok;
+		{error,eexist} -> ok;
+		_ -> fail
+	end,
     {ErlOutput, COutput, AppOutput, ConfigOutput} = RenderOutput,
     ok = file:write_file(filename:join([Path,Module, "src", Module++".erl"]), [ErlOutput]),
     ok = file:write_file(filename:join([Path,Module, "c_src", Module++"_nif.c"]), [COutput]),
     ok = file:write_file(filename:join([Path,Module, "ebin", Module++".app"]), [AppOutput]),
-    file:write_file(filename:join([Path,Module, "rebar.config"]), [ConfigOutput]).
+    ok = file:write_file(filename:join([Path,Module, "rebar.config"]), [ConfigOutput]).
 
 
 compile_module(_, Module, _) ->
