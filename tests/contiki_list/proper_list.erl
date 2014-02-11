@@ -16,6 +16,17 @@
 -type llist() :: {integer(), string()}.
 -record(state, {ls :: [llist()]}).
 
+% compiler
+setup() ->
+	nifty_compiler:compile("./list.h", "c_list", 
+		[{port_specs,
+				[{
+						".*",
+						"priv/c_list_nif.so",	
+						["/home/thegeorge/sources/contiki/core/lib/list.c"]
+				}]
+		}]).
+
 % generator
 item() ->
 	?LET(D, integer(), c_list:record_to_erlptr({list_item, null, D})).
@@ -67,15 +78,18 @@ postcondition(_,_,Result) ->
 	end.
 
 prop_list_works_fine() ->
-	?FORALL(Cmds, commands(?MODULE),
-		?TRAPEXIT(
-			begin
-				{History,State,Result} = run_commands(?MODULE, Cmds),
-				true,
-				?WHENFAIL(io:format("History: ~p\nState: ~p\nResult: ~p\n",
-                                        [History,State,Result]),
-                              Result =:= ok)
-			end)).
+	begin
+		setup(),
+		?FORALL(Cmds, commands(?MODULE),
+			?TRAPEXIT(
+				begin
+					{History,State,Result} = run_commands(?MODULE, Cmds),
+					true,
+					?WHENFAIL(io:format("History: ~p\nState: ~p\nResult: ~p\n",
+                                	        [History,State,Result]),
+	                              Result =:= ok)
+				end))
+	end.
 
 test() ->
 	proper:quickcheck(?MODULE:prop_list_works_fine(), 1000).
