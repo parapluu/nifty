@@ -19,8 +19,10 @@
 	 is_field/1,
 	 is_input/1,
 	 is_output/1,
+	 is_array/1,
 
 	 norm_type/1,
+	 array_name/1,
 	 dereference_type/1,
 	 discard_const/1,
 	 loopcounter/2]).
@@ -123,3 +125,25 @@ is_input(Arg) ->
 
 is_output(Arg) ->
     (getNth(Arg, 4)=:=output) orelse (getNth(Arg, 4)=:=inoutput).
+
+is_array(Arg) -> 
+    (is_list(Arg) andalso (string:str(Arg, "[")=:=1 andalso length(Arg)>2)).
+
+array_name(TypeDef) ->
+    [H|T] = lists:map(fun build_array_name/1, TypeDef),
+    lists:foldl(fun(L, R) -> L++"_"++R end, H, T).
+
+build_array_name(N) -> build_array_name(N, [], 0).    
+
+build_array_name([], Acc, _) -> lists:reverse(Acc);
+build_array_name([C|T], Acc, State) ->
+    case State of
+	0 -> case C of
+		 $[ -> build_array_name(T, [$A|Acc], 1);
+		 C -> build_array_name(T, [C|Acc], 0)
+	     end;
+	1 -> case C of
+		 $] -> build_array_name(T, Acc, 0);
+		 _ -> build_array_name(T, Acc, 1)
+	     end
+    end.
