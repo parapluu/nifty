@@ -1,3 +1,12 @@
+{% if prototypes==1 %}
+{% with type_keys=types|fetch_keys %}{% for type in type_keys %}{% with kind=types|fetch:type|getNth:1 %}{% if kind=="struct" %}
+static ERL_NIF_TERM ptr_to_record_{{type}}(ErlNifEnv* env, uint64_t ptr);
+static ERL_NIF_TERM record_to_erlptr_{{type}}(ErlNifEnv* env, ERL_NIF_TERM record);
+{% endif %}{% endwith%}{% endfor %}{% endwith %}
+
+{% else %}
+
+
 {% with type_keys=types|fetch_keys %}{% for type in type_keys %}{% with kind=types|fetch:type|getNth:1 %}{% if kind=="struct" %}
 static ERL_NIF_TERM
 ptr_to_record_{{type}}(ErlNifEnv* env, uint64_t ptr)
@@ -250,3 +259,4 @@ error:
 	type_holder++;
 	retval++;
 }
+{% endif %}

@@ -23,6 +23,9 @@
 
 	 norm_type/1,
 	 array_name/1,
+	 array_length/1,
+	 array_get_base_type/1,
+
 	 dereference_type/1,
 	 discard_const/1,
 	 loopcounter/2]).
@@ -133,6 +136,49 @@ array_name(TypeDef) ->
     [H|T] = lists:map(fun build_array_name/1, TypeDef),
     lists:foldl(fun(L, R) -> L++"_"++R end, H, T).
 
+array_length([ArrDef|_]) ->
+    %% first element looks like: [N] or []
+    %% returns N or 0 if it is []
+    case string:substr(ArrDef, 2, length(ArrDef)-2) of
+        ""-> 0;
+        N -> {Ret, _} = string:to_integer(N),
+	     Ret
+    end.
+
+array_get_base_type(Type) ->
+    {BaseType, Stars} = array_remove_counts(Type, [], 0, ""),
+    BaseType ++ Stars.
+    
+array_remove_counts([], Acc, _, B) -> {lists:reverse(Acc), B};
+array_remove_counts([C|T], Acc, State, B) ->
+    case State of 
+	0 -> case C of
+		$[ -> array_remove_counts(T, Acc, 1, B);
+		C -> array_remove_counts(T, [C|Acc], 0, B)
+	     end;
+	1 -> case C of
+		$] -> array_remove_counts(T, Acc, 0, [$*|B]); %% [] case
+		_  -> array_remove_counts(T, Acc, 2, B)
+	     end;
+	2 -> case C of
+		$] -> array_remove_counts(T, Acc, 3, [$*|B]); %% [N] case
+		_  -> array_remove_counts(T, Acc, 2, B)
+	     end;
+	3 -> case C of
+		$[ -> array_remove_counts(T, Acc, 4, B); %% next [ after [N]
+		C -> array_remove_counts(T, [C|Acc], 3, B)
+	     end;
+	4 -> case C of
+		$] -> array_remove_counts(T, Acc, 0, [$*|B]); %% [] after [N] case
+		_  -> array_remove_counts(T, Acc, 5, B)
+	     end;
+	5 -> case C of
+		$] -> array_remove_counts(T, Acc, 3, B); %% [N] after [M] case 
+		_  -> array_remove_counts(T, Acc, 5, B)
+	     end
+    end.
+
+    
 build_array_name(N) -> build_array_name(N, [], 0).    
 
 build_array_name([], Acc, _) -> lists:reverse(Acc);
