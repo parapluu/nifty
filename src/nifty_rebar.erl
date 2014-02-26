@@ -105,7 +105,7 @@ run(["version"]) ->
     %% Display vsn and build time info
     version();
 run(RawArgs) ->
-	io:format("Args: ~p~n", [RawArgs]),
+    io:format("Args: ~p~n", [RawArgs]),
     ok = load_rebar_app(),
     %% Parse out command line arguments -- what's left is a list of commands to
     %% run -- and start running commands
@@ -164,9 +164,9 @@ init_config({Options, _NonOptArgs}) ->
 init_config1(BaseConfig) ->
     %% Determine the location of the rebar executable; important for pulling
     %% resources out of the escript
-%     ScriptName = filename:absname(escript:script_name()),
-%     BaseConfig1 = rebar_config:set_xconf(BaseConfig, escript, ScriptName),
-%     ?DEBUG("Rebar location: ~p\n", [ScriptName]),
+    %%     ScriptName = filename:absname(escript:script_name()),
+    %%     BaseConfig1 = rebar_config:set_xconf(BaseConfig, escript, ScriptName),
+    %%     ?DEBUG("Rebar location: ~p\n", [ScriptName]),
     %% Note the top-level directory for reference
     AbsCwd = filename:absname(rebar_utils:get_cwd()),
     rebar_config:set_xconf(BaseConfig, base_dir, AbsCwd).
@@ -345,51 +345,51 @@ show_info_maybe_halt(O, Opts, F) ->
 commands() ->
     S = <<"
 clean                                Clean
-compile                              Compile sources
+          compile                              Compile sources
 
-escriptize                           Generate escript archive
+          escriptize                           Generate escript archive
 
-create      template= [var=foo,...]  Create skel based on template and vars
-create-app  [appid=myapp]            Create simple app skel
-create-lib  [libid=mylib]            Create simple lib skel
-create-node [nodeid=mynode]          Create simple node skel
-list-templates                       List available templates
+          create      template= [var=foo,...]  Create skel based on template and vars
+          create-app  [appid=myapp]            Create simple app skel
+          create-lib  [libid=mylib]            Create simple lib skel
+          create-node [nodeid=mynode]          Create simple node skel
+          list-templates                       List available templates
 
-doc                                  Generate Erlang program documentation
+          doc                                  Generate Erlang program documentation
 
-check-deps                           Display to be fetched dependencies
-get-deps                             Fetch dependencies
-update-deps                          Update fetched dependencies
-delete-deps                          Delete fetched dependencies
-list-deps                            List dependencies
+          check-deps                           Display to be fetched dependencies
+          get-deps                             Fetch dependencies
+          update-deps                          Update fetched dependencies
+          delete-deps                          Delete fetched dependencies
+          list-deps                            List dependencies
 
-generate    [dump_spec=0/1]          Build release with reltool
-overlay                              Run reltool overlays only
+          generate    [dump_spec=0/1]          Build release with reltool
+          overlay                              Run reltool overlays only
 
-generate-upgrade  previous_release=path  Build an upgrade package
+          generate-upgrade  previous_release=path  Build an upgrade package
 
-generate-appups   previous_release=path  Generate appup files
+          generate-appups   previous_release=path  Generate appup files
 
-eunit       [suites=foo]             Run eunit tests in foo.erl and
-                                     test/foo_tests.erl
-            [suites=foo] [tests=bar] Run specific eunit tests [first test name
-                                     starting with 'bar' in foo.erl and
-                                     test/foo_tests.erl]
-            [tests=bar]              For every existing suite, run the first
-                                     test whose name starts with bar and, if
-                                     no such test exists, run the test whose
-                                     name starts with bar in the suite's
+          eunit       [suites=foo]             Run eunit tests in foo.erl and
+          test/foo_tests.erl
+          [suites=foo] [tests=bar] Run specific eunit tests [first test name
+                                                             starting with 'bar' in foo.erl and
+                                                             test/foo_tests.erl]
+          [tests=bar]              For every existing suite, run the first
+          test whose name starts with bar and, if
+                                                   no such test exists, run the test whose
+                                                   name starts with bar in the suite's
                                      _tests module
 
-ct          [suites=] [case=]        Run common_test suites
+                                                   ct          [suites=] [case=]        Run common_test suites
 
-qc                                   Test QuickCheck properties
+                                                   qc                                   Test QuickCheck properties
 
-xref                                 Run cross reference analysis
+                                                   xref                                 Run cross reference analysis
 
-help                                 Show the program options
-version                              Show version information
-">>,
+                                                   help                                 Show the program options
+                                                   version                              Show version information
+                                                   ">>,
     io:put_chars(S).
 
 get_jobs(Config) ->

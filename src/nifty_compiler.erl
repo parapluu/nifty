@@ -44,26 +44,26 @@ store_files(InterfaceFile, Module, Options, RenderOutput) ->
     store_files(InterfaceFile, Module, Options, RenderOutput, Path).
 
 store_files(_, Module, _, RenderOutput, Path) ->
-	ok = case file:make_dir(filename:join([Path,Module])) of
-		ok -> ok;
-		{error,eexist} -> ok;
-		_ -> fail
-	end,
-	ok = case file:make_dir(filename:join([Path,Module, "src"])) of
-		ok -> ok;
-		{error,eexist} -> ok;
-		_ -> fail
-	end,
-	ok = case file:make_dir(filename:join([Path,Module, "c_src"])) of
-		ok -> ok;
-		{error,eexist} -> ok;
-		_ -> fail
-	end,
-	ok = case file:make_dir(filename:join([Path,Module, "ebin"])) of
-		ok -> ok;
-		{error,eexist} -> ok;
-		_ -> fail
-	end,
+    ok = case file:make_dir(filename:join([Path,Module])) of
+	     ok -> ok;
+	     {error,eexist} -> ok;
+	     _ -> fail
+	 end,
+    ok = case file:make_dir(filename:join([Path,Module, "src"])) of
+	     ok -> ok;
+	     {error,eexist} -> ok;
+	     _ -> fail
+	 end,
+    ok = case file:make_dir(filename:join([Path,Module, "c_src"])) of
+	     ok -> ok;
+	     {error,eexist} -> ok;
+	     _ -> fail
+	 end,
+    ok = case file:make_dir(filename:join([Path,Module, "ebin"])) of
+	     ok -> ok;
+	     {error,eexist} -> ok;
+	     _ -> fail
+	 end,
     {ErlOutput, COutput, AppOutput, ConfigOutput} = RenderOutput,
     ok = file:write_file(filename:join([Path,Module, "src", Module++".erl"]), [ErlOutput]),
     ok = file:write_file(filename:join([Path,Module, "c_src", Module++"_nif.c"]), [COutput]),
@@ -108,32 +108,32 @@ compile(InterfaceFile, Module, Options) ->
 
 
 build_env(ModuleName, Options) ->
-	Env = case proplists:get_value(port_env, Options) of
-		undefined -> [];
-		EnvList -> EnvList
-		end,
-	EnvAll = case proplists:get_value(port_specs, Options) of
-		undefined -> Env;
-		SpecList ->
-			lists:concat([Env, get_spec_env(ModuleName, SpecList)])
-		end,
-	rebar_port_compiler:setup_env({config, undefined, [{port_env, EnvAll}], undefined, undefined, undefined, dict:new()}).
+    Env = case proplists:get_value(port_env, Options) of
+	      undefined -> [];
+	      EnvList -> EnvList
+	  end,
+    EnvAll = case proplists:get_value(port_specs, Options) of
+		 undefined -> Env;
+		 SpecList ->
+		     lists:concat([Env, get_spec_env(ModuleName, SpecList)])
+	     end,
+    rebar_port_compiler:setup_env({config, undefined, [{port_env, EnvAll}], undefined, undefined, undefined, dict:new()}).
 
 get_spec_env(_, []) -> [];
 get_spec_env(ModuleName, [S|T]) ->
-	Lib = libname(ModuleName),
-	case S of
-		{_, Lib, _, Options} ->
-			case proplists:get_value(env, Options) of
-				undefined -> [];
-				Env -> Env
-			end;
-		_ ->
-			get_spec_env(ModuleName, T)
-	end.
+    Lib = libname(ModuleName),
+    case S of
+	{_, Lib, _, Options} ->
+	    case proplists:get_value(env, Options) of
+		undefined -> [];
+		Env -> Env
+	    end;
+	_ ->
+	    get_spec_env(ModuleName, T)
+    end.
 
 libname(ModuleName) ->
-	"priv/"++ModuleName++"_nif.so".
+    "priv/"++ModuleName++"_nif.so".
 
 update_compile_options(InterfaceFile, ModuleName, CompileOptions) ->
     NewPort_Spec = case proplists:get_value(port_specs, CompileOptions) of
@@ -153,22 +153,22 @@ module_spec(ARCH, Sources, Options, InterfaceFile,  ModuleName) ->
     }.
 
 join_options(Proplist1, Proplist2) ->
-	orddict:merge(
-		fun(_,X,Y) -> X++Y end,
-		orddict:from_list(Proplist1),
-		orddict:from_list(Proplist2)).
+    orddict:merge(
+      fun(_,X,Y) -> X++Y end,
+      orddict:from_list(Proplist1),
+      orddict:from_list(Proplist2)).
 
 abspath_sources(S) -> abspath_sources(S, []).
 
 abspath_sources([], Acc) -> Acc;
 abspath_sources([S|T], Acc) ->
-	abspath_sources(T, [filename:absname(S)|Acc]).
+    abspath_sources(T, [filename:absname(S)|Acc]).
 
 
 update_port_spec(_,  _, [], Acc, true) -> 
-	Acc;
+    Acc;
 update_port_spec(InterfaceFile,  ModuleName, [], Acc, false) -> 
-	[module_spec(".*", [], [], InterfaceFile, ModuleName), Acc];
+    [module_spec(".*", [], [], InterfaceFile, ModuleName), Acc];
 update_port_spec(InterfaceFile,  ModuleName, [Spec|T], Acc, Found) ->
     Shared = libname(ModuleName),
     case Spec of

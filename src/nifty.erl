@@ -23,20 +23,20 @@
 
 init() -> %% loading code from jiffy
     PrivDir = case code:priv_dir(?MODULE) of
-        {error, _} ->
-            EbinDir = filename:dirname(code:which(?MODULE)),
-            AppPath = filename:dirname(EbinDir),
-            filename:join(AppPath, "priv");
-        Path ->
-            Path
-    end,
+		  {error, _} ->
+		      EbinDir = filename:dirname(code:which(?MODULE)),
+		      AppPath = filename:dirname(EbinDir),
+		      filename:join(AppPath, "priv");
+		  Path ->
+		      Path
+	      end,
     erlang:load_nif(filename:join(PrivDir, "nifty"), 0).
 
 get_types() ->
-	dict:from_list(
-	    [{"char *", none},
-	    {"void *", none}]
-	    ).
+    dict:from_list(
+      [{"char *", none},
+       {"void *", none}]
+     ).
 
 get_derefed_type(Type, Module) ->
     Types = Module:get_types(),
@@ -49,31 +49,31 @@ get_derefed_type(Type, Module) ->
 	    NType = string:join(lists:reverse(Token), " "),
 	    ResNType = resolve_type(NType, Types),
 	    case dict:is_key(ResNType, Types) of
-			true ->
-				[{_, DTypeDef}] = dict:fetch(ResNType, Types),
-				[DH|_] = DTypeDef,
-				case (DH=:="*") orelse (string:str(DH, "[")>0) of
-				true -> {pointer, ResNType};
-				false -> {final, ResNType}
-				end;
-			false ->
-				undef
-		end;
+		true ->
+		    [{_, DTypeDef}] = dict:fetch(ResNType, Types),
+		    [DH|_] = DTypeDef,
+		    case (DH=:="*") orelse (string:str(DH, "[")>0) of
+			true -> {pointer, ResNType};
+			false -> {final, ResNType}
+		    end;
+		false ->
+		    undef
+	    end;
 	false ->
 	    {final, ResType}
     end.
 
 resolve_type(Type, Types) ->
-	case dict:is_key(Type, Types) of 
-		true->
-			[{Kind, TypeDef}] = dict:fetch(Type, Types),
-			case Kind of
-			typedef -> resolve_type(TypeDef, Types);
-			_ -> Type
-			end;
-		false ->
-			undef
-	end.
+    case dict:is_key(Type, Types) of 
+	true->
+	    [{Kind, TypeDef}] = dict:fetch(Type, Types),
+	    case Kind of
+		typedef -> resolve_type(TypeDef, Types);
+		_ -> Type
+	    end;
+	false ->
+	    undef
+    end.
 
 
 %% pointer arithmetic
@@ -93,9 +93,9 @@ dereference(Pointer) ->
 		    {raw_deref(Address), Module++"."++NType};
 		{final, DType} ->
 		    build_type(Module, DType, Address);
-			_ -> 
-				       undef
-			       end
+		_ -> 
+		    undef
+	    end
     end.
 
 build_builtin_type(DType, Address) ->
@@ -154,11 +154,11 @@ raw_deref(_) ->
 %% memory operation
 mem_write(Data) ->
     case erlang:is_binary(Data) of
-		true ->
-			mem_writer(Data, mem_alloc(size(Data)));
-		false ->
-			mem_write(Data, mem_alloc(length(Data)))
-	end.
+	true ->
+	    mem_writer(Data, mem_alloc(size(Data)));
+	false ->
+	    mem_write(Data, mem_alloc(length(Data)))
+    end.
 
 mem_write(_,_) ->
     exit(nif_library_not_loaded).
@@ -182,4 +182,4 @@ as_type({Address, _}, Module, Type) ->
 	    {Address, erlang:atom_to_list(Module)++"."++Type};
 	false ->
 	    undef
-	end.
+    end.

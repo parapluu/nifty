@@ -4,13 +4,13 @@
 
 init() -> %% loading code from jiffy
     PrivDir = case code:priv_dir(?MODULE) of
-        {error, _} ->
-            EbinDir = filename:dirname(code:which(?MODULE)),
-            AppPath = filename:dirname(EbinDir),
-            filename:join(AppPath, "priv");
-        Path ->
-            Path
-    end,
+		  {error, _} ->
+		      EbinDir = filename:dirname(code:which(?MODULE)),
+		      AppPath = filename:dirname(EbinDir),
+		      filename:join(AppPath, "priv");
+		  Path ->
+		      Path
+	      end,
     erlang:load_nif(filename:join(PrivDir, "clang_parse"), 0).
 
 cparse(_) ->

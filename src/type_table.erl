@@ -9,24 +9,21 @@
 build(Dicts) ->
     {Functions, Typedefs, Structs} = Dicts,
     Empty_Tables = {dict:new(), dict:new()}, % { Types, Symbols }
-    Tables_With_Functions = build_entries(
-			      Empty_Tables,
-			      fun build_function_entries/4,
-			      Functions,
-			      dict:fetch_keys(Functions),
-			      Dicts),
-    Tables_With_TypeDefs = build_entries(
-			     Tables_With_Functions,
-			     fun build_typedef_entries/4,
-			     Typedefs,
-			     dict:fetch_keys(Typedefs),
-			     Dicts),
-    {Types, Symbols} = build_entries(
-			 Tables_With_TypeDefs,
-			 fun build_struct_entries/4,
-			 Structs,
-			 dict:fetch_keys(Structs),
-			 Dicts),
+    Tables_With_Functions = build_entries(Empty_Tables,
+					  fun build_function_entries/4,
+					  Functions,
+					  dict:fetch_keys(Functions),
+					  Dicts),
+    Tables_With_TypeDefs = build_entries(Tables_With_Functions,
+					 fun build_typedef_entries/4,
+					 Typedefs,
+					 dict:fetch_keys(Typedefs),
+					 Dicts),
+    {Types, Symbols} = build_entries(Tables_With_TypeDefs,
+				     fun build_struct_entries/4,
+				     Structs,
+				     dict:fetch_keys(Structs),
+				     Dicts),
     {fill_type_table(Types), Symbols}.
 
 check_types(_) -> 
@@ -126,7 +123,6 @@ simplify_specifiers(Specifiers) ->
 	0 -> ["signed"|LSpec];
 	_ -> ["unsigned"|LSpec]
     end.
-
 
 parse_type(Token) ->
     parse_type(Token, [], none).

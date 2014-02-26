@@ -22,10 +22,6 @@
 	 is_array/1,
 
 	 norm_type/1,
-% 	 array_name/1,
-% 	 array_length/1,
-% 	 array_get_base_type/1,
-
 	 dereference_type/1,
 	 discard_const/1,
 	 loopcounter/2]).
