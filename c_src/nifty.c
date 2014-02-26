@@ -81,7 +81,7 @@ list_to_cstr(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 		goto error;
 	}
 	l+=1; // Null Termination
-	cstr = enif_alloc(sizeof(char)*1);
+	cstr = enif_alloc(sizeof(char)*l);
 	if (!cstr) {
 		goto error;
 	}
