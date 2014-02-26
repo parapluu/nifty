@@ -85,7 +85,8 @@ rebar_commands(Commands) ->
     nifty_rebar:run(BaseConfig1, Cmds).
 
 
-compile(InterfaceFile, ModuleName, Options) ->
+compile(InterfaceFile, Module, Options) ->
+    ModuleName = erlang:atom_to_list(Module),
     UCO = update_compile_options(InterfaceFile, ModuleName, Options),
     Env = build_env(ModuleName, UCO),
     CFlags = string:tokens(proplists:get_value("CFLAGS", Env, ""), " "),

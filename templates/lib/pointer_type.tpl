@@ -25,7 +25,11 @@
 	} else {
 		err = enif_get_tuple(env, {{erlarg}}, &arity{{N}}, (const ERL_NIF_TERM**)(&tpl{{N}}));
 		if (err) {
-			err = enif_get_uint64(env, tpl{{N}}[0], (uint64_t*)&{{carg}});
+			if (arity{{N}}>2) {
+				err = 0;
+			} else {
+				err = enif_get_uint64(env, tpl{{N}}[0], (uint64_t*)&{{carg}});
+			}
 		}
 	}
 {% endif %}

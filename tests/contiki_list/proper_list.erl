@@ -18,7 +18,7 @@
 
 %% compiler
 setup() ->
-    nifty_compiler:compile("./list.h", "c_list", 
+    nifty_compiler:compile("./list.h", c_list, 
 			   [{port_specs,
 			     [{
 						".*",

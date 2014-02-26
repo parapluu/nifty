@@ -9,7 +9,7 @@ generator_function() ->
 				 {S, Start+1, Stop+1}))).
 
 setup() ->
-	nifty_compiler:compile("./strstr.h", "strstr", []).
+	nifty_compiler:compile("./strstr.h", strstr, []).
 
 prop_com_ref() ->
 	begin

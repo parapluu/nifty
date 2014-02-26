@@ -44,7 +44,7 @@ ptr_to_record_{{type}}(ErlNifEnv* env, uint64_t ptr)
 	{% endwith %}
 
 {% with fields=types|fetch:type|getNth:2 %}{% with tpl_length=fields|length|add:1 %}{% if tpl_length>9 %}
-	retval = enif_make_tuple(env, enif_make_atom(
+	retval = enif_make_tuple(env, {{tpl_length}}, enif_make_atom(
 {% else %}
 	retval = enif_make_tuple{{tpl_length}}(env, enif_make_atom(
 {% endif %}{% endwith %}{% endwith %}

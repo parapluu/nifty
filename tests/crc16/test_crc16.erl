@@ -3,7 +3,7 @@
 -include_lib("proper/include/proper.hrl").
 
 setup() ->
-	nifty_compiler:compile("./crc16.h", "crc16c", 
+	nifty_compiler:compile("./crc16.h", crc16c, 
 		[{port_specs, 
 				[{".*", "priv/crc16c_nif.so", ["./crc16_fixed.c"]}]}]).
 
