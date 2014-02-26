@@ -1,34 +1,47 @@
 {% if phase=="prepare" %}
 	{% if argument|is_argument %}
-	{{type|array_get_base_type}} {{carg}};
+	ERL_NIF_TERM *tpl{{N}};
+	int arity{{N}};
+	uint64_t {{carg}};
+	uint64_t addr{{N}};
 	{% endif %}
 	{% if argument|is_return %}
-	{{type}} c_retval; 
+	uint64_t c_retval; 
 	ERL_NIF_TERM retval;
 	{% endif %}
 	{% if argument|is_field %}
 		{% if record=="to_record" %}
 	ERL_NIF_TERM {{erlarg}};
 		{% endif %}
+		{% if record=="to_ptr" %}
+	ERL_NIF_TERM *tpl{{N}};
+	int arity{{N}};
+	uint64_t addr{{N}};
+		{% endif %}
 	{% endif %}
 {% endif %}
 
 {% if phase=="to_c" %}
-	err = lst_to_array_{{typedef|array_name}}(env,
-	                                          {{erlarg}},
-	                                          ({{type|array_get_base_type}}*)&{{carg}},
-	                                          {{typedef|array_length}});
+	if (enif_compare({{erlarg}}, enif_make_atom(env, "null"))) {
+		err = enif_get_tuple(env, {{erlarg}}, &arity{{N}}, (const ERL_NIF_TERM**)(&tpl{{N}}));
+		if (err) {
+			err = enif_get_uint64(env, tpl{{N}}[0], &addr{{N}});
+			memcpy(&{{carg}}, (const void *)addr{{N}}, sizeof({{carg}}));
+		}
+	}
 {% endif %}
 
 {% if phase=="argument" %}
 {% if argument|is_argument %}
-({{type|array_get_base_type}}){{carg}}
+({{raw_type}}){{carg}}
 {% else %}
+(uint64_t)&
 {% endif %}
 {% endif %}
 
 {% if phase=="to_erl" %}
-	{{erlarg}} = array_to_lst_{{typedef|array_name}}(env, 
-	                                                 {{carg}},
-	                                                 {{typedef|array_length}});
+	{{erlarg}} = enif_make_tuple2(
+		env,
+		enif_make_uint64(env, (uint64_t)&{{carg}}),
+		enif_make_string(env, "{{module}}.{{type}}", ERL_NIF_LATIN1));
 {% endif %}

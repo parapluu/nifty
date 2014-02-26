@@ -27,18 +27,14 @@ typedef unsigned __int32 uint32_t;
  * forward declarations
  */
 {% with prototypes=1 %}
-{% include "arrays.tpl" %}
 {% include "structures.tpl" %}
 {% endwith %}
 
 /*
- * Arrays
- */
-{% include "arrays.tpl" %}
-/*
  * Stucts
  */
 {% include "structures.tpl" %}
+
 /*
  * Build Function Definitions
  */
