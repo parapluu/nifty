@@ -14,7 +14,7 @@
 -include_lib("proper/include/proper.hrl").
 
 -type llist() :: {integer(), string()}.
--record(state, {ls :: [llist()]}).
+-record(state, {ls :: [llist()], ref::list()}).
 
 %% compiler
 setup() ->
@@ -42,38 +42,61 @@ llist(#state{ls = Lists}) ->
 
 
 initial_state() ->
-    #state{ls=[]}.
+    #state{ls=[], ref=dict:new()}.
 
 command(S) ->
     NonEmpty = (S#state.ls =/= []),
     oneof([{call, ?MODULE, create_list, []}] ++
 	  [{call, c_list, list_add, [llist(S), item()]} || NonEmpty] ++
+	  [{call, c_list, list_push, [llist(S), item()]} || NonEmpty] ++
 	  [{call, c_list, list_pop, [llist(S)]} || NonEmpty]
      ).
 
 next_state(S, V, {call, _, create_list, _}) ->
-    S#state{ls=[V|S#state.ls]};
+    S#state{ls  = [V|S#state.ls], 
+	    ref = dict:store(V, 
+			   [], 
+			   S#state.ref
+			  )};
+next_state(S, _, {call, _, list_add, [L, I]}) ->
+    EL = dict:fetch(L, S#state.ref),
+    {list_item, _, D} = nifty:dereference(I),
+    S#state{ref = dict:store(L, EL ++ [D], S#state.ref)};
+next_state(S, _, {call, _, list_push, [L, I]}) ->
+    EL = dict:fetch(L, S#state.ref),
+    {list_item, _, D} = nifty:dereference(I),
+    S#state{ref = dict:store(L, [D|EL], S#state.ref)};
+next_state(S, R, {call, _, list_pop, [L]}) ->
+    case R of
+	{var, _} -> %% don't care about the symbolic result
+	    S;
+	{0, _} ->   %% null pointer means list was already empty so ignore
+	    S;
+	_ ->    %% remove head element
+	    [_|T] = dict:fetch(L, S#state.ref),
+	    S#state{ref = dict:store(L, T, S#state.ref)}
+    end;
 next_state(S, _, _) ->
     S.
 
 precondition(_, _) -> true.
 
-postcondition(_, {call, _, list_pop, _}, Result) ->
+postcondition(_, {call, _, list_add, _}, _) ->
+    true;
+postcondition(_, {call, _, list_push, _}, _) ->
+    true;
+postcondition(S, {call, _, list_pop, [L]}, Result) ->
+    EL = dict:fetch(L, S#state.ref),
     case Result of	
-	{0, _} -> true;
+	{0, _} -> EL=:=[];
 	Pointer ->
-	    {list_item, _ , _ } = nifty:dereference(nifty:as_type(Pointer, c_list, "struct list_item *")),
+	    {list_item, _ , D } = nifty:dereference(nifty:as_type(Pointer, c_list, "struct list_item *")),
 	    nifty:free(Pointer),
-	    true
+	    [H|_] = EL,
+	    H=:=D
     end;
-postcondition(_,_, Result) ->
-    case Result of	
-	ok -> true;
-	{0, _} -> true;
-	Pointer ->
-	    {list_item, _ , _ } = nifty:dereference(nifty:as_type(Pointer, c_list, "struct list_item *")),
-	    true
-    end.
+postcondition(_,_,_) ->
+    true.
 
 prop_list_works_fine() ->
     begin
