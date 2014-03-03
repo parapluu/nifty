@@ -14,7 +14,7 @@ init() -> %% loading code from jiffy
     erlang:load_nif(filename:join(PrivDir, "clang_parse"), 0).
 
 cparse(_) ->
-    exit(nif_library_not_loaded).
+    erlang:nif_error(nif_library_not_loaded).
 
 parse(Args) ->
     {cparse(Args), Args}.

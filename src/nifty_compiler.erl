@@ -87,20 +87,15 @@ compile(InterfaceFile, Module, Options) ->
     UCO = update_compile_options(InterfaceFile, ModuleName, Options),
     Env = build_env(ModuleName, UCO),
     CFlags = string:tokens(proplists:get_value("CFLAGS", Env, ""), " "),
-    case render(InterfaceFile, ModuleName, CFlags, UCO) of
-	fail -> 
-	    undefined;
-	Output ->
-	    case store_files(InterfaceFile, ModuleName, UCO, Output) of
-		ok ->
-		    compile_module(InterfaceFile, ModuleName, UCO), 
-		    ok;
-		_ -> 
-		    undefined
-	    end
-    end,
+    ok = case render(InterfaceFile, ModuleName, CFlags, UCO) of
+	     fail -> 
+		 undefined;
+	     Output ->
+		 ok = store_files(InterfaceFile, ModuleName, UCO, Output),
+		 ok = compile_module(InterfaceFile, ModuleName, UCO)
+	 end,
     ModulePath = filename:absname(filename:join([ModuleName, "ebin"])),
-    code:add_path(ModulePath),
+    true = code:add_path(ModulePath),
     ok.
 
 

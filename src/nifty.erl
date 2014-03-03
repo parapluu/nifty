@@ -86,14 +86,10 @@ dereference(Pointer) ->
 	_ ->
 	    NType = get_derefed_type(Type, Module),
 	    case NType of
-		fail ->
-		    erlang:error(badpointer);
 		{pointer, NType} ->
-		    {raw_deref(Address), Module++"."++NType};
+		    {raw_deref(Address), ModuleName++"."++NType};
 		{final, DType} ->
-		    build_type(Module, DType, Address);
-		_ -> 
-		    undef
+		    build_type(Module, DType, Address)
 	    end
     end.
 
@@ -133,25 +129,25 @@ free({Addr, _}) ->
 %%% NIF Functions
 -spec raw_free(addr()) -> 'ok'.
 raw_free(_) ->
-    exit(nif_library_not_loaded).
+    erlang:nif_error(nif_library_not_loaded).
 
 %% string conversion
 list_to_cstr(_) ->
-    exit(nif_library_not_loaded).
+    erlang:nif_error(nif_library_not_loaded).
 
 cstr_to_list(_) ->
-    exit(nif_library_not_loaded).
+    erlang:nif_error(nif_library_not_loaded).
 
 %% pointer arithmetic
 pointer() ->
     {_, Size} = proplists:get_value("arch", nifty:get_config()),
-    nifty:mem_alloc(Size).
+    mem_alloc(Size).
 
 raw_pointer_of(_) ->
-    exit(nif_library_not_loaded).
+    erlang:nif_error(nif_library_not_loaded).
 
 raw_deref(_) ->
-    exit(nif_library_not_loaded).
+    erlang:nif_error(nif_library_not_loaded).
 
 %% memory operation
 mem_write(Data) ->
@@ -163,16 +159,17 @@ mem_write(Data) ->
     end.
 
 mem_write(_,_) ->
-    exit(nif_library_not_loaded).
+    erlang:nif_error(nif_library_not_loaded).
 
 mem_writer(_,_) ->
-    exit(nif_library_not_loaded).
+    erlang:nif_error(nif_library_not_loaded).
 
 mem_read(_,_) ->
-    exit(nif_library_not_loaded).
+    erlang:nif_error(nif_library_not_loaded).
 
+-spec mem_alloc(non_neg_integer()) -> addr().
 mem_alloc(_) ->
-    exit(nif_library_not_loaded).
+    erlang:nif_error(nif_library_not_loaded).
 
 %% config
 get_config() ->
