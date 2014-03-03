@@ -16,11 +16,6 @@ render(InterfaceFile, Module, CFlags, Options) ->
 	{Token, _} -> 
 	    {Functions, Typedefs, Structs} = clang_parse:build_vars(Token),
 	    {Types, Symbols} = type_table:build({Functions, Typedefs, Structs}),
-	    %% template stuff
-	    CTemplate = erlang:list_to_atom("nifty_c_template"),
-	    ErlTemplate = erlang:list_to_atom("nifty_erl_template"),
-	    AppTemplate = erlang:list_to_atom("nifty_app_template"),
-	    ConfigTemplate = erlang:list_to_atom("nifty_config_template"),
 	    RenderVars = [
 			  {"functions", Functions},  % ?
 			  {"structs", Structs},      % ?
@@ -32,10 +27,10 @@ render(InterfaceFile, Module, CFlags, Options) ->
 			  {"symbols", Symbols},
 			  {"none", none}
 			 ],
-	    {ok, COutput} = CTemplate:render(RenderVars),
-	    {ok, ErlOutput} = ErlTemplate:render(RenderVars),
-	    {ok, AppOutput} = AppTemplate:render(RenderVars),
-	    {ok, ConfigOutput} = ConfigTemplate:render(RenderVars),
+	    {ok, COutput} = nifty_c_template:render(RenderVars),
+	    {ok, ErlOutput} = nifty_erl_template:render(RenderVars),
+	    {ok, AppOutput} = nifty_app_template:render(RenderVars),
+	    {ok, ConfigOutput} = nifty_config_template:render(RenderVars),
 	    {ErlOutput, COutput, AppOutput, ConfigOutput}
     end.
 
@@ -65,15 +60,17 @@ store_files(_, Module, _, RenderOutput, Path) ->
 	     _ -> fail
 	 end,
     {ErlOutput, COutput, AppOutput, ConfigOutput} = RenderOutput,
-    ok = file:write_file(filename:join([Path,Module, "src", Module++".erl"]), [ErlOutput]),
-    ok = file:write_file(filename:join([Path,Module, "c_src", Module++"_nif.c"]), [COutput]),
-    ok = file:write_file(filename:join([Path,Module, "ebin", Module++".app"]), [AppOutput]),
-    ok = file:write_file(filename:join([Path,Module, "rebar.config"]), [ConfigOutput]).
+    ok = fwrite_render(Path, Module, "src", Module++".erl", ErlOutput),
+    ok = fwrite_render(Path, Module, "c_src", Module++"_nif.c", COutput),
+    ok = fwrite_render(Path, Module, "ebin", Module++".app", AppOutput),
+    ok = fwrite_render(Path, Module, ".", "rebar.config", ConfigOutput).
 
+fwrite_render(Path, Module, Dir, FileName, Template) ->
+    file:write_file(filename:join([Path, Module, Dir, FileName]), [Template]).
 
 compile_module(_, Module, _) ->
     {ok, Path} = file:get_cwd(),
-    file:set_cwd(filename:join([Path, Module])),
+    ok = file:set_cwd(filename:join([Path, Module])),
     rebar_commands(["compile"]),
     file:set_cwd(Path).
 

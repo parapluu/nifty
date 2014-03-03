@@ -160,8 +160,7 @@ parse_type([E|T], TypeDef, Kind) ->
     end.
 
 type_extend(Type) ->
-    R = type_extend(Type, []),
-    R.
+    type_extend(Type, []).
 
 type_extend([], Acc) -> Acc;
 type_extend([H|T], Acc) ->
@@ -183,9 +182,7 @@ build_type_entry(TypeTable, Type) ->
 		    dict:append(Type, {base, Def}, TypeTable);
 		{Def, userdef} ->
 		    %% io:format("~p -> ~p userdef~n", [Type, Def]),
-		    dict:append(Type, {userdef, Def}, TypeTable);
-		_ ->
-		    TypeTable
+		    dict:append(Type, {userdef, Def}, TypeTable)
 	    end
     end.
 

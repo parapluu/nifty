@@ -65,7 +65,7 @@ get_derefed_type(Type, Module) ->
 
 resolve_type(Type, Types) ->
     case dict:is_key(Type, Types) of 
-	true->
+	true ->
 	    [{Kind, TypeDef}] = dict:fetch(Type, Types),
 	    case Kind of
 		typedef -> resolve_type(TypeDef, Types);
@@ -74,7 +74,6 @@ resolve_type(Type, Types) ->
 	false ->
 	    undef
     end.
-
 
 %% pointer arithmetic
 dereference(Pointer) ->
@@ -105,7 +104,6 @@ build_builtin_type(DType, Address) ->
 	_ -> undef
     end.
 
-
 build_type(Module, Type, Address) ->
     Types = Module:get_types(),
     [{Kind, Def}] = dict:fetch(Type, Types),
@@ -126,10 +124,14 @@ build_type(Module, Type, Address) ->
 	    undef
     end.
 
+-type addr() :: integer().
+
+-spec free({addr(), string()}) -> 'ok'.
 free({Addr, _}) ->
     raw_free(Addr).
 
 %%% NIF Functions
+-spec raw_free(addr()) -> 'ok'.
 raw_free(_) ->
     exit(nif_library_not_loaded).
 

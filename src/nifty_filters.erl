@@ -35,7 +35,6 @@ norm_type(Type) ->
 	     end
     end.
 
-
 dereference_type(Type) ->
     NType = norm_type(Type),
     case string:str(NType, "*") of
@@ -44,7 +43,7 @@ dereference_type(Type) ->
     end.
 
 discard_const(Type) ->
-    string:join(lists:filter(fun(Value)->not (Value=:="const") end, string:tokens(Type, " ")), " ").
+    string:join([Tok || Tok <- string:tokens(Type, " "), Tok =/= "const"], " ").
 
 loopcounter(Type, Name) ->
     NType = "#"++norm_type(Type)++"#",
@@ -86,8 +85,8 @@ lookup(Tab, Key) ->
 %%% dict
 fetch(Dict, Key) ->
     V = dict:fetch(Key, Dict),
-    case length(V) of
-	1 -> [R] = V,R;
+    case V of
+	[R] -> R;
 	_ -> V
     end.
 
