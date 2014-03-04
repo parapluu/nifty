@@ -1,4 +1,4 @@
--module(type_table).
+-module(nifty_typetable).
 -export([build/1, check_types/1]).
 
 -define(BASE_TYPES, ["char", "int", "float", "double", "void"]).

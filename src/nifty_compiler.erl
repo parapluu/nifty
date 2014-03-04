@@ -15,7 +15,7 @@ render(InterfaceFile, Module, CFlags, Options) ->
 	    fail;
 	{Token, _} -> 
 	    {Functions, Typedefs, Structs} = clang_parse:build_vars(Token),
-	    {Types, Symbols} = type_table:build({Functions, Typedefs, Structs}),
+	    {Types, Symbols} = nifty_typetable:build({Functions, Typedefs, Structs}),
 	    RenderVars = [
 			  {"functions", Functions},  % ?
 			  {"structs", Structs},      % ?
@@ -118,11 +118,23 @@ get_spec_env(ModuleName, [S|T]) ->
 	{_, Lib, _, Options} ->
 	    case proplists:get_value(env, Options) of
 		undefined -> [];
-		Env -> Env
+		Env -> expand_env(Env, [])
 	    end;
 	_ ->
 	    get_spec_env(ModuleName, T)
     end.
+
+norm_opts(Options) ->
+    case proplists:get_value(env, Options) of
+	undefined -> [];
+	Env -> expand_env(Env, [])
+    end.
+
+expand_env([], Acc) ->
+    Acc;
+expand_env([{ON, O}|T], Acc) ->
+    io:format("~p->~p~n", [O, nifty_utils:expand(O)]),
+    expand_env(T, [{ON, nifty_utils:expand(O)}|Acc]).
 
 libname(ModuleName) ->
     "priv/"++ModuleName++"_nif.so".
@@ -141,7 +153,7 @@ module_spec(ARCH, Sources, Options, InterfaceFile,  ModuleName) ->
       ARCH, 
       libname(ModuleName),
       ["c_src/"++ModuleName++"_nif.c"|abspath_sources(Sources)],
-      join_options([{env, [{"CFLAGS", "$CFLAGS -I"++filename:absname(filename:dirname(InterfaceFile))}]}], Options)
+      join_options([{env, [{"CFLAGS", "$CFLAGS -I"++filename:absname(filename:dirname(nifty_utils:expand(InterfaceFile)))}]}], norm_opts(Options))
     }.
 
 join_options(Proplist1, Proplist2) ->
@@ -154,7 +166,7 @@ abspath_sources(S) -> abspath_sources(S, []).
 
 abspath_sources([], Acc) -> Acc;
 abspath_sources([S|T], Acc) ->
-    abspath_sources(T, [filename:absname(S)|Acc]).
+    abspath_sources(T, [filename:absname(nifty_utils:expand(S))|Acc]).
 
 
 update_port_spec(_,  _, [], Acc, true) -> 

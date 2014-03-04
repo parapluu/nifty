@@ -19,9 +19,11 @@
 {% endif %}
 
 {% if phase=="to_c" %}
-	err = enif_get_double(env, {{erlarg}}, &{{carg}});
 	{% if typedef|getNth:1=="float" %}
+	err = enif_get_double(env, {{erlarg}}, &{{carg}}_helper);
 	{{carg}}=({{type}}){{carg}}_helper;
+	{% else %}
+	err = enif_get_double(env, {{erlarg}}, &{{carg}});
 	{% endif %}
 {% endif %}
 
@@ -34,7 +36,7 @@
 {% endif %}
 
 {% if phase=="to_erl"%}
-	{{erlarg}} = {{type}}enif_make_double(env, {{carg}});
+	{{erlarg}} = ({{type}})enif_make_double(env, {{carg}});
 {% endif %}
 
 {# no cleanup phase #}

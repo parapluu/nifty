@@ -13,7 +13,8 @@
 			nifty_tags,
 			nifty_rebar,
 			nifty_compiler,
-			type_table]},
+			nifty_utils,
+			nifty_typetable]},
 		{applications,[kernel,stdlib,compile]}
 	]
 }.

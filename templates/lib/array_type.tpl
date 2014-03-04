@@ -33,7 +33,7 @@
 
 {% if phase=="argument" %}
 {% if argument|is_argument %}
-({{raw_type}}){{carg}}
+{{carg}}
 {% else %}
 (uint64_t)&
 {% endif %}
