@@ -125,15 +125,56 @@ get_spec_env(ModuleName, [S|T]) ->
     end.
 
 norm_opts(Options) ->
-    case proplists:get_value(env, Options) of
-	undefined -> [];
-	Env -> expand_env(Env, [])
+    Ret = case proplists:get_value(env, Options) of
+	      undefined -> Options;
+	      Env -> 
+		  [{env, merge_env(expand_env(Env, []), dict:new())}| proplists:delete(env, Options)]
+	  end,
+    Ret.
+
+merge_env([], D) -> dict:to_list(D);
+merge_env([{Key, Opt}|T], D) ->
+    case dict:is_key(Key, D) of
+	true ->
+	    merge_env(T, dict:store(Key, dict:fetch(Key,D) ++ " " ++ remove_envvar(Key, Opt), D));
+	false ->
+	    merge_env(T, dict:store(Key, Opt, D))
+    end.
+
+remove_envvar(Key, Opt) -> 
+    %% remove in the beginning and the end
+    Striped = string:strip(Opt),
+    K1 = "${" ++ Key ++ "}",
+    K2 = "$" ++ Key,
+    K3 = "%" ++ Key,
+    E1 = length(Striped) - length(K1) + 1,
+    E23 = length(Striped) - length(K2) + 1,
+    case string:str(Striped, K1) of
+	1 ->
+	    string:substr(Striped, length(K1)+1);	   
+	E1 ->
+	    string:substr(Striped, 1, E1);
+	_ ->
+	    case string:str(Striped, K2) of
+		1 ->
+		    string:substr(Striped, length(K2)+1);
+		E23 ->
+		    string:substr(Striped, 1, E23 -1);
+		_ ->
+		    case string:str(Striped, K3) of
+			1 ->
+			    string:substr(Striped, length(K3)+1);	   
+			E23 ->
+			    string:substr(Striped, 1, E23 - 1);
+			_ ->
+			    Striped
+		    end
+	    end
     end.
 
 expand_env([], Acc) ->
     Acc;
 expand_env([{ON, O}|T], Acc) ->
-    io:format("~p->~p~n", [O, nifty_utils:expand(O)]),
     expand_env(T, [{ON, nifty_utils:expand(O)}|Acc]).
 
 libname(ModuleName) ->
@@ -153,7 +194,7 @@ module_spec(ARCH, Sources, Options, InterfaceFile,  ModuleName) ->
       ARCH, 
       libname(ModuleName),
       ["c_src/"++ModuleName++"_nif.c"|abspath_sources(Sources)],
-      join_options([{env, [{"CFLAGS", "$CFLAGS -I"++filename:absname(filename:dirname(nifty_utils:expand(InterfaceFile)))}]}], norm_opts(Options))
+      norm_opts(join_options([{env, [{"CFLAGS", "$CFLAGS -I"++filename:absname(filename:dirname(nifty_utils:expand(InterfaceFile)))}]}], Options))
     }.
 
 join_options(Proplist1, Proplist2) ->
