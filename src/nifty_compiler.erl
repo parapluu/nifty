@@ -13,6 +13,8 @@ render(InterfaceFile, Module, CFlags, Options) ->
     case clang_parse:parse([PathToH|CFlags]) of
 	{fail, _} -> 
 	    fail;
+	{[], _} ->
+	    fail;
 	{Token, _} -> 
 	    {Functions, Typedefs, Structs} = clang_parse:build_vars(Token),
 	    {Types, Symbols} = nifty_typetable:build({Functions, Typedefs, Structs}),
@@ -89,15 +91,14 @@ compile(InterfaceFile, Module, Options) ->
     CFlags = string:tokens(proplists:get_value("CFLAGS", Env, ""), " "),
     ok = case render(InterfaceFile, ModuleName, CFlags, UCO) of
 	     fail -> 
-		 undefined;
+		 fail;
 	     Output ->
 		 ok = store_files(InterfaceFile, ModuleName, UCO, Output),
-		 ok = compile_module(InterfaceFile, ModuleName, UCO)
-	 end,
-    ModulePath = filename:absname(filename:join([ModuleName, "ebin"])),
-    true = code:add_path(ModulePath),
-    ok.
-
+		 ok = compile_module(InterfaceFile, ModuleName, UCO),
+		 ModulePath = filename:absname(filename:join([ModuleName, "ebin"])),
+		 true = code:add_path(ModulePath),
+		 ok
+	 end.
 
 build_env(ModuleName, Options) ->
     Env = case proplists:get_value(port_env, Options) of
