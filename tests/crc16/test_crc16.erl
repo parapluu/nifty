@@ -5,7 +5,7 @@
 setup() ->
 	nifty_compiler:compile("./crc16.h", crc16c, 
 		[{port_specs, 
-				[{".*", "priv/crc16c_nif.so", ["./crc16_fixed.c"]}]}]).
+				[{".*", "$NIF", ["./crc16_fixed.c"]}]}]).
 
 
 prop_compare_reference() -> 

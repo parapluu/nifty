@@ -22,7 +22,7 @@ setup() ->
     			   [{port_specs,
     			     [{
     						".*",
-    						"priv/c_list_nif.so",	
+    						"$NIF",	
     						["$CONTIKI/core/lib/list.c"],
     						[{env, [{"CFLAGS",
     							 "$CFLAGS -I$CONTIKI/core"}]}]
