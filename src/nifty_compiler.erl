@@ -86,6 +86,7 @@ rebar_commands(Commands) ->
 
 compile(InterfaceFile, Module, Options) ->
     ModuleName = erlang:atom_to_list(Module),
+    os:putenv("NIF", libname(ModuleName)),
     UCO = update_compile_options(InterfaceFile, ModuleName, Options),
     Env = build_env(ModuleName, UCO),
     CFlags = string:tokens(proplists:get_value("CFLAGS", Env, ""), " "),
@@ -124,6 +125,8 @@ get_spec_env(ModuleName, [S|T]) ->
 	_ ->
 	    get_spec_env(ModuleName, T)
     end.
+
+
 
 norm_opts(Options) ->
     Ret = case proplists:get_value(env, Options) of
@@ -195,7 +198,10 @@ module_spec(ARCH, Sources, Options, InterfaceFile,  ModuleName) ->
       ARCH, 
       libname(ModuleName),
       ["c_src/"++ModuleName++"_nif.c"|abspath_sources(Sources)],
-      norm_opts(join_options([{env, [{"CFLAGS", "$CFLAGS -I"++filename:absname(filename:dirname(nifty_utils:expand(InterfaceFile)))}]}], Options))
+      norm_opts(join_options([{env, 
+			       [{"CFLAGS", 
+				 "$CFLAGS -I"++filename:absname(filename:dirname(nifty_utils:expand(InterfaceFile)))}]}], 
+			     Options))
     }.
 
 join_options(Proplist1, Proplist2) ->
@@ -213,11 +219,11 @@ abspath_sources([S|T], Acc) ->
 
 update_port_spec(_,  _, [], Acc, true) -> 
     Acc;
-update_port_spec(InterfaceFile,  ModuleName, [], Acc, false) -> 
+update_port_spec(InterfaceFile,  ModuleName, [], Acc, false) -> %% empty spec
     [module_spec(".*", [], [], InterfaceFile, ModuleName), Acc];
 update_port_spec(InterfaceFile,  ModuleName, [Spec|T], Acc, Found) ->
     Shared = libname(ModuleName),
-    case Spec of
+    case expand_spec(Spec) of
 	{ARCH, Shared, Sources} ->
 	    update_port_spec(
 	      InterfaceFile, 
@@ -233,3 +239,17 @@ update_port_spec(InterfaceFile,  ModuleName, [Spec|T], Acc, Found) ->
 	_ ->
 	    update_port_spec(InterfaceFile, ModuleName, T, [Spec|Acc], Found)
     end.
+
+expand_spec(S) ->
+    case S of
+	{ARCH, Shared, Sources} ->
+	    {ARCH, nifty_utils:expand(Shared), norm_sources(Sources)};
+	{ARCH, Shared, Sources, Options} ->
+	    {ARCH, nifty_utils:expand(Shared), norm_sources(Sources), Options}
+    end.
+
+norm_sources(S) ->
+    lists:map(fun nifty_utils:expand/1, S).
+
+
+
