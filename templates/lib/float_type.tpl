@@ -31,4 +31,5 @@
 	{{erlarg}} = enif_make_double(env, {{carg}});
 {% endif %}
 
+
 {# no cleanup phase #}
