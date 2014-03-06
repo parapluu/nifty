@@ -9,13 +9,14 @@ struct s1 {
 };
 
 struct s2 {
-  struct s1;
-  struct *s1;
+  struct s1 f1;
+  struct s1 *f2;
 };
 
+
 struct s3 {
-  struct s2;
-  struct s1;
+  struct s2 f1;
+  struct s1 f2;
 };
 
 /* No functions */

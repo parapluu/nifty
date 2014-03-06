@@ -63,3 +63,13 @@ call_functions_arguments()->
 arguments_test()->
     ok = compile_arguments(),
     ok = call_functions_arguments().
+
+compile_structs() ->
+    ok = nifty_compiler:compile("../test/cfiles/structs.h", nt_structs, []).
+
+call_functions_structs()->
+    ok.
+
+structs_test()->
+    ok = compile_structs(),
+    ok = call_functions_structs().

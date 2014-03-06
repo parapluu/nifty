@@ -93,7 +93,7 @@ record_to_erlptr_{{type}}(ErlNifEnv* env, ERL_NIF_TERM record)
 				{% with raw_type=argument|getNth:3 phase="to_c" %}
 					{% with type=raw_type|resolved:types %}
 						{% with N=argument|getNth:2 I=argument|getNth:4|add:1 %}
-							{% with carg="(cstruct->"|add:N|add:")" erlarg="tpl["|add:I|add:"]" %}
+							{% with carg="(cstruct->"|add:N|add:")" erlarg="(tpl["|add:I|add:"])" %}
 								{% include "lib/builtin_type.tpl" %}
 							{% endwith %}
 						{% endwith %}
