@@ -26,10 +26,11 @@ call_functions()->
     1 = nt_builtin:f6(1),
     1 = nt_builtin:f7(1),
     1 = nt_builtin:f8(1),
-%%    nt_builtin:f9(1.0),
+    1.0 = nt_builtin:f9(1.0),
     1.0 = nt_builtin:f10(1.0),
     P = nifty:pointer(),
     nt_builtin:f11(P),
+    nifty:free(P),
     ok.
 
 builtin_test()->
