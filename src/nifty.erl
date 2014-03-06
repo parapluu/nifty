@@ -167,7 +167,7 @@ mem_writer(_,_) ->
 mem_read(_,_) ->
     erlang:nif_error(nif_library_not_loaded).
 
--spec mem_alloc(non_neg_integer()) -> addr().
+-spec mem_alloc(non_neg_integer()) -> {addr(), nonempty_string()}.
 mem_alloc(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
