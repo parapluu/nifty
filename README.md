@@ -56,4 +56,4 @@ and include Nifty in your ERL_LIBS path.
 + **clang** compiler
 
 ### Limitations
-So far there is no support for unions and anonymous struct. There is no nice way of using arrays although **nifty:mem_alloc/1** and **nifty:mem_read/1** allow to use them on a basic level. 
+So far there is no support for unions and anonymous struct. There is no nice way of using arrays although **nifty:mem_alloc/1** and **nifty:mem_read/1** allow to use them on a basic level. The tool has not been tested under Windows or 32 bit.
