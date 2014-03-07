@@ -30,7 +30,7 @@ nifty_compiler:compile("mylib.h", mylib, [
     			     [{
     						".*",
     						"$NIF",	
-    						["../test/cfiles/arguments.c"]
+    						["mylib.c"]
     				}]
     		}]
 
