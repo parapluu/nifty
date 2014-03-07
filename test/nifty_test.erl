@@ -3,9 +3,6 @@
 
 -include_lib("eunit/include/eunit.hrl").
 
-%% this might be weird:
-%%     rebar copies all erlang files into .eunit/
-%%     in order to get to the c files we have adjust the path with ../test/
 compile_builtin() ->
     ok = nifty_compiler:compile("../test/cfiles/builtin_types.h", nt_builtin, 
     			   [
@@ -41,15 +38,14 @@ builtin_test()->
     ok = call_functions_builtin().
 
 compile_arguments() ->
-    ok = nifty_compiler:compile("../test/cfiles/arguments.h", nt_arguments, 
-    			   [
-    			   {port_specs,
-    			     [{
-    						".*",
-    						"$NIF",	
-    						["../test/cfiles/arguments.c"]
-    				}]
-    		}]).
+    ok = nifty_compiler:compile("../test/cfiles/arguments.h", 
+				nt_arguments, 
+				[{port_specs,
+				  [{".*",
+				    "$NIF",	
+				    ["../test/cfiles/arguments.c"]
+				   }]
+				 }]).
 
 call_functions_arguments()->
     ok = nt_arguments:f1(),
@@ -73,3 +69,23 @@ call_functions_structs()->
 structs_test()->
     ok = compile_structs(),
     ok = call_functions_structs().
+
+compile_proxy() ->
+    ok = nifty_compiler:compile("../test/cfiles/proxy_header.h", 
+				nt_proxy, 
+				[{port_specs,
+				  [{".*",
+				    "$NIF",	
+				    ["../test/cfiles/proxy_header.c"],
+				    [{env, [{"CFLAGS", "$CFLAGS -I../test/cfiles"}]}]
+				   }]
+				 }]).
+call_functions_proxy() ->
+    F = {0, "nifty.void*"},
+    {0, _} = nt_proxy:f1(F),
+    ok.
+
+proxy_test()->
+    ok = compile_proxy(),
+    ok = call_functions_proxy().
+    
