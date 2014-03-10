@@ -51,6 +51,18 @@ After succesfully cloning enter the following commands
 
 and include Nifty in your ERL_LIBS path.
 
+## Running Unit Tests
+Run the following command to check that everything works correct:
+```
+./rebar clean compile eunit skip_deps=true
+```
+
+**libclang.so** has to be in your search-path and nifty and it's dependencies have to be in you **ERL_LIBS** path.
+
+```
+ LD_LIBRARY_PATH=<PATH_TO_LIBCLANG> ERL_LIBS=<PATH_TO_NIFTY>:<PATH_TO_NIFTY>/deps ./rebar clean compile eunit skip_deps=true
+```
+
 ### Dependencies
 + **libclang** including the header files
 + **clang** compiler
