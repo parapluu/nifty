@@ -1,6 +1,6 @@
 # Nifty - Erlang Native Interface Generator
 
-Nifty is an interface generator that allows you to use C modules from inside Erlang.
+Nifty is an interface generator that allows you to use C modules from Erlang.
 
 ## A simple Example
 
