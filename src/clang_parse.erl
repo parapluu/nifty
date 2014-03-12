@@ -120,8 +120,11 @@ build_fields(T, Definitions, Name, Fields) ->
 build_named_struct(T, Definitions, Name) ->
     {NT, {Functions, TypeDefs, Structs}, Fields} = build_fields(T, Definitions, Name),
     NewStructs =  case dict:is_key(Name, Structs) of
-		      true -> Structs;
-		      false -> dict:append(Name, Fields, Structs)
+		      true -> 
+			  %% overwrite uncomplete struct definitions
+			  dict:append(Name, Fields, dict:erase(Name, Structs));
+		      false -> 
+			  dict:append(Name, Fields, Structs)
 		  end,
     {NT, {Functions, TypeDefs, NewStructs}}.
 

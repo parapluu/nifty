@@ -35,12 +35,13 @@ fill_type_table(Types) ->
 
 fill_type_table(Types, []) -> Types;
 fill_type_table(Types, [Type|TypeNames]) ->
-    [{Kind, [H|T]}] = dict:fetch(Type, Types),
+    [{Kind, L}] = dict:fetch(Type, Types),
     case Kind of
 	base -> fill_type_table(Types, TypeNames);
 	struct -> fill_type_table(Types, TypeNames);
 	typedef -> fill_type_table(Types, TypeNames);
 	_ ->
+	    [H|T] = L,
 	    case (H=:="*") orelse string:str(H, "[")>0 of
 		true ->
 		    [P|Token] = lists:reverse(string:tokens(Type, " ")),

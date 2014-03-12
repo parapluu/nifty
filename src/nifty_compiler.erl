@@ -73,8 +73,13 @@ fwrite_render(Path, Module, Dir, FileName, Template) ->
 compile_module(_, Module, _) ->
     {ok, Path} = file:get_cwd(),
     ok = file:set_cwd(filename:join([Path, Module])),
-    rebar_commands(["compile"]),
-    file:set_cwd(Path).
+    try rebar_commands(["compile"]) of
+	_ -> file:set_cwd(Path)
+    catch
+	throw:rebar_abort ->
+	    file:set_cwd(Path),
+	    fail
+    end.
 
 rebar_commands(Commands) ->
     RawArgs = Commands,

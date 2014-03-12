@@ -11,7 +11,9 @@ static ERL_NIF_TERM record_to_erlptr_{{type}}(ErlNifEnv* env, ERL_NIF_TERM recor
 static ERL_NIF_TERM
 ptr_to_record_{{type}}(ErlNifEnv* env, uint64_t ptr)
 {
+	{% if types|fetch:type|getNth:2|length > 0 %}
 	struct {{type}}* cstruct=(struct {{type}}*)ptr;
+	{% endif %}
 	ERL_NIF_TERM retval;
 	{% with fields=types|fetch:type|getNth:2 %}
 		{% for argument in fields %}
@@ -48,11 +50,11 @@ ptr_to_record_{{type}}(ErlNifEnv* env, uint64_t ptr)
 {% else %}
 	retval = enif_make_tuple{{tpl_length}}(env, enif_make_atom(
 {% endif %}{% endwith %}{% endwith %}
-		env, "{{type|resolved:types}}"),
+		env, "{{type|resolved:types}}")
 	{% with fields=types|fetch:type|getNth:2 %}
 		{% for argument in fields %}
 						{% with N=argument|getNth:2 %}
-							{{"erlarg_"|add:N}}{% if not forloop.last %},{% endif %}
+							,{{"erlarg_"|add:N}}
 						{% endwith %}
 		{% endfor %}
 	{% endwith %});
@@ -238,7 +240,7 @@ new_type_object(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {% with type_keys=types|fetch_keys %}
 	{% for type in type_keys %}
 		{% with kind=types|fetch:type|getNth:1 %}
-			{% if kind=="struct" %}
+			{% if kind=="struct" %}{% if types|fetch:type|getNth:2|length > 0 %}
 	if ((!(strcmp((const char*)cstr, "{{type}}")))
 		|| (!(strcmp((const char*)cstr, "struct {{type}}"))))
 	{
@@ -247,7 +249,7 @@ new_type_object(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 		enif_free((void*)type_holder);
 		return retval;
 	}
-			{% endif %}
+			{% endif %}{% endif %}
 			{% if kind=="userdef" %}
 			{% endif %}
 		{% endwith%}

@@ -248,7 +248,7 @@ mem_alloc(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
 	return enif_make_tuple2(
 		env,
-		enif_make_int64(env, (uint64_t)ptr),
+		enif_make_uint64(env, (uint64_t)ptr),
 		enif_make_string(env, "nifty.void *", ERL_NIF_LATIN1));
 
 error:
@@ -258,37 +258,44 @@ error:
 static ERL_NIF_TERM
 get_config(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-	return enif_make_list2(
-		env,
-		enif_make_tuple2(
-			env,
-			enif_make_string(env,"sizes", ERL_NIF_LATIN1),
-			enif_make_tuple6(
-				env,
-				enif_make_uint(env, sizeof(short int)),
-				enif_make_uint(env, sizeof(int)),
-				enif_make_uint(env, sizeof(long int)),
-				enif_make_uint(env, sizeof(long long int)),
-				enif_make_uint(env, sizeof(float)),
-				enif_make_uint(env, sizeof(double))
-			)
-		),
-		enif_make_tuple2(
-			env,
-			enif_make_string(env, "arch", ERL_NIF_LATIN1),
-			enif_make_tuple2(
-				env,
+  return enif_make_list2(
+			 env,
+			 enif_make_tuple2(
+					  env,
+					  enif_make_string(env,"sizes", ERL_NIF_LATIN1),
+					  enif_make_tuple6(env,
+							   enif_make_uint(env, sizeof(short int)),
+							   enif_make_uint(env, sizeof(int)),
+							   enif_make_uint(env, sizeof(long int)),
+							   enif_make_uint(env, sizeof(long long int)),
+							   enif_make_uint(env, sizeof(float)),
+							   enif_make_uint(env, sizeof(double))
+							   )
+					  ),
+			 enif_make_tuple2(env,
+					  enif_make_string(env, "arch", ERL_NIF_LATIN1),
+					  enif_make_tuple2(
+							   env,
 #ifdef ENV64BIT
-				enif_make_string(env, "64bit", ERL_NIF_LATIN1),
+							   enif_make_string(env, "64bit", ERL_NIF_LATIN1),
 #endif
 #ifdef ENV32BIT
-				enif_make_string(env, "32bit", ERL_NIF_LATIN1),
+							   enif_make_string(env, "32bit", ERL_NIF_LATIN1),
 #endif
-				enif_make_uint(env, sizeof(char*))
-			)
-		)
-	);
+							   enif_make_uint(env, sizeof(char*))
+							   )
+					  )
+			 );
 }
+
+static ERL_NIF_TERM
+get_env(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+{
+  return enif_make_tuple2(env, 
+			  enif_make_uint64(env, (uint64_t)env),
+			  enif_make_string(env, "nifty.void *", ERL_NIF_LATIN1));
+}
+
 
 static ErlNifFunc nif_funcs[] = {
   {"raw_deref", 1, raw_deref},
@@ -300,7 +307,8 @@ static ErlNifFunc nif_funcs[] = {
   {"mem_writer", 2, mem_writer},
   {"mem_read", 2, mem_read},
   {"mem_alloc", 1, mem_alloc},
-  {"get_config", 0, get_config}
+  {"get_config", 0, get_config},
+  {"get_env", 0, get_env}
 };
 
 int upgrade(ErlNifEnv* env, void** priv_data, void** old_priv_data, ERL_NIF_TERM load_info)

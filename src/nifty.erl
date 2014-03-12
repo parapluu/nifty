@@ -15,6 +15,7 @@
 	 mem_read/2,
 	 mem_alloc/1,
 	 get_config/0,
+	 get_env/0,
 	 as_type/3,
 	 get_types/0
 	]).
@@ -173,6 +174,9 @@ mem_alloc(_) ->
 
 %% config
 get_config() ->
+    exit(nif_library_not_loaded).
+
+get_env() ->
     exit(nif_library_not_loaded).
 
 as_type({Address, _}, Module, Type) ->
