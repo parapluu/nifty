@@ -4,15 +4,15 @@
 -include_lib("eunit/include/eunit.hrl").
 
 compile_builtin() ->
-    ok = nifty_compiler:compile("../test/cfiles/builtin_types.h", nt_builtin, 
-    			   [
-    			   {port_specs,
-    			     [{
-    						".*",
-    						"$NIF",
-    						["../test/cfiles/builtin_types.c"]
-    				}]
-    		}]).
+    ok = nifty_compiler:compile("../test/cfiles/builtin_types.h", 
+				nt_builtin, 
+				[
+				 {port_specs,
+				  [{".*",
+				    "$NIF",
+				    ["../test/cfiles/builtin_types.c"]
+				   }]
+				 }]).
 
 call_functions_builtin()->
     1 = nt_builtin:f1(1),

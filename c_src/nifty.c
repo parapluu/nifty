@@ -196,17 +196,17 @@ error:
 	return enif_make_badarg(env);
 }
 
-
 static ERL_NIF_TERM
 mem_read(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
 	unsigned int err, l, i, tmp;
+	char element;
 	int ar;
 	char* ptr;
 	ERL_NIF_TERM list, head, *tpl;
 
 
-    err = enif_get_tuple(env, argv[0], &ar, (const ERL_NIF_TERM**)(&tpl));
+	err = enif_get_tuple(env, argv[0], &ar, (const ERL_NIF_TERM**)(&tpl));
 	if (err) {
 		err = enif_get_uint64(env, tpl[0], (uint64_t*)&ptr);
 	}
@@ -222,7 +222,8 @@ mem_read(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 	list = enif_make_list(env, 0);
 
 	for (i=0;i<l;i++) {
-		tmp = *(ptr+(l-1)-i);
+		element = (char)*(ptr+(l-1)-i);
+		tmp = element & 0xff;
 		head = enif_make_uint(env, tmp);
 		list = enif_make_list_cell(env, head, list);
 	}
@@ -259,33 +260,35 @@ static ERL_NIF_TERM
 get_config(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
   return enif_make_list2(
-			 env,
-			 enif_make_tuple2(
-					  env,
-					  enif_make_string(env,"sizes", ERL_NIF_LATIN1),
-					  enif_make_tuple6(env,
-							   enif_make_uint(env, sizeof(short int)),
-							   enif_make_uint(env, sizeof(int)),
-							   enif_make_uint(env, sizeof(long int)),
-							   enif_make_uint(env, sizeof(long long int)),
-							   enif_make_uint(env, sizeof(float)),
-							   enif_make_uint(env, sizeof(double))
-							   )
-					  ),
-			 enif_make_tuple2(env,
-					  enif_make_string(env, "arch", ERL_NIF_LATIN1),
-					  enif_make_tuple2(
-							   env,
+	env,
+	enif_make_tuple2(
+		env,
+		enif_make_string(env,"sizes", ERL_NIF_LATIN1),
+		enif_make_tuple6(
+			env,
+			enif_make_uint(env, sizeof(short int)),
+			enif_make_uint(env, sizeof(int)),
+			enif_make_uint(env, sizeof(long int)),
+			enif_make_uint(env, sizeof(long long int)),
+			enif_make_uint(env, sizeof(float)),
+			enif_make_uint(env, sizeof(double))
+			)
+		),
+	enif_make_tuple2(
+		env,
+		enif_make_string(env, "arch", ERL_NIF_LATIN1),
+		enif_make_tuple2(
+			env,
 #ifdef ENV64BIT
-							   enif_make_string(env, "64bit", ERL_NIF_LATIN1),
+			enif_make_string(env, "64bit", ERL_NIF_LATIN1),
 #endif
 #ifdef ENV32BIT
-							   enif_make_string(env, "32bit", ERL_NIF_LATIN1),
+			enif_make_string(env, "32bit", ERL_NIF_LATIN1),
 #endif
-							   enif_make_uint(env, sizeof(char*))
-							   )
-					  )
-			 );
+			enif_make_uint(env, sizeof(char*))
+			)
+		)
+	);
 }
 
 static ERL_NIF_TERM

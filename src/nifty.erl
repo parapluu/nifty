@@ -122,8 +122,9 @@ build_type(Module, Type, Address) ->
     end.
 
 -type addr() :: integer().
+-type pointer() :: {addr(), nonempty_string()}.
 
--spec free({addr(), string()}) -> 'ok'.
+-spec free(pointer()) -> 'ok'.
 free({Addr, _}) ->
     raw_free(Addr).
 
@@ -144,6 +145,10 @@ pointer() ->
     {_, Size} = proplists:get_value("arch", nifty:get_config()),
     mem_alloc(Size).
 
+%% pointer(Type) ->
+%%     %% add sizof function to modules
+%%     ok.
+
 raw_pointer_of(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
@@ -151,6 +156,7 @@ raw_deref(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
 %% memory operation
+-spec mem_write(list()|binary()) -> pointer().
 mem_write(Data) ->
     case erlang:is_binary(Data) of
 	true ->
@@ -159,16 +165,19 @@ mem_write(Data) ->
 	    mem_write(Data, mem_alloc(length(Data)))
     end.
 
+-spec mem_write(binary(), pointer()) -> pointer().
 mem_write(_,_) ->
     erlang:nif_error(nif_library_not_loaded).
 
+-spec mem_writer(list(), pointer()) -> pointer().
 mem_writer(_,_) ->
     erlang:nif_error(nif_library_not_loaded).
 
+-spec mem_read(pointer(), integer()) -> list().
 mem_read(_,_) ->
     erlang:nif_error(nif_library_not_loaded).
 
--spec mem_alloc(non_neg_integer()) -> {addr(), nonempty_string()}.
+-spec mem_alloc(non_neg_integer()) -> pointer().
 mem_alloc(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
