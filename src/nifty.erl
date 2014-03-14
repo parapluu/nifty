@@ -34,10 +34,26 @@ init() -> %% loading code from jiffy
     erlang:load_nif(filename:join(PrivDir, "nifty"), 0).
 
 get_types() ->
+    %% builtin types:
+    %%  int types ( [(short|long)] [(long|short)] int; [(signed|unsigned)] char )
+    %%  float types ( float; double)
+    %%  string (char *)
+    %%  pointer (void *)
     dict:from_list(
-      [{"char *", none},
-       {"void *", none}]
-     ).
+      [{"signed char",{base,["char","signed","none"]}},
+       {"char",{base,["char","signed","none"]}},
+       {"unsigned char",{base,["char","unsigned","none"]}},
+       {"short",{base,["int","signed","short"]}},
+       {"unsigned short",{base,["int","unsigned","short"]}},
+       {"int",{base,["int","signed","none"]}},
+       {"unsigned int",{base,["int","unsigned","none"]}},
+       {"long",{base,["int","signed","long"]}},
+       {"unsigned long",{base,["int","unsigned","long"]}},
+       {"float",{base,["float","signed","none"]}},
+       {"double",{base,["double","signed","none"]}},
+       {"void *",{base,["*","void","signed","none"]}},
+       {"char *",{base,["*","char","signed","none"]}}
+      ]).
 
 get_derefed_type(Type, Module) ->
     Types = Module:get_types(),
