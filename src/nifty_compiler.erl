@@ -135,12 +135,11 @@ get_spec_env(ModuleName, [S|T]) ->
 
 
 norm_opts(Options) ->
-    Ret = case proplists:get_value(env, Options) of
-	      undefined -> Options;
-	      Env -> 
-		  [{env, merge_env(expand_env(Env, []), dict:new())}| proplists:delete(env, Options)]
-	  end,
-    Ret.
+    case proplists:get_value(env, Options) of
+	undefined -> Options;
+	Env -> 
+	    [{env, merge_env(expand_env(Env, []), dict:new())}| proplists:delete(env, Options)]
+    end.
 
 merge_env([], D) -> dict:to_list(D);
 merge_env([{Key, Opt}|T], D) ->
@@ -255,7 +254,6 @@ expand_spec(S) ->
     end.
 
 norm_sources(S) ->
-    lists:map(fun nifty_utils:expand/1, S).
-
+    [nifty_utils:expand(X) || X <- S].
 
 

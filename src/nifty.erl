@@ -257,25 +257,25 @@ raw_deref(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
 %% memory operation
--spec mem_write(list()|binary()) -> pointer().
+-spec mem_write(binary() | list()) -> pointer().
 mem_write(Data) ->
-    case erlang:is_binary(Data) of
+    case is_binary(Data) of
 	true ->
-	    mem_writer(Data, mem_alloc(size(Data)));
+	    mem_writer(Data, mem_alloc(byte_size(Data)));
 	false ->
 	    mem_write(Data, mem_alloc(length(Data)))
     end.
 
 -spec mem_write(binary(), pointer()) -> pointer().
-mem_write(_,_) ->
+mem_write(_, _) ->
     erlang:nif_error(nif_library_not_loaded).
 
 -spec mem_writer(list(), pointer()) -> pointer().
-mem_writer(_,_) ->
+mem_writer(_, _) ->
     erlang:nif_error(nif_library_not_loaded).
 
 -spec mem_read(pointer(), integer()) -> list().
-mem_read(_,_) ->
+mem_read(_, _) ->
     erlang:nif_error(nif_library_not_loaded).
 
 -spec mem_alloc(non_neg_integer()) -> pointer().
