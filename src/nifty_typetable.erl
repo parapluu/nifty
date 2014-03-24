@@ -6,8 +6,7 @@
 -define(CLANG_BUILTINS, ["__int128_t", "__builtin_va_list", "__uint128_t"]).
 
 
-build(Dicts) ->
-    {Functions, Typedefs, Structs} = Dicts,
+build({Functions, Typedefs, Structs} = Dicts) ->
     Empty_Tables = {dict:new(), dict:new()}, % { Types, Symbols }
     Tables_With_Functions = build_entries(Empty_Tables,
 					  fun build_function_entries/4,
@@ -112,15 +111,15 @@ count_in_list([H|T], E, Acc) ->
 
 
 simplify_specifiers(Specifiers) ->
-    case count_in_list(Specifiers, "long") of
-	0 ->
-	    LSpec = case lists:member("short", Specifiers) of
+    LSpec = case count_in_list(Specifiers, "long") of
+		0 ->
+		    case lists:member("short", Specifiers) of
 			true -> ["short"];
 			false -> ["none"]
 		    end;
-	1 -> LSpec = ["long"];
-	_ -> LSpec = ["longlong"]
-    end,
+		1 -> ["long"];
+		_ -> ["longlong"]
+	    end,
     case count_in_list(Specifiers, "unsigned") of
 	0 -> ["signed"|LSpec];
 	_ -> ["unsigned"|LSpec]
