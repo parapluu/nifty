@@ -6,9 +6,7 @@
 	 getNth/2,
 	 resolved/2,
 	 reversed/1,
-	 lookup/2,
 	 fetch/2,
-	 fetchl/2,
 	 fetch_keys/1,
 	 has_key/2,
 	 new_dict/1,
@@ -64,8 +62,10 @@ absname(Path) ->
 %%% general
 getNth(I, N) ->
     case is_list(I) of
-	true ->  lists:nth(N, I);
-	false -> lists:nth(N,tuple_to_list(I))
+	true ->  
+	    lists:nth(N, I);
+	false ->
+	    lists:nth(N,tuple_to_list(I))
     end.
 
 reversed(L) ->
@@ -73,24 +73,12 @@ reversed(L) ->
 
 resolved(Type, Types) ->
     case dict:fetch(Type, Types) of
-	[{typedef, RefType}] -> resolved(RefType, Types);
+	{typedef, RefType} -> resolved(RefType, Types);
 	_ -> Type
     end.
 
-%%% ETS lookup Element
-lookup(Tab, Key) ->
-    [{_, Retval}] = ets:lookup(Tab, binary_to_list(Key)),
-    Retval.
-
 %%% dict
 fetch(Dict, Key) ->
-    V = dict:fetch(Key, Dict),
-    case V of
-	[R] -> R;
-	_ -> V
-    end.
-
-fetchl(Dict, Key) ->
     dict:fetch(Key, Dict).
 
 fetch_keys(Dict) ->

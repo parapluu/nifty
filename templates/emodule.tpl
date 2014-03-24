@@ -24,7 +24,7 @@ init() -> %% loading code from jiffy
     end,
     erlang:load_nif(filename:join(PrivDir, "{{module}}_nif"), 0).
 
-{% with fn=functions|fetch_keys %}{% for name in fn %}{{name}}({% with arguments=symbols|fetchl:name %}{% for argument in arguments %}{% if argument|is_argument %}_{% if not forloop.last %},{%endif%}{% endif %}{% endfor %}{% endwith %}) ->
+{% with fn=functions|fetch_keys %}{% for name in fn %}{{name}}({% with arguments=symbols|fetch:name %}{% for argument in arguments %}{% if argument|is_argument %}_{% if not forloop.last %},{%endif%}{% endif %}{% endfor %}{% endwith %}) ->
 	exit(nif_library_not_loaded).
 {% endfor %}{% endwith %}
 %%% defines

@@ -56,7 +56,7 @@ build_type([Type|T], {Functions, TypeDefs, Structs}) ->
 build_function([FuncName|T], {Functions, TypeDefs, Structs}) ->
     {PT, PD, Rettype} = build_rettype(T, {Functions, TypeDefs, Structs}),
     {NT, {FD, TD, SD}, Params} = build_params(PT, PD),
-    NFD = dict:append(FuncName, {Rettype, Params}, FD),
+    NFD = dict:store(FuncName, {Rettype, Params}, FD),
     {NT, {NFD, TD, SD}}.
 
 build_rettype([Type|T], Definitions) ->
@@ -119,21 +119,14 @@ build_fields(T, Definitions, Name, Fields) ->
 
 build_named_struct(T, Definitions, Name) ->
     {NT, {Functions, TypeDefs, Structs}, Fields} = build_fields(T, Definitions, Name),
-    NewStructs =  case dict:is_key(Name, Structs) of
-		      true -> 
-			  %% overwrite uncomplete struct definitions
-			  dict:append(Name, Fields, dict:erase(Name, Structs));
-		      false -> 
-			  dict:append(Name, Fields, Structs)
-		  end,
-    {NT, {Functions, TypeDefs, NewStructs}}.
+    {NT, {Functions, TypeDefs, dict:store(Name, Fields, Structs)}}.
 
 build_struct([Name|T], Definitions) ->
     build_named_struct(T, Definitions, Name).
 
 build_typedef([Name| T], Definitions) ->
     {NT, {Functions, TypeDefs, Structs}, Type} = build_type(T, Definitions),
-    {NT, {Functions, dict:append(Name, Type, TypeDefs), Structs}}.
+    {NT, {Functions, dict:store(Name, Type, TypeDefs), Structs}}.
 
 strip_type_name(Name) ->
     Index = string:str(Name, "::"),

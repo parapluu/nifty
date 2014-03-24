@@ -18,6 +18,7 @@ render(InterfaceFile, Module, CFlags, Options) ->
 	{Token, _} -> 
 	    {Functions, Typedefs, Structs} = clang_parse:build_vars(Token),
 	    {Types, Symbols} = nifty_typetable:build({Functions, Typedefs, Structs}),
+	    %%	    io:format("~p~n", [Functions]),
 	    RenderVars = [
 			  {"functions", Functions},  % ?
 			  {"structs", Structs},      % ?

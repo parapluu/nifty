@@ -64,6 +64,9 @@ compile_structs() ->
     ok = nifty_compiler:compile("../test/cfiles/structs.h", nt_structs, []).
 
 call_functions_structs()->
+    {_,_,_,_,_} =  nifty:dereference(nt_structs:record_to_erlptr(nt_structs:new("struct s1"))),
+    {_,_,_} = nifty:dereference(nt_structs:record_to_erlptr(nt_structs:new("struct s2"))),
+    {_,_,_} = nifty:dereference(nt_structs:record_to_erlptr(nt_structs:new("struct s3"))),
     ok.
 
 structs_test()->

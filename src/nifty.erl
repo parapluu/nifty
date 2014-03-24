@@ -5,9 +5,12 @@
 	 %% nif functions
 	 raw_deref/1,
 	 raw_free/1, 
+	 float_deref/1,
+	 double_deref/1,
 	 list_to_cstr/1,
 	 cstr_to_list/1,
 	 pointer/0,
+	 pointer/1,
 	 raw_pointer_of/1,
 	 mem_write/1,
 	 mem_write/2,
@@ -49,6 +52,8 @@ get_types() ->
        {"unsigned int",{base,["int","unsigned","none"]}},
        {"long",{base,["int","signed","long"]}},
        {"unsigned long",{base,["int","unsigned","long"]}},
+       {"long long",{base,["int","signed","longlong"]}},
+       {"unsigned long long",{base,["int","unsigned","longlong"]}},
        {"float",{base,["float","signed","none"]}},
        {"double",{base,["double","signed","none"]}},
        {"void *",{base,["*","void","signed","none"]}},
@@ -57,8 +62,11 @@ get_types() ->
 
 get_derefed_type(Type, Module) ->
     Types = Module:get_types(),
+    io:format("Module: ~p~n", [Module]),
+    io:format("Type: ~p~n", [Type]),
     ResType = resolve_type(Type, Types),
-    [{_, TypeDef}] = dict:fetch(ResType, Types),
+    io:format("ResType: ~p~n", [ResType]),
+    {_, TypeDef} = dict:fetch(ResType, Types),
     [H|_] = TypeDef,
     case (H=:="*") orelse (string:str(H, "[")>0) of
 	true -> 
@@ -67,7 +75,7 @@ get_derefed_type(Type, Module) ->
 	    ResNType = resolve_type(NType, Types),
 	    case dict:is_key(ResNType, Types) of
 		true ->
-		    [{_, DTypeDef}] = dict:fetch(ResNType, Types),
+		    {_, DTypeDef} = dict:fetch(ResNType, Types),
 		    [DH|_] = DTypeDef,
 		    case (DH=:="*") orelse (string:str(DH, "[")>0) of
 			true -> {pointer, ResNType};
@@ -83,7 +91,7 @@ get_derefed_type(Type, Module) ->
 resolve_type(Type, Types) ->
     case dict:is_key(Type, Types) of 
 	true ->
-	    [{Kind, TypeDef}] = dict:fetch(Type, Types),
+	    {Kind, TypeDef} = dict:fetch(Type, Types),
 	    case Kind of
 		typedef -> resolve_type(TypeDef, Types);
 		_ -> Type
@@ -114,16 +122,16 @@ build_builtin_type(DType, Address) ->
     case DType of
 	"void *" -> {raw_deref(Address), "undef"};
 	"char *" -> cstr_to_list({Address, "nifty.char *"});
-	_ -> undef
+	_ -> build_type(nifty, DType, Address)
     end.
 
 build_type(Module, Type, Address) ->
     Types = Module:get_types(),
-    [{Kind, Def}] = dict:fetch(Type, Types),
+    {Kind, Def} = dict:fetch(Type, Types),
     case Kind of
 	userdef ->
 	    [Name] = Def,
-	    [RR] = dict:fetch(Name, Types),
+	    RR = dict:fetch(Name, Types),
 	    case  RR of
 		{struct, _} -> 
 		    Module:erlptr_to_record({Address, Name});
@@ -131,11 +139,50 @@ build_type(Module, Type, Address) ->
 		    undef
 	    end;
 	base ->
-	    io:format("Base Type conversion~n"),
-	    ok;
+	    case Def of
+		["char", Sign, _] ->
+		    int_deref(Address, 1, Sign);
+		["int", Sign, L] ->
+		    {_, {ShI, I, LI, LLI, _, _}} = proplists:lookup("sizes", get_config()),
+		    Size = case L of
+			       "short" ->
+				   ShI;
+			       "none" ->
+				   I;
+			       "long" ->
+				   LI;
+			       "longlong" ->
+				   LLI
+			   end,
+		    int_deref(Address, Size, Sign);
+		["float", _, _] ->
+		    float_deref(Address);
+		["double", _, _] ->
+		    double_deref(Address);
+		_ ->
+		    undef
+	    end;
 	_ ->
 	    undef
     end.
+
+int_deref(Addr, Size, Sign) ->
+    I = int_deref(mem_read({Addr, "nifty.void *"}, Size), 0),
+    case Sign of
+	"signed" ->
+	    case I > (trunc(math:pow(2, Size-1))-1) of
+		true -> 
+		    I - trunc(math:pow(2,Size));
+		false ->
+		    I
+	    end;
+	"unsigned" ->
+	    I
+    end.
+
+int_deref([], Acc) -> Acc;
+int_deref([E|T], Acc) ->
+    int_deref(T, (Acc bsl 8) + E).
 
 -type addr() :: integer().
 -type pointer() :: {addr(), nonempty_string()}.
@@ -147,6 +194,14 @@ free({Addr, _}) ->
 %%% NIF Functions
 -spec raw_free(addr()) -> 'ok'.
 raw_free(_) ->
+    erlang:nif_error(nif_library_not_loaded).
+
+-spec float_deref(integer()) -> float().
+float_deref(_) ->
+    erlang:nif_error(nif_library_not_loaded).
+
+-spec double_deref(integer()) -> float().
+double_deref(_) ->    
     erlang:nif_error(nif_library_not_loaded).
 
 %% string conversion
@@ -161,9 +216,39 @@ pointer() ->
     {_, Size} = proplists:get_value("arch", nifty:get_config()),
     mem_alloc(Size).
 
-%% pointer(Type) ->
-%%     %% add sizof function to modules
-%%     ok.
+pointer(Type) ->
+    Types = get_types(),
+    case dict:is_key(Type, Types) of
+	true ->
+	    Size = case dict:fetch(Type, Types) of
+		       {base, ["char", _, _]} ->
+			   1;
+		       {base, ["int", _, L]} ->
+			   {_, {ShI, I, LI, LLI, _, _}} = proplists:lookup("sizes", get_config()),
+			   case L of
+			       "short" ->
+				   ShI;
+			       "none" ->
+				   I;
+			       "long" ->
+				   LI;
+			       "longlong" ->
+				   LLI
+			   end;
+		       {base, ["float", _, _]}->
+			   {_, {_, _, _, _, Fl, _}} = proplists:lookup("sizes", get_config()),
+			   Fl;
+		       {base, ["double", _, _]}->
+			   {_, {_, _, _, _, _, Dbl}} = proplists:lookup("sizes", get_config()),
+			   Dbl;
+		       {base, ["*"|_]} ->
+			   {_, {_, P}} = proplists:lookup("arch", get_config()),
+			   P
+		   end,
+	    as_type(mem_alloc(Size), nifty, Type);
+	false ->
+	    undefined
+    end.
 
 raw_pointer_of(_) ->
     erlang:nif_error(nif_library_not_loaded).

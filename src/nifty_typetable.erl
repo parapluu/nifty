@@ -35,7 +35,7 @@ fill_type_table(Types) ->
 
 fill_type_table(Types, []) -> Types;
 fill_type_table(Types, [Type|TypeNames]) ->
-    [{Kind, L}] = dict:fetch(Type, Types),
+    {Kind, L} = dict:fetch(Type, Types),
     case Kind of
 	base -> fill_type_table(Types, TypeNames);
 	struct -> fill_type_table(Types, TypeNames);
@@ -49,7 +49,7 @@ fill_type_table(Types, [Type|TypeNames]) ->
 		    NType = string:strip(string:join(lists:reverse(Token)++[NewP], " ")),
 		    case dict:is_key(NType, Types) of 
 			true -> fill_type_table(Types, TypeNames);
-			false -> fill_type_table(dict:append(NType, {Kind, T}, Types), [NType|TypeNames])
+			false -> fill_type_table(dict:store(NType, {Kind, T}, Types), [NType|TypeNames])
 		    end;
 		false -> fill_type_table(Types, TypeNames)
 	    end
@@ -58,14 +58,14 @@ fill_type_table(Types, [Type|TypeNames]) ->
 
 build_entries(Tables, _, _, [], _) -> Tables;
 build_entries(Tables, Builder, Dict, [H|T], Dicts) ->
-    [Data] = dict:fetch(H, Dict),
+    Data = dict:fetch(H, Dict),
     Tables_With_New_Entry = Builder(Tables, H, Data, Dict),
     build_entries(Tables_With_New_Entry, Builder, Dict, T, Dicts).
 
 build_function_entries({Types, Symbols}, Name, Data, Dicts) ->
     {ReturnType, ArgumentList} = Data,
     Types_With_Return = build_type_entry(Types, ReturnType),
-    Symbol_With_Return = build_symbol_entry(Symbols, Name, {return, ReturnType}), 
+    Symbol_With_Return = dict:append(Name, {return, ReturnType}, Symbols), 
     build_arguments(
       {Types_With_Return, Symbol_With_Return},
       Dicts,
@@ -78,7 +78,7 @@ build_arguments(Tables, _, _, _, []) -> Tables;
 build_arguments({Types, Symbols}, Dicts, FunctionName, Pos, [Arg|T]) ->
     {_, ArgType} = Arg,
     Types_With_Arg = build_type_entry(Types, ArgType),
-    Symbol_With_Arg = build_symbol_entry(Symbols, FunctionName, {argument, integer_to_list(Pos), ArgType, input}),
+    Symbol_With_Arg = dict:append(FunctionName, {argument, integer_to_list(Pos), ArgType, input}, Symbols),
     build_arguments({Types_With_Arg, Symbol_With_Arg}, Dicts, FunctionName, Pos+1, T).
 
 build_typedef_entries({Types, Symbols}, Alias, Type, _) ->
@@ -86,13 +86,14 @@ build_typedef_entries({Types, Symbols}, Alias, Type, _) ->
 	true -> {Types, Symbols};
 	false ->
 	    NTypes = build_type_entry(Types, Type),
-	    {dict:append(Alias, {typedef, Type}, dict:erase(Alias, NTypes)), Symbols}
+	    {dict:store(Alias, {typedef, Type}, dict:erase(Alias, NTypes)), Symbols}
     end.
 
 build_struct_entries({Types, Symbols}, Alias, _, Dict) ->
-    [Members] =  dict:fetch(Alias, Dict),
-    {NTypes, Fields} = build_fields(lists:reverse(Members),[],0, Types),
-    {dict:append(Alias, {struct, Fields}, NTypes), Symbols}.
+    STypes = dict:store("struct "++Alias++" *", {userdef,["*", Alias]}, Types),
+    Members =  dict:fetch(Alias, Dict),
+    {NTypes, Fields} = build_fields(lists:reverse(Members),[],0, STypes),
+    {dict:store(Alias, {struct, Fields}, NTypes), Symbols}.
 
 build_fields([], Fields, _, Types) -> {Types, lists:reverse(Fields)};
 build_fields([{Name, Type}|T], Fields, I, Types) ->
@@ -180,13 +181,10 @@ build_type_entry(TypeTable, Type) ->
 		%%case parse_type(string:tokens(Type, " "), Dicts) of
 		{Def, base} ->
 		    %% io:format("~p -> ~p base~n", [Type, Def]),
-		    dict:append(Type, {base, Def}, TypeTable);
+		    dict:store(Type, {base, Def}, TypeTable);
 		{Def, userdef} ->
 		    %% io:format("~p -> ~p userdef~n", [Type, Def]),
-		    dict:append(Type, {userdef, Def}, TypeTable)
+		    dict:store(Type, {userdef, Def}, TypeTable)
 	    end
     end.
-
-build_symbol_entry(SymbolTable, Name, Data) ->
-    dict:append(Name, Data, SymbolTable).
 
