@@ -9,9 +9,6 @@
 	 fetch/2,
 	 fetch_keys/1,
 	 has_key/2,
-	 new_dict/1,
-	 append/2,
-	 with_key/2,
 	 is_argument/1,
 	 is_return/1,
 	 is_field/1,
@@ -24,6 +21,7 @@
 	 discard_const/1,
 	 loopcounter/2]).
 
+-spec norm_type(string()) -> string().
 norm_type(Type) ->
     case string:str(Type, "[") of
 	0 -> Type;
@@ -33,6 +31,7 @@ norm_type(Type) ->
 	     end
     end.
 
+-spec dereference_type(string()) -> string().
 dereference_type(Type) ->
     NType = norm_type(Type),
     case string:str(NType, "*") of
@@ -40,9 +39,11 @@ dereference_type(Type) ->
 	S -> string:strip(string:substr(NType, 1, S-1) ++ string:substr(NType, S+1))
     end.
 
+-spec discard_const(string()) -> string().
 discard_const(Type) ->
     string:join([Tok || Tok <- string:tokens(Type, " "), Tok =/= "const"], " ").
 
+-spec loopcounter(string(),string()) -> string().
 loopcounter(Type, Name) ->
     NType = "#"++norm_type(Type)++"#",
     Type_ = string:join(string:tokens(NType, " "), "_"),
@@ -50,16 +51,20 @@ loopcounter(Type, Name) ->
     "index_"++Name++"_"++string:substr(Enclosed, 2, length(Enclosed)-2).
 
 %%% special
+-spec raw_include(string()) -> string().
 raw_include(Path) ->
     lists:last(filename:split(Path)).
 
+-spec raw_path(string()) -> string().
 raw_path(Path) ->
     filename:dirname(Path).
 
+-spec absname(string()) -> string().
 absname(Path) ->
     filename:absname(Path).
 
 %%% general
+-spec getNth(list()|tuple(), integer()) -> term().
 getNth(I, N) ->
     case is_list(I) of
 	true ->  
@@ -68,9 +73,11 @@ getNth(I, N) ->
 	    lists:nth(N,tuple_to_list(I))
     end.
 
+-spec reversed(list()) -> list().
 reversed(L) ->
     lists:reverse(L).
 
+-spec resolved(string(), dict()) -> string().
 resolved(Type, Types) ->
     case dict:fetch(Type, Types) of
 	{typedef, RefType} -> resolved(RefType, Types);
@@ -78,40 +85,40 @@ resolved(Type, Types) ->
     end.
 
 %%% dict
+-spec fetch(dict(), string()) -> term().
 fetch(Dict, Key) ->
     dict:fetch(Key, Dict).
 
+-spec fetch_keys(dict()) -> list().
 fetch_keys(Dict) ->
     dict:fetch_keys(Dict).
 
+-spec has_key(dict(), string()) -> boolean().
 has_key(Dict, Key) ->
     dict:is_key(Key, Dict).
 
-new_dict(_) ->
-    dict:new().
-
-append(Dict, Value) ->
-    {Dict, Value}.
-
-with_key({Dict, Value}, Key) ->
-    dict:append(Key, Value, Dict).
-
 %%% symbol table entries
+-spec is_argument(string()) -> boolean().
 is_argument(Arg) ->
     getNth(Arg, 1)=:=argument.
 
+-spec is_return(string()) -> boolean().
 is_return(Arg) ->
     getNth(Arg, 1)=:=return.
 
+-spec is_field(string()) -> boolean().
 is_field(Arg) ->
     getNth(Arg, 1)=:=field.
 
+-spec is_input(string()) -> boolean().
 is_input(Arg) ->
     (getNth(Arg, 4)=:=input) orelse (getNth(Arg, 4)=:=inoutput).
 
+-spec is_output(string()) -> boolean().
 is_output(Arg) ->
     (getNth(Arg, 4)=:=output) orelse (getNth(Arg, 4)=:=inoutput).
 
+-spec is_array(string()) -> boolean().
 is_array(Arg) -> 
     (is_list(Arg) andalso (string:str(Arg, "[")=:=1 andalso length(Arg)>2)).
 

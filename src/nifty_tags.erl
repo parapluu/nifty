@@ -4,6 +4,7 @@
 	 struct_dereference/1,
 	 struct_reference/1]).
 
+-spec struct_name([{name, string()}]) -> nonempty_string().
 struct_name([{name, Type}]) ->
     Splited = string:tokens(Type, " "),
     case Splited of
@@ -13,6 +14,7 @@ struct_name([{name, Type}]) ->
 	    TypeName
     end.
 
+-spec struct_dereference([{name, string()}]) -> nonempty_string().
 struct_dereference([{name, Type}]) ->
     Splited = string:tokens(Type, " "),
     case Splited of
@@ -22,6 +24,7 @@ struct_dereference([{name, Type}]) ->
 	    "&"
     end.
 
+-spec struct_reference([{name, string()}]) -> nonempty_string().
 struct_reference([{name, Type}]) ->
     Splited = string:tokens(Type, " "),
     case Splited of
@@ -31,6 +34,7 @@ struct_reference([{name, Type}]) ->
 	    "*"
     end.
 
+-spec debug(proplists:proplist()) -> string().
 debug(DBM) ->
     io:format("DEBUG: ~n"),
     print_dbg(DBM),

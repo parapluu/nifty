@@ -1,7 +1,7 @@
 -module(nifty_utils).
 -export([expand/1]).
 
-
+-spec expand(string()) -> string().
 expand(String) ->
     string:strip(lists:foldr(fun(A, Acc) ->
 				     A++" "++Acc end,

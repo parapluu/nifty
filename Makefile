@@ -1,5 +1,8 @@
 .PHONY: default fast all get-deps compile dialyzer tests clean
 
+CLANG_LIBRARY = "/usr/lib/llvm-3.4/include"
+CLANG_INCLUDE = "/usr/lib/llvm-3.4/lib"
+
 ifneq (,$(findstring Windows,$(OS)))
     SEP := $(strip \)
 else
@@ -21,13 +24,13 @@ default: fast dialyzer
 
 fast: get-deps compile
 
-all: default #tests
+all: default tests
 
 get-deps:
 	$(REBAR) get-deps
 
 compile:
-	$(REBAR) compile
+	CLANG_LIBRARY=$(CLANG_LIBRARY) CLANG_INCLUDE=$(CLANG_INCLUDE) $(REBAR) compile
 
 dialyzer: compile
 	dialyzer -n -nn -Wunmatched_returns $(BEAMS) $(find .  -path 'deps/*/ebin/*.beam')

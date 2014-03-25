@@ -16,9 +16,11 @@ init() -> %% loading code from jiffy
 cparse(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
+-spec parse(list(string())) -> {list(string()), list(string())} | {fail, _}.
 parse(Args) ->
     {cparse(Args), Args}.
 
+-spec build_vars(list(string())) -> {dict(), dict(), dict()}.
 build_vars(Token) ->
     build_vars(Token, {dict:new(), dict:new(), dict:new()}).
 
@@ -27,18 +29,17 @@ build_vars(L, false) ->
 build_vars([], Definitions) ->
     Definitions;
 build_vars([H|T], Definitions) ->
-    case H of
+    {NewT, Defs} = case H of
 	"FUNCTION" ->
-	    {NewT, Defs} = build_function(T, Definitions);
+	    build_function(T, Definitions);
 	"STRUCT" ->
-	    {NewT, Defs} = build_struct(T, Definitions);
+	    build_struct(T, Definitions);
 	"TYPEDEF" ->
-	    {NewT, Defs} = build_typedef(T, Definitions);
+	    build_typedef(T, Definitions);
 	%% Defs = Definitions,
 	%% [_|[_|NewT]] = T;
 	_ ->
-	    Defs = false,
-	    NewT = [H|T]
+	    {[H|T], false}
     end,
     build_vars(NewT, Defs).
 

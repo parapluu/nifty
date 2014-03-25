@@ -61,11 +61,21 @@
 
 -define(DEFAULT_JOBS, 3).
 
+-type config() :: {
+              config,
+              nonempty_string(),
+              list({atom(), term()} | atom()),
+              dict(),
+              dict(),
+              dict(),
+              dict() }.
+
 %% ====================================================================
 %% Public API
 %% ====================================================================
 
 %% escript Entry point
+-spec main(list(string())) -> ok.
 main(Args) ->
     case catch(run(Args)) of
         ok ->
@@ -80,6 +90,7 @@ main(Args) ->
     end.
 
 %% Erlang-API entry point
+-spec run(proplists:proplist(), list(string)) -> ok.
 run(BaseConfig, Commands) ->
     _ = application:load(rebar),
     run_aux(BaseConfig, Commands).
@@ -130,6 +141,7 @@ load_rebar_app() ->
     %% Pre-load the rebar app so that we get default configuration
     ok = application:load(rebar).
 
+-spec init_config({proplists:proplist(), proplists:proplist()}) -> config().
 init_config({Options, _NonOptArgs}) ->
     %% If $HOME/.rebar/config exists load and use as global config
     GlobalConfigFile = filename:join([os:getenv("HOME"), ".rebar", "config"]),
@@ -189,6 +201,7 @@ run_aux(BaseConfig, Commands) ->
 %%
 %% print help/usage string
 %%
+-spec help() -> ok.
 help() ->
     OptSpecList = option_spec_list(),
     getopt:usage(OptSpecList, "rebar",
@@ -225,6 +238,7 @@ help() ->
 %% Parse command line arguments using getopt and also filtering out any
 %% key=value pairs. What's left is the list of commands to run
 %%
+-spec parse_args(list(string())) -> {[getopt:option()], [string()]}.
 parse_args(RawArgs) ->
     %% Parse getopt options
     OptSpecList = option_spec_list(),
@@ -237,6 +251,7 @@ parse_args(RawArgs) ->
             rebar_utils:delayed_halt(1)
     end.
 
+-spec save_options(term(), {proplists:proplist(), proplists:proplist()}) -> {term(), list(string())}.
 save_options(Config, {Options, NonOptArgs}) ->
     %% Check options and maybe halt execution
     ok = show_info_maybe_halt(Options, NonOptArgs),
@@ -296,6 +311,7 @@ set_log_level(Config, Options) ->
 %%
 %% show version information and halt
 %%
+-spec version() -> ok.
 version() ->
     {ok, Vsn} = application:get_key(rebar, vsn),
     ?CONSOLE("rebar ~s ~s ~s ~s\n",
@@ -392,6 +408,7 @@ clean                                Clean
                                                    ">>,
     io:put_chars(S).
 
+-spec get_jobs(term()) -> term().
 get_jobs(Config) ->
     rebar_config:get_global(Config, jobs, ?DEFAULT_JOBS).
 

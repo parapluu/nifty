@@ -1,11 +1,12 @@
 -module(nifty_typetable).
--export([build/1, check_types/1]).
+-export([build/1]).
 
 -define(BASE_TYPES, ["char", "int", "float", "double", "void"]).
 -define(SPECIFIER, ["signed", "unsigned", "short", "long"]).
 -define(CLANG_BUILTINS, ["__int128_t", "__builtin_va_list", "__uint128_t"]).
 
 
+-spec build({dict(), dict(), dict()}) -> {dict(), dict()}.
 build({Functions, Typedefs, Structs} = Dicts) ->
     Empty_Tables = {dict:new(), dict:new()}, % { Types, Symbols }
     Tables_With_Functions = build_entries(Empty_Tables,
@@ -24,10 +25,6 @@ build({Functions, Typedefs, Structs} = Dicts) ->
 				     dict:fetch_keys(Structs),
 				     Dicts),
     {fill_type_table(Types), Symbols}.
-
-check_types(_) -> 
-    %% check if every type is resolvable to a base type
-    ok.
 
 fill_type_table(Types) ->
     fill_type_table(Types, dict:fetch_keys(Types)).
