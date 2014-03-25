@@ -238,7 +238,7 @@ help() ->
 %% Parse command line arguments using getopt and also filtering out any
 %% key=value pairs. What's left is the list of commands to run
 %%
--spec parse_args(list(string())) -> {[getopt:option()], [string()]}.
+-spec parse_args(list(string())) -> {list(), [string()]}.
 parse_args(RawArgs) ->
     %% Parse getopt options
     OptSpecList = option_spec_list(),

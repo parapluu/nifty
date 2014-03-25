@@ -13,8 +13,6 @@
 	 pointer/1,
 	 raw_pointer_of/1,
 	 mem_write/1,
-	 mem_write/2,
-	 mem_writer/2,
 	 mem_read/2,
 	 mem_alloc/1,
 	 get_config/0,
@@ -269,17 +267,17 @@ raw_deref(_) ->
 mem_write(Data) ->
     case is_binary(Data) of
 	true ->
-	    mem_writer(Data, mem_alloc(byte_size(Data)));
+	    mem_write_binary(Data, mem_alloc(byte_size(Data)));
 	false ->
-	    mem_write(Data, mem_alloc(length(Data)))
+	    mem_write_list(Data, mem_alloc(length(Data)))
     end.
 
--spec mem_write(list(), ptr()) -> ptr().
-mem_write(_, _) ->
+-spec mem_write_list(list(), ptr()) -> ptr().
+mem_write_list(_, _) ->
     erlang:nif_error(nif_library_not_loaded).
 
--spec mem_writer(binary(), ptr()) -> ptr().
-mem_writer(_, _) ->
+-spec mem_write_binary(binary(), ptr()) -> ptr().
+mem_write_binary(_, _) ->
     erlang:nif_error(nif_library_not_loaded).
 
 -spec mem_read(ptr(), integer()) -> list().
