@@ -3,6 +3,10 @@
 
 -include_lib("eunit/include/eunit.hrl").
 
+%% supress warning for test/0
+-spec test() -> term().
+
+-spec compile_builtin() -> ok.
 compile_builtin() ->
     ok = nifty_compiler:compile("../test/cfiles/builtin_types.h", 
 				nt_builtin, 
@@ -14,6 +18,7 @@ compile_builtin() ->
 				   }]
 				 }]).
 
+-spec call_functions_builtin()-> ok.
 call_functions_builtin()->
     1 = nt_builtin:f1(1),
     1 = nt_builtin:f2(1),
@@ -33,10 +38,12 @@ call_functions_builtin()->
     nifty:free(P2),
     ok.
 
+-spec builtin_test()-> ok.
 builtin_test()->
     ok = compile_builtin(),
     ok = call_functions_builtin().
 
+-spec compile_arguments() -> ok.
 compile_arguments() ->
     ok = nifty_compiler:compile("../test/cfiles/arguments.h", 
 				nt_arguments, 
@@ -47,6 +54,7 @@ compile_arguments() ->
 				   }]
 				 }]).
 
+-spec call_functions_arguments() -> ok.
 call_functions_arguments()->
     ok = nt_arguments:f1(),
     0 = nt_arguments:f3(0,0,0,0),
@@ -55,24 +63,28 @@ call_functions_arguments()->
     10 = nt_arguments:f4(1,2,3,4),
     ok.
 
-
+-spec arguments_test() -> ok.
 arguments_test()->
     ok = compile_arguments(),
     ok = call_functions_arguments().
 
+-spec compile_structs() -> ok.
 compile_structs() ->
     ok = nifty_compiler:compile("../test/cfiles/structs.h", nt_structs, []).
 
+-spec  call_functions_structs()-> ok.
 call_functions_structs()->
     {_,_,_,_,_} =  nifty:dereference(nt_structs:record_to_erlptr(nt_structs:new("struct s1"))),
     {_,_,_} = nifty:dereference(nt_structs:record_to_erlptr(nt_structs:new("struct s2"))),
     {_,_,_} = nifty:dereference(nt_structs:record_to_erlptr(nt_structs:new("struct s3"))),
     ok.
 
+-spec structs_test() -> ok.
 structs_test()->
     ok = compile_structs(),
     ok = call_functions_structs().
 
+-spec compile_proxy() -> ok.
 compile_proxy() ->
     ok = nifty_compiler:compile("../test/cfiles/proxy_header.h", 
 				nt_proxy, 
@@ -83,11 +95,14 @@ compile_proxy() ->
 				    [{env, [{"CFLAGS", "$CFLAGS -I../test/cfiles"}]}]
 				   }]
 				 }]).
+
+-spec call_functions_proxy() -> ok.
 call_functions_proxy() ->
     F = {0, "nifty.void*"},
     {0, _} = nt_proxy:f1(F),
     ok.
 
+-spec proxy_test() -> ok.
 proxy_test()->
     ok = compile_proxy(),
     ok = call_functions_proxy().

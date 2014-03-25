@@ -1,7 +1,9 @@
 .PHONY: default fast all get-deps compile dialyzer tests clean
 
-CLANG_LIBRARY = "/usr/lib/llvm-3.4/include"
-CLANG_INCLUDE = "/usr/lib/llvm-3.4/lib"
+CLANG_LIBRARY = /usr/lib/llvm-3.4/lib
+CLANG_INCLUDE = /usr/lib/llvm-3.4/include
+
+ERL_INCLUDE = $(PWD):$(PWD)/deps
 
 ifneq (,$(findstring Windows,$(OS)))
     SEP := $(strip \)
@@ -36,7 +38,7 @@ dialyzer: compile
 	dialyzer -n -nn -Wunmatched_returns $(BEAMS) $(find .  -path 'deps/*/ebin/*.beam')
 
 tests: compile
-	$(REBAR) clean compile eunit skip_deps=true
+	ERL_LIBS=$(ERL_INCLUDE) LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(CLANG_LIBRARY) $(REBAR) clean compile eunit skip_deps=true
 
 clean:
 	$(REBAR) clean
