@@ -1,11 +1,13 @@
 -module(nifty_compiler).
--export([
-	 render/4,
+-export([render/4,
 	 store_files/4,
-	 compile_module/3,
+	 compile_module/1,
 	 compile/3
 	]).
 
+-type renderout() :: {iolist(), iolist(), iolist(), iolist()}.
+
+-spec render(string(),string(),list(string()),proplists:proplist()) -> fail | renderout().
 render(InterfaceFile, Module, CFlags, Options) ->
     io:format("generating ~s -> ~s ~s ~n", [InterfaceFile, Module++"_nif.c", Module++".erl"]),
     %% c parse stuff
@@ -37,6 +39,7 @@ render(InterfaceFile, Module, CFlags, Options) ->
 	    {ErlOutput, COutput, AppOutput, ConfigOutput}
     end.
 
+-spec store_files(string(), string(), proplists:proplist(), renderout()) -> ok.
 store_files(InterfaceFile, Module, Options, RenderOutput) ->
     {ok, Path} = file:get_cwd(),
     store_files(InterfaceFile, Module, Options, RenderOutput, Path).
@@ -71,14 +74,15 @@ store_files(_, Module, _, RenderOutput, Path) ->
 fwrite_render(Path, Module, Dir, FileName, Template) ->
     file:write_file(filename:join([Path, Module, Dir, FileName]), [Template]).
 
-compile_module(_, Module, _) ->
+-spec compile_module(string()) -> ok | fail.
+compile_module(Module) ->
     {ok, Path} = file:get_cwd(),
     ok = file:set_cwd(filename:join([Path, Module])),
     try rebar_commands(["compile"]) of
 	_ -> file:set_cwd(Path)
     catch
 	throw:rebar_abort ->
-	    file:set_cwd(Path),
+	    ok =file:set_cwd(Path),
 	    fail
     end.
 
@@ -89,7 +93,7 @@ rebar_commands(Commands) ->
     {BaseConfig1, Cmds} = nifty_rebar:save_options(BaseConfig, Args),
     nifty_rebar:run(BaseConfig1, Cmds).
 
-
+-spec compile(string(), atom(), proplists:proplist()) -> ok.
 compile(InterfaceFile, Module, Options) ->
     ModuleName = erlang:atom_to_list(Module),
     os:putenv("NIF", libname(ModuleName)),
@@ -101,7 +105,7 @@ compile(InterfaceFile, Module, Options) ->
 		 fail;
 	     Output ->
 		 ok = store_files(InterfaceFile, ModuleName, UCO, Output),
-		 ok = compile_module(InterfaceFile, ModuleName, UCO),
+		 ok = compile_module(ModuleName),
 		 ModulePath = filename:absname(filename:join([ModuleName, "ebin"])),
 		 true = code:add_path(ModulePath),
 		 ok

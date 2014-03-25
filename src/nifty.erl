@@ -36,6 +36,7 @@ init() -> %% loading code from jiffy
 	      end,
     erlang:load_nif(filename:join(PrivDir, "nifty"), 0).
 
+-spec get_types() -> dict().
 get_types() ->
     %% builtin types:
     %%  int types ( [(short|long)] [(long|short)] int; [(signed|unsigned)] char )
@@ -101,6 +102,7 @@ resolve_type(Type, Types) ->
     end.
 
 %% pointer arithmetic
+-spec dereference(ptr()) -> ptr() | integer() | float() | list() | {string(), integer()}.
 dereference(Pointer) ->
     {Address, ModuleType} = Pointer,
     [ModuleName, Type] = string:tokens(ModuleType, "."),
@@ -185,9 +187,9 @@ int_deref([E|T], Acc) ->
     int_deref(T, (Acc bsl 8) + E).
 
 -type addr() :: integer().
--type pointer() :: {addr(), nonempty_string()}.
+-type ptr() :: {addr(), nonempty_string()}.
 
--spec free(pointer()) -> 'ok'.
+-spec free(ptr()) -> 'ok'.
 free({Addr, _}) ->
     raw_free(Addr).
 
@@ -205,17 +207,21 @@ double_deref(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
 %% string conversion
+-spec list_to_cstr(string()) -> ptr().
 list_to_cstr(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
+-spec cstr_to_list(ptr()) -> string().
 cstr_to_list(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
 %% pointer arithmetic
+-spec pointer() -> ptr().
 pointer() ->
     {_, Size} = proplists:get_value("arch", nifty:get_config()),
     mem_alloc(Size).
 
+-spec pointer(nonempty_string()) -> ptr() | undefined.
 pointer(Type) ->
     Types = get_types(),
     case dict:is_key(Type, Types) of
@@ -250,14 +256,16 @@ pointer(Type) ->
 	    undefined
     end.
 
+-spec raw_pointer_of(ptr()) -> ptr().
 raw_pointer_of(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
+-spec raw_deref(integer()) -> integer().
 raw_deref(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
 %% memory operation
--spec mem_write(binary() | list()) -> pointer().
+-spec mem_write(binary() | list()) -> ptr().
 mem_write(Data) ->
     case is_binary(Data) of
 	true ->
@@ -266,29 +274,32 @@ mem_write(Data) ->
 	    mem_write(Data, mem_alloc(length(Data)))
     end.
 
--spec mem_write(binary(), pointer()) -> pointer().
+-spec mem_write(list(), ptr()) -> ptr().
 mem_write(_, _) ->
     erlang:nif_error(nif_library_not_loaded).
 
--spec mem_writer(list(), pointer()) -> pointer().
+-spec mem_writer(binary(), ptr()) -> ptr().
 mem_writer(_, _) ->
     erlang:nif_error(nif_library_not_loaded).
 
--spec mem_read(pointer(), integer()) -> list().
+-spec mem_read(ptr(), integer()) -> list().
 mem_read(_, _) ->
     erlang:nif_error(nif_library_not_loaded).
 
--spec mem_alloc(non_neg_integer()) -> pointer().
+-spec mem_alloc(non_neg_integer()) -> ptr().
 mem_alloc(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
 %% config
+-spec get_config() -> proplists:proplist().
 get_config() ->
     exit(nif_library_not_loaded).
 
+-spec get_env() -> {integer(), nonempty_string()}.
 get_env() ->
     exit(nif_library_not_loaded).
 
+-spec as_type(ptr(), atom(), nonempty_string()) -> ptr().
 as_type({Address, _}, Module, Type) ->
     case dict:is_key(Type, Module:get_types()) of
 	true -> 
