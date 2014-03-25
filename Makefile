@@ -38,7 +38,7 @@ dialyzer: compile
 	dialyzer -n -nn -Wunmatched_returns $(BEAMS) $(find .  -path 'deps/*/ebin/*.beam')
 
 tests: compile
-	ERL_LIBS=$(ERL_INCLUDE) LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(CLANG_LIBRARY) $(REBAR) clean compile eunit skip_deps=true
+	CLANG_LIBRARY=$(CLANG_LIBRARY) CLANG_INCLUDE=$(CLANG_INCLUDE) ERL_LIBS=$(ERL_INCLUDE) LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(CLANG_LIBRARY) $(REBAR) clean compile eunit skip_deps=true
 
 clean:
 	$(REBAR) clean

@@ -151,7 +151,7 @@ pointer1(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 }
 
 static ERL_NIF_TERM
-mem_write(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+mem_write_list(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
   unsigned int i, l, data, err;
   int ar;
@@ -195,7 +195,7 @@ mem_write(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 }
 
 static ERL_NIF_TERM
-mem_writer(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+mem_write_binary(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
   unsigned int err;
   int ar;
@@ -324,8 +324,8 @@ static ErlNifFunc nif_funcs[] = {
   {"list_to_cstr", 1, list_to_cstr},
   {"cstr_to_list", 1, cstr_to_list},
   {"raw_pointer_of", 1, pointer1},
-  {"mem_write", 2, mem_write},
-  {"mem_writer", 2, mem_writer},
+  {"mem_write_list", 2, mem_write_list},
+  {"mem_write_binary", 2, mem_write_binary},
   {"mem_read", 2, mem_read},
   {"mem_alloc", 1, mem_alloc},
   {"get_config", 0, get_config},

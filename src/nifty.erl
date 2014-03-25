@@ -61,10 +61,7 @@ get_types() ->
 
 get_derefed_type(Type, Module) ->
     Types = Module:get_types(),
-    io:format("Module: ~p~n", [Module]),
-    io:format("Type: ~p~n", [Type]),
     ResType = resolve_type(Type, Types),
-    io:format("ResType: ~p~n", [ResType]),
     {_, TypeDef} = dict:fetch(ResType, Types),
     [H|_] = TypeDef,
     case (H=:="*") orelse (string:str(H, "[")>0) of
