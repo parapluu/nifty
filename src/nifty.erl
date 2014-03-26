@@ -3,15 +3,11 @@
 	 dereference/1,
 	 free/1,
 	 %% nif functions
-	 raw_deref/1,
-	 raw_free/1, 
-	 float_deref/1,
-	 double_deref/1,
 	 list_to_cstr/1,
 	 cstr_to_list/1,
 	 pointer/0,
 	 pointer/1,
-	 raw_pointer_of/1,
+	 pointer_of/2,
 	 mem_write/1,
 	 mem_read/2,
 	 mem_alloc/1,
@@ -55,6 +51,21 @@ get_types() ->
        {"unsigned long long",{base,["int","unsigned","longlong"]}},
        {"float",{base,["float","signed","none"]}},
        {"double",{base,["double","signed","none"]}},
+       %% pointers
+       {"signed char *",{base,["*","char","signed","none"]}},
+       {"char *",{base,["*","char","signed","none"]}},
+       {"unsigned char *",{base,["*","char","unsigned","none"]}},
+       {"short *",{base,["*","int","signed","short"]}},
+       {"unsigned short *",{base,["*","int","unsigned","short"]}},
+       {"int *",{base,["*","int","signed","none"]}},
+       {"unsigned int *",{base,["*","int","unsigned","none"]}},
+       {"long *",{base,["*","int","signed","long"]}},
+       {"unsigned long *",{base,["*","int","unsigned","long"]}},
+       {"long long *",{base,["*","int","signed","longlong"]}},
+       {"unsigned long long *",{base,["*","int","unsigned","longlong"]}},
+       {"float *",{base,["*","float","signed","none"]}},
+       {"double *",{base,["*","double","signed","none"]}},
+       %% special types
        {"void *",{base,["*","void","signed","none"]}},
        {"char *",{base,["*","char","signed","none"]}}
       ]).
@@ -133,13 +144,13 @@ build_type(Module, Type, Address) ->
 		{struct, _} -> 
 		    Module:erlptr_to_record({Address, Name});
 		_ -> 
-		    undef
+		    undef1
 	    end;
 	base ->
 	    case Def of
-		["char", Sign, _] ->
+		["*", "char", Sign, _] ->
 		    int_deref(Address, 1, Sign);
-		["int", Sign, L] ->
+		["*", "int", Sign, L] ->
 		    {_, {ShI, I, LI, LLI, _, _}} = proplists:lookup("sizes", get_config()),
 		    Size = case L of
 			       "short" ->
@@ -152,15 +163,15 @@ build_type(Module, Type, Address) ->
 				   LLI
 			   end,
 		    int_deref(Address, Size, Sign);
-		["float", _, _] ->
+		["*", "float", _, _] ->
 		    float_deref(Address);
-		["double", _, _] ->
+		["*", "double", _, _] ->
 		    double_deref(Address);
 		_ ->
-		    undef
+		    undef2
 	    end;
 	_ ->
-	    undef
+	    undef3
     end.
 
 int_deref(Addr, Size, Sign) ->
@@ -189,16 +200,19 @@ free({Addr, _}) ->
     raw_free(Addr).
 
 %%% NIF Functions
--spec raw_free(addr()) -> 'ok'.
 raw_free(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
--spec float_deref(integer()) -> float().
 float_deref(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
--spec double_deref(integer()) -> float().
+float_ref(_) ->
+    erlang:nif_error(nif_library_not_loaded).
+
 double_deref(_) ->    
+    erlang:nif_error(nif_library_not_loaded).
+
+double_ref(_) ->    
     erlang:nif_error(nif_library_not_loaded).
 
 %% string conversion
@@ -211,6 +225,35 @@ cstr_to_list(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
 %% pointer arithmetic
+size_of(Type) -> 
+    Types = get_types(),
+    case dict:fetch(Type, Types) of
+	{base, ["char", _, _]} ->
+	    1;
+	{base, ["int", _, L]} ->
+	    {_, {ShI, I, LI, LLI, _, _}} = proplists:lookup("sizes", get_config()),
+	    case L of
+		"short" ->
+		    ShI;
+		"none" ->
+		    I;
+		"long" ->
+		    LI;
+		"longlong" ->
+		    LLI
+	    end;
+	{base, ["float", _, _]}->
+	    {_, {_, _, _, _, Fl, _}} = proplists:lookup("sizes", get_config()),
+	    Fl;
+	{base, ["double", _, _]}->
+	    {_, {_, _, _, _, _, Dbl}} = proplists:lookup("sizes", get_config()),
+	    Dbl;
+	{base, ["*"|_]} ->
+	    {_, {_, P}} = proplists:lookup("arch", get_config()),
+	    P
+    end.
+    
+
 -spec pointer() -> ptr().
 pointer() ->
     {_, Size} = proplists:get_value("arch", nifty:get_config()),
@@ -221,41 +264,48 @@ pointer(Type) ->
     Types = get_types(),
     case dict:is_key(Type, Types) of
 	true ->
-	    Size = case dict:fetch(Type, Types) of
-		       {base, ["char", _, _]} ->
-			   1;
-		       {base, ["int", _, L]} ->
-			   {_, {ShI, I, LI, LLI, _, _}} = proplists:lookup("sizes", get_config()),
-			   case L of
-			       "short" ->
-				   ShI;
-			       "none" ->
-				   I;
-			       "long" ->
-				   LI;
-			       "longlong" ->
-				   LLI
-			   end;
-		       {base, ["float", _, _]}->
-			   {_, {_, _, _, _, Fl, _}} = proplists:lookup("sizes", get_config()),
-			   Fl;
-		       {base, ["double", _, _]}->
-			   {_, {_, _, _, _, _, Dbl}} = proplists:lookup("sizes", get_config()),
-			   Dbl;
-		       {base, ["*"|_]} ->
-			   {_, {_, P}} = proplists:lookup("arch", get_config()),
-			   P
-		   end,
+	    Size = size_of(Type),
 	    as_type(mem_alloc(Size), nifty, Type);
 	false ->
 	    undefined
     end.
 
--spec raw_pointer_of(ptr()) -> ptr().
-raw_pointer_of(_) ->
-    erlang:nif_error(nif_library_not_loaded).
+-spec pointer_of(float()|integer(), string()) -> ptr().
+pointer_of(Value, Type) ->
+    Types = get_types(),
+    case dict:is_key(Type, Types) of
+	true ->
+	    case dict:fetch(Type, Types) of
+		{base, ["float", _, _]}->
+		    float_ref(Value);
+		{base, ["double", _, _]}->
+		    double_ref(Value);
+		_ -> case size_of(Type) of
+			 undefined ->
+			     undefined;
+			 Size ->
+			     case is_integer(Value) of
+				 true ->
+				     as_type(int_constr(Value, Size), nifty, Type++" *");
+				 false ->
+				     undefined
+			     end
+		     end
+	    end;
+	false ->
+	    undefined
+    end.
 
--spec raw_deref(integer()) -> integer().
+int_constr(Value, Size) ->
+    mem_write(int_constr(Value, Size, [])).
+
+int_constr(_, 0, Acc) ->
+    Acc;
+int_constr(Val, S, Acc) ->
+    R = Val rem 256,
+    V = Val div 256,
+    int_constr(V, S-1, [R|Acc]).
+
 raw_deref(_) ->
     erlang:nif_error(nif_library_not_loaded).
 

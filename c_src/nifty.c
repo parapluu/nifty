@@ -64,6 +64,34 @@ error:
 }
 
 static ERL_NIF_TERM
+float_ref(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+{
+  int err;
+  double helper;
+  float *value;
+  
+  value = enif_alloc(sizeof(float));
+  if (!value) {
+    goto error;
+  }
+
+  err = enif_get_double(env, argv[0], &helper);
+  if (!err) {
+    enif_free(value);
+    goto error;
+  }
+
+  *value = (float)helper;
+  
+  return enif_make_tuple2(env, 
+			  enif_make_uint64(env, (uint64_t)value),
+			  enif_make_string(env, "nifty.float *", ERL_NIF_LATIN1));
+
+ error:
+  return enif_make_badarg(env);
+}
+
+static ERL_NIF_TERM
 double_deref(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
   int err;
@@ -74,6 +102,31 @@ double_deref(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
   }
   return enif_make_double(env, *((double*)ptr));
 error:
+  return enif_make_badarg(env);
+}
+
+static ERL_NIF_TERM
+double_ref(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+{
+  int err;
+  double *value;
+  
+  value = enif_alloc(sizeof(double));
+  if (!value) {
+    goto error;
+  }
+
+  err = enif_get_double(env, argv[0], value);
+  if (!err) {
+    enif_free(value);
+    goto error;
+  }
+
+  return enif_make_tuple2(env, 
+			  enif_make_uint64(env, (uint64_t)value),
+			  enif_make_string(env, "nifty.double *", ERL_NIF_LATIN1));
+
+ error:
   return enif_make_badarg(env);
 }
 
@@ -127,25 +180,6 @@ list_to_cstr(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 			  enif_make_int64(env, (uint64_t)cstr),
 			  enif_make_string(env, "nifty.char *", ERL_NIF_LATIN1));
 
- error:
-  return enif_make_badarg(env);
-}
-
-static ERL_NIF_TERM
-pointer1(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
-{
-  void *ret_ptr;
-  int err;
-  uint64_t ptr;
-  err = enif_get_uint64(env, argv[0], &ptr);
-  if (!err) {
-    goto error;
-  }
-
-  ret_ptr = malloc(sizeof(void*));
-  *((uint64_t *)ret_ptr) = ptr;
-
-  return enif_make_int64(env, (uint64_t)ret_ptr);
  error:
   return enif_make_badarg(env);
 }
@@ -319,11 +353,12 @@ get_env(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 static ErlNifFunc nif_funcs[] = {
   {"raw_deref", 1, raw_deref},
   {"float_deref", 1, float_deref},
+  {"float_ref", 1, float_ref},
   {"double_deref", 1, double_deref},
+  {"double_ref", 1, double_ref},
   {"raw_free", 1, raw_free},
   {"list_to_cstr", 1, list_to_cstr},
   {"cstr_to_list", 1, cstr_to_list},
-  {"raw_pointer_of", 1, pointer1},
   {"mem_write_list", 2, mem_write_list},
   {"mem_write_binary", 2, mem_write_binary},
   {"mem_read", 2, mem_read},
