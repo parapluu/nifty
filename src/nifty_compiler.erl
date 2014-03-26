@@ -1,16 +1,14 @@
 -module(nifty_compiler).
 -export([render/4,
-	 store_files/4,
-	 compile_module/1,
-	 compile/3
-	]).
+	 compile/3]).
 
 -type options()   :: proplists:proplist().
 -type renderout() :: {iolist(), iolist(), iolist(), iolist()}.
+-type modulename() :: string().
 
--spec render(string(), string(), [string()], options()) -> fail | renderout().
-render(InterfaceFile, Module, CFlags, Options) ->
-    io:format("generating ~s -> ~s ~s ~n", [InterfaceFile, Module++"_nif.c", Module++".erl"]),
+-spec render(string(), modulename(), [string()], options()) -> fail | renderout().
+render(InterfaceFile, ModuleName, CFlags, Options) ->
+    io:format("generating ~s -> ~s ~s ~n", [InterfaceFile, ModuleName++"_nif.c", ModuleName++".erl"]),
     %% c parse stuff
     PathToH = InterfaceFile,
     case clang_parse:parse([PathToH|CFlags]) of
@@ -26,7 +24,7 @@ render(InterfaceFile, Module, CFlags, Options) ->
 			  {"functions", Functions},  % ?
 			  {"structs", Structs},      % ?
 			  {"typedefs", Typedefs},    % ? 
-			  {"module", Module},
+			  {"module", ModuleName},
 			  {"header", InterfaceFile},
 			  {"config", Options},
 			  {"types", Types},
@@ -40,45 +38,43 @@ render(InterfaceFile, Module, CFlags, Options) ->
 	    {ErlOutput, COutput, AppOutput, ConfigOutput}
     end.
 
--spec store_files(string(), string(), options(), renderout()) -> 'ok'.
-store_files(InterfaceFile, Module, Options, RenderOutput) ->
+store_files(InterfaceFile, ModuleName, Options, RenderOutput) ->
     {ok, Path} = file:get_cwd(),
-    store_files(InterfaceFile, Module, Options, RenderOutput, Path).
+    store_files(InterfaceFile, ModuleName, Options, RenderOutput, Path).
 
-store_files(_, Module, _, RenderOutput, Path) ->
-    ok = case file:make_dir(filename:join([Path,Module])) of
+store_files(_, ModuleName, _, RenderOutput, Path) ->
+    ok = case file:make_dir(filename:join([Path,ModuleName])) of
 	     ok -> ok;
 	     {error,eexist} -> ok;
 	     _ -> fail
 	 end,
-    ok = case file:make_dir(filename:join([Path,Module, "src"])) of
+    ok = case file:make_dir(filename:join([Path,ModuleName, "src"])) of
 	     ok -> ok;
 	     {error,eexist} -> ok;
 	     _ -> fail
 	 end,
-    ok = case file:make_dir(filename:join([Path,Module, "c_src"])) of
+    ok = case file:make_dir(filename:join([Path,ModuleName, "c_src"])) of
 	     ok -> ok;
 	     {error,eexist} -> ok;
 	     _ -> fail
 	 end,
-    ok = case file:make_dir(filename:join([Path,Module, "ebin"])) of
+    ok = case file:make_dir(filename:join([Path,ModuleName, "ebin"])) of
 	     ok -> ok;
 	     {error,eexist} -> ok;
 	     _ -> fail
 	 end,
     {ErlOutput, COutput, AppOutput, ConfigOutput} = RenderOutput,
-    ok = fwrite_render(Path, Module, "src", Module++".erl", ErlOutput),
-    ok = fwrite_render(Path, Module, "c_src", Module++"_nif.c", COutput),
-    ok = fwrite_render(Path, Module, "ebin", Module++".app", AppOutput),
-    ok = fwrite_render(Path, Module, ".", "rebar.config", ConfigOutput).
+    ok = fwrite_render(Path, ModuleName, "src", ModuleName++".erl", ErlOutput),
+    ok = fwrite_render(Path, ModuleName, "c_src", ModuleName++"_nif.c", COutput),
+    ok = fwrite_render(Path, ModuleName, "ebin", ModuleName++".app", AppOutput),
+    ok = fwrite_render(Path, ModuleName, ".", "rebar.config", ConfigOutput).
 
-fwrite_render(Path, Module, Dir, FileName, Template) ->
-    file:write_file(filename:join([Path, Module, Dir, FileName]), [Template]).
+fwrite_render(Path, ModuleName, Dir, FileName, Template) ->
+    file:write_file(filename:join([Path, ModuleName, Dir, FileName]), [Template]).
 
--spec compile_module(string()) -> 'ok' | 'fail'.
-compile_module(Module) ->
+compile_module(ModuleName) ->
     {ok, Path} = file:get_cwd(),
-    ok = file:set_cwd(filename:join([Path, Module])),
+    ok = file:set_cwd(filename:join([Path, ModuleName])),
     try rebar_commands(["compile"]) of
 	_ -> file:set_cwd(Path)
     catch
@@ -87,30 +83,29 @@ compile_module(Module) ->
 	    fail
     end.
 
-rebar_commands(Commands) ->
-    RawArgs = Commands,
+rebar_commands(RawArgs) ->
     Args = nifty_rebar:parse_args(RawArgs),
     BaseConfig = nifty_rebar:init_config(Args),
     {BaseConfig1, Cmds} = nifty_rebar:save_options(BaseConfig, Args),
     nifty_rebar:run(BaseConfig1, Cmds).
 
--spec compile(string(), module(), options()) -> 'ok'.
+-spec compile(string(), module(), options()) -> 'ok' | 'fail'.
 compile(InterfaceFile, Module, Options) ->
     ModuleName = atom_to_list(Module),
     os:putenv("NIF", libname(ModuleName)),
     UCO = update_compile_options(InterfaceFile, ModuleName, Options),
     Env = build_env(ModuleName, UCO),
     CFlags = string:tokens(proplists:get_value("CFLAGS", Env, ""), " "),
-    ok = case render(InterfaceFile, ModuleName, CFlags, UCO) of
-	     fail -> 
-		 fail;
-	     Output ->
-		 ok = store_files(InterfaceFile, ModuleName, UCO, Output),
-		 ok = compile_module(ModuleName),
-		 ModulePath = filename:absname(filename:join([ModuleName, "ebin"])),
-		 true = code:add_path(ModulePath),
-		 ok
-	 end.
+    case render(InterfaceFile, ModuleName, CFlags, UCO) of
+	fail -> 
+	    fail;
+	Output ->
+	    ok = store_files(InterfaceFile, ModuleName, UCO, Output),
+	    ok = compile_module(ModuleName),
+	    ModulePath = filename:absname(filename:join([ModuleName, "ebin"])),
+	    true = code:add_path(ModulePath),
+	    ok
+    end.
 
 build_env(ModuleName, Options) ->
     Env = case proplists:get_value(port_env, Options) of

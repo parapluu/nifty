@@ -6,17 +6,13 @@
 %% supress warning for test/0
 -spec test() -> term().
 
+-define(OPTS(F), [{port_specs, [{".*", "$NIF", [F]}]}]).
+
 -spec compile_builtin() -> ok.
 compile_builtin() ->
     ok = nifty_compiler:compile("../test/cfiles/builtin_types.h", 
 				nt_builtin, 
-				[
-				 {port_specs,
-				  [{".*",
-				    "$NIF",
-				    ["../test/cfiles/builtin_types.c"]
-				   }]
-				 }]).
+				?OPTS("../test/cfiles/builtin_types.c")).
 
 -spec call_functions_builtin() -> ok.
 call_functions_builtin() ->
@@ -47,12 +43,7 @@ builtin_test() ->
 compile_arguments() ->
     ok = nifty_compiler:compile("../test/cfiles/arguments.h", 
 				nt_arguments, 
-				[{port_specs,
-				  [{".*",
-				    "$NIF",	
-				    ["../test/cfiles/arguments.c"]
-				   }]
-				 }]).
+				?OPTS("../test/cfiles/arguments.c")).
 
 -spec call_functions_arguments() -> ok.
 call_functions_arguments() ->

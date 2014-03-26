@@ -3,7 +3,7 @@
 CLANG_LIBRARY = /usr/lib/llvm-3.4/lib
 CLANG_INCLUDE = /usr/lib/llvm-3.4/include
 
-ERL_INCLUDE = $(PWD):$(PWD)/deps
+ERL_INCLUDE = $(PWD):$(PWD)/deps:$(ERL_LIBS)
 
 ifneq (,$(findstring Windows,$(OS)))
     SEP := $(strip \)
@@ -35,7 +35,7 @@ compile:
 	CLANG_LIBRARY=$(CLANG_LIBRARY) CLANG_INCLUDE=$(CLANG_INCLUDE) $(REBAR) compile
 
 dialyzer: compile
-	dialyzer -n -nn -Wunmatched_returns $(BEAMS) $(find .  -path 'deps/*/ebin/*.beam')
+	dialyzer -n -nn -Wunmatched_returns ebin $(find .  -path 'deps/*/ebin/*.beam')
 
 tests: compile
 	CLANG_LIBRARY=$(CLANG_LIBRARY) CLANG_INCLUDE=$(CLANG_INCLUDE) ERL_LIBS=$(ERL_INCLUDE) LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(CLANG_LIBRARY) $(REBAR) clean compile eunit skip_deps=true
