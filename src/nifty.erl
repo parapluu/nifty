@@ -179,7 +179,7 @@ build_type(Module, Type, Address) ->
     end.
 
 int_deref(Addr, Size, Sign) ->
-    I = int_deref(mem_read({Addr, "nifty.void *"}, Size), 0),
+    I = int_deref(lists:reverse(mem_read({Addr, "nifty.void *"}, Size)), 0),
     case Sign of
 	"signed" ->
 	    case I > (trunc(math:pow(2, (Size*8)-1))-1) of
@@ -266,7 +266,7 @@ pointer(Type) ->
     case dict:is_key(Type, Types) of
 	true ->
 	    Size = size_of(Type),
-	    as_type(mem_alloc(Size), nifty, Type);
+	    as_type(mem_alloc(Size), nifty, Type++" *");
 	false ->
 	    undefined
     end.
@@ -301,7 +301,7 @@ int_constr(Value, Size) ->
     mem_write(int_constr(Value, Size, [])).
 
 int_constr(_, 0, Acc) ->
-    Acc;
+    lists:reverse(Acc);
 int_constr(Val, S, Acc) ->
     R = Val rem 256,
     V = Val div 256,
