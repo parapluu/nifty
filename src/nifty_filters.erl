@@ -43,7 +43,7 @@ dereference_type(Type) ->
 discard_const(Type) ->
     string:join([Tok || Tok <- string:tokens(Type, " "), Tok =/= "const"], " ").
 
--spec loopcounter(string(),string()) -> string().
+-spec loopcounter(string(), string()) -> string().
 loopcounter(Type, Name) ->
     NType = "#"++norm_type(Type)++"#",
     Type_ = string:join(string:tokens(NType, " "), "_"),
@@ -64,16 +64,13 @@ absname(Path) ->
     filename:absname(Path).
 
 %%% general
--spec getNth(list()|tuple(), integer()) -> term().
-getNth(I, N) ->
-    case is_list(I) of
-	true ->  
-	    lists:nth(N, I);
-	false ->
-	    lists:nth(N,tuple_to_list(I))
-    end.
+-spec getNth(list() | tuple(), integer()) -> term().
+getNth(I, N) when is_list(I) ->
+    lists:nth(N, I);
+getNth(I, N) when is_tuple(I) ->
+    lists:nth(N, tuple_to_list(I)).
 
--spec reversed(list()) -> list().
+-spec reversed([X]) -> [X].
 reversed(L) ->
     lists:reverse(L).
 
