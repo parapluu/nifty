@@ -5,9 +5,10 @@
 	 compile/3
 	]).
 
+-type options()   :: proplists:proplist().
 -type renderout() :: {iolist(), iolist(), iolist(), iolist()}.
 
--spec render(string(),string(),list(string()),proplists:proplist()) -> fail | renderout().
+-spec render(string(), string(), [string()], options()) -> fail | renderout().
 render(InterfaceFile, Module, CFlags, Options) ->
     io:format("generating ~s -> ~s ~s ~n", [InterfaceFile, Module++"_nif.c", Module++".erl"]),
     %% c parse stuff
@@ -39,7 +40,7 @@ render(InterfaceFile, Module, CFlags, Options) ->
 	    {ErlOutput, COutput, AppOutput, ConfigOutput}
     end.
 
--spec store_files(string(), string(), proplists:proplist(), renderout()) -> ok.
+-spec store_files(string(), string(), options(), renderout()) -> 'ok'.
 store_files(InterfaceFile, Module, Options, RenderOutput) ->
     {ok, Path} = file:get_cwd(),
     store_files(InterfaceFile, Module, Options, RenderOutput, Path).
@@ -74,7 +75,7 @@ store_files(_, Module, _, RenderOutput, Path) ->
 fwrite_render(Path, Module, Dir, FileName, Template) ->
     file:write_file(filename:join([Path, Module, Dir, FileName]), [Template]).
 
--spec compile_module(string()) -> ok | fail.
+-spec compile_module(string()) -> 'ok' | 'fail'.
 compile_module(Module) ->
     {ok, Path} = file:get_cwd(),
     ok = file:set_cwd(filename:join([Path, Module])),
@@ -82,7 +83,7 @@ compile_module(Module) ->
 	_ -> file:set_cwd(Path)
     catch
 	throw:rebar_abort ->
-	    ok =file:set_cwd(Path),
+	    ok = file:set_cwd(Path),
 	    fail
     end.
 
@@ -93,9 +94,9 @@ rebar_commands(Commands) ->
     {BaseConfig1, Cmds} = nifty_rebar:save_options(BaseConfig, Args),
     nifty_rebar:run(BaseConfig1, Cmds).
 
--spec compile(string(), atom(), proplists:proplist()) -> ok.
+-spec compile(string(), module(), options()) -> 'ok'.
 compile(InterfaceFile, Module, Options) ->
-    ModuleName = erlang:atom_to_list(Module),
+    ModuleName = atom_to_list(Module),
     os:putenv("NIF", libname(ModuleName)),
     UCO = update_compile_options(InterfaceFile, ModuleName, Options),
     Env = build_env(ModuleName, UCO),
@@ -135,8 +136,6 @@ get_spec_env(ModuleName, [S|T]) ->
 	_ ->
 	    get_spec_env(ModuleName, T)
     end.
-
-
 
 norm_opts(Options) ->
     case proplists:get_value(env, Options) of
@@ -259,5 +258,3 @@ expand_spec(S) ->
 
 norm_sources(S) ->
     [nifty_utils:expand(X) || X <- S].
-
-
