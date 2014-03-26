@@ -288,11 +288,11 @@ mem_alloc(_) ->
 %% config
 -spec get_config() -> proplists:proplist().
 get_config() ->
-    exit(nif_library_not_loaded).
+    erlang:nif_error(nif_library_not_loaded).
 
 -spec get_env() -> {integer(), nonempty_string()}.
 get_env() ->
-    exit(nif_library_not_loaded).
+    erlang:nif_error(nif_library_not_loaded).
 
 -spec as_type(ptr(), atom(), nonempty_string()) -> ptr().
 as_type({Address, _}, Module, Type) ->
