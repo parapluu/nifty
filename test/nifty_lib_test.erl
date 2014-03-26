@@ -1,6 +1,7 @@
 -module(nifty_lib_test).
 -export([cstr_list_test/0,
 	 read_write_test/0,
+	 short_test/0,
 	 int_deref_test/0]).
 
 -include_lib("proper/include/proper.hrl").
@@ -9,20 +10,27 @@
 -type mystring() :: [1..255].
 -type byte() :: 0..255.
 
+
 %% auxilary functions
 -spec cstr_list_comp(mystring()) -> boolean().
 cstr_list_comp(Str) ->
     CStr = nifty:list_to_cstr(Str),
-    Ret = nifty:dereference(CStr) =:= Str,
+    DStr = nifty:dereference(CStr),
     ok = nifty:free(CStr),
-    Ret.
+    DStr =:= Str.
+
+short_comp(Sh) ->
+    P = nifty:pointer_of(Sh, "unsigned short"),
+    DSh = nifty:dereference(P),
+    ok = nifty:free(P),
+    Sh =:= DSh.
 
 -spec write_read([byte()]) -> boolean().
 write_read(Data) ->
     Ptr = nifty:mem_write(Data),
-    Ret = nifty:mem_read(Ptr, length(Data)) =:= Data,
+    DData = nifty:mem_read(Ptr, length(Data)),
     ok = nifty:free(Ptr),
-    Ret.
+    DData =:= Data.
 
 %% properties
 -spec prop_cstr_list() -> proper:outer_test().
@@ -33,6 +41,12 @@ prop_cstr_list() ->
 prop_read_write() ->
     ?FORALL(S, list(byte()), write_read(S)).
 
+-spec prop_short() -> proper:outer_test().
+prop_short() ->
+     ?FORALL(S, 
+	     integer(0,trunc(math:pow(2,16))-1),
+	     short_comp(S)).
+
 %% testcases
 -spec cstr_list_test() -> boolean().
 cstr_list_test() ->
@@ -41,6 +55,10 @@ cstr_list_test() ->
 -spec read_write_test() -> boolean().
 read_write_test() ->
     proper:quickcheck(prop_read_write(), [{to_file, user}, {numtests, 1000}]).
+
+-spec short_test() -> boolean().
+short_test() ->
+    proper:quickcheck(prop_short(), [{to_file, user}, {numtests, 1000}]).
 
 -spec int_deref_test() -> boolean().
 int_deref_test() ->
@@ -52,5 +70,3 @@ int_deref_test() ->
     -1 = nifty:dereference(nifty:as_type(Ptr, nifty, "long long *")),
     ok = nifty:free(Ptr),
     true.
-
-
