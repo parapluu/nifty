@@ -1,6 +1,7 @@
 -module(nifty_lib_test).
 -export([cstr_list_test/0,
-	 read_write_test/0]).
+	 read_write_test/0,
+	 int_deref_test/0]).
 
 -include_lib("proper/include/proper.hrl").
 -inlcude_lib("eunit/include/eunit.hrl").
@@ -40,3 +41,14 @@ cstr_list_test() ->
 -spec read_write_test() -> boolean().
 read_write_test() ->
     proper:quickcheck(prop_read_write(), [{to_file, user}, {numtests, 1000}]).
+
+-spec int_deref_test() -> boolean().
+int_deref_test() ->
+    Ptr = nifty:mem_write([16#ff, 16#ff, 16#ff, 16#ff, 16#ff, 16#ff, 16#ff, 16#ff]),
+    -1 = nifty:dereference(nifty:as_type(Ptr, nifty, "char")),
+    -1 = nifty:dereference(nifty:as_type(Ptr, nifty, "short")),
+    -1 = nifty:dereference(nifty:as_type(Ptr, nifty, "int")),
+    -1 = nifty:dereference(nifty:as_type(Ptr, nifty, "long")),
+    -1 = nifty:dereference(nifty:as_type(Ptr, nifty, "long long")),
+    ok = nifty:free(Ptr),
+    true.

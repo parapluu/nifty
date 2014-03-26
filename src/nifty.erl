@@ -167,9 +167,9 @@ int_deref(Addr, Size, Sign) ->
     I = int_deref(mem_read({Addr, "nifty.void *"}, Size), 0),
     case Sign of
 	"signed" ->
-	    case I > (trunc(math:pow(2, Size-1))-1) of
+	    case I > (trunc(math:pow(2, (Size*8)-1))-1) of
 		true -> 
-		    I - trunc(math:pow(2,Size));
+		    I - trunc(math:pow(2,(Size*8)));
 		false ->
 		    I
 	    end;
