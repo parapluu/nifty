@@ -19,6 +19,10 @@
 
 -on_load(init/0).
 
+-type reason() :: atom().
+-type addr() :: integer().
+-type ptr() :: {addr(), nonempty_string()}.
+
 init() -> %% loading code from jiffy
     PrivDir = case code:priv_dir(?MODULE) of
 		  {error, _} ->
@@ -108,7 +112,7 @@ resolve_type(Type, Types) ->
     end.
 
 %% pointer arithmetic
--spec dereference(ptr()) -> ptr() | integer() | float() | list() | {string(), integer()}.
+-spec dereference(ptr()) -> ptr() | integer() | float() | list() | {string(), integer()} | {'error', reason()}.
 dereference(Pointer) ->
     {Address, ModuleType} = Pointer,
     [ModuleName, Type] = string:tokens(ModuleType, "."),
@@ -144,7 +148,7 @@ build_type(Module, Type, Address) ->
 		{struct, _} -> 
 		    Module:erlptr_to_record({Address, Name});
 		_ -> 
-		    undef1
+		    {error, undef}
 	    end;
 	base ->
 	    case Def of
@@ -168,10 +172,10 @@ build_type(Module, Type, Address) ->
 		["*", "double", _, _] ->
 		    double_deref(Address);
 		_ ->
-		    undef2
+		    {error, unknown_builtin_type}
 	    end;
 	_ ->
-	    undef3
+	    {error, unknown_type}
     end.
 
 int_deref(Addr, Size, Sign) ->
@@ -191,9 +195,6 @@ int_deref(Addr, Size, Sign) ->
 int_deref([], Acc) -> Acc;
 int_deref([E|T], Acc) ->
     int_deref(T, (Acc bsl 8) + E).
-
--type addr() :: integer().
--type ptr() :: {addr(), nonempty_string()}.
 
 -spec free(ptr()) -> 'ok'.
 free({Addr, _}) ->
