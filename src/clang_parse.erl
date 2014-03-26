@@ -1,5 +1,6 @@
 -module(clang_parse).
 -export([parse/1, build_vars/1]).
+
 -on_load(init/0).
 
 init() -> %% loading code from jiffy
@@ -16,11 +17,11 @@ init() -> %% loading code from jiffy
 cparse(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
--spec parse(list(string())) -> {list(string()), list(string())} | {fail, _}.
+-spec parse(Args) -> {[string()], Args} | {'fail', Args} when Args :: [string()].
 parse(Args) ->
     {cparse(Args), Args}.
 
--spec build_vars(list(string())) -> {dict(), dict(), dict()}.
+-spec build_vars([string()]) -> {dict(), dict(), dict()}.
 build_vars(Token) ->
     build_vars(Token, {dict:new(), dict:new(), dict:new()}).
 
@@ -143,7 +144,6 @@ strip_type_name(Name) ->
 	12 -> string:substr(Temp, 1, 11) ++ string:substr(Temp, 19);
 	_ -> Temp
     end.
-
 
 resolve_type(Name, TypeDefs) -> 
     case dict:is_key(Name, TypeDefs) of
