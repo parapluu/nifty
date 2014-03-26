@@ -61,10 +61,9 @@
 
 -define(DEFAULT_JOBS, 3).
 
--type config() :: {
-              config,
+-type config() :: {config,
               nonempty_string(),
-              list({atom(), term()} | atom()),
+              [{atom(), term()} | atom()],
               dict(),
               dict(),
               dict(),
@@ -75,7 +74,7 @@
 %% ====================================================================
 
 %% escript Entry point
--spec main(list(string())) -> ok.
+-spec main([string()]) -> 'ok'.
 main(Args) ->
     case catch(run(Args)) of
         ok ->
@@ -90,7 +89,7 @@ main(Args) ->
     end.
 
 %% Erlang-API entry point
--spec run(proplists:proplist(), list(string)) -> ok.
+-spec run(proplists:proplist(), [string()]) -> ok.
 run(BaseConfig, Commands) ->
     _ = application:load(rebar),
     run_aux(BaseConfig, Commands).
@@ -238,7 +237,7 @@ help() ->
 %% Parse command line arguments using getopt and also filtering out any
 %% key=value pairs. What's left is the list of commands to run
 %%
--spec parse_args(list(string())) -> {list(), [string()]}.
+-spec parse_args([string()]) -> {list(), [string()]}.
 parse_args(RawArgs) ->
     %% Parse getopt options
     OptSpecList = option_spec_list(),
@@ -251,7 +250,7 @@ parse_args(RawArgs) ->
             rebar_utils:delayed_halt(1)
     end.
 
--spec save_options(term(), {proplists:proplist(), proplists:proplist()}) -> {term(), list(string())}.
+-spec save_options(term(), {proplists:proplist(), proplists:proplist()}) -> {term(), [string()]}.
 save_options(Config, {Options, NonOptArgs}) ->
     %% Check options and maybe halt execution
     ok = show_info_maybe_halt(Options, NonOptArgs),
