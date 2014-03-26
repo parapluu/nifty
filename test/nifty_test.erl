@@ -18,8 +18,8 @@ compile_builtin() ->
 				   }]
 				 }]).
 
--spec call_functions_builtin()-> ok.
-call_functions_builtin()->
+-spec call_functions_builtin() -> ok.
+call_functions_builtin() ->
     1 = nt_builtin:f1(1),
     1 = nt_builtin:f2(1),
     1 = nt_builtin:f3(1),
@@ -38,8 +38,8 @@ call_functions_builtin()->
     nifty:free(P2),
     ok.
 
--spec builtin_test()-> ok.
-builtin_test()->
+-spec builtin_test() -> ok.
+builtin_test() ->
     ok = compile_builtin(),
     ok = call_functions_builtin().
 
@@ -55,7 +55,7 @@ compile_arguments() ->
 				 }]).
 
 -spec call_functions_arguments() -> ok.
-call_functions_arguments()->
+call_functions_arguments() ->
     ok = nt_arguments:f1(),
     0 = nt_arguments:f3(0,0,0,0),
     ok = nt_arguments:f2(),
@@ -72,15 +72,15 @@ arguments_test()->
 compile_structs() ->
     ok = nifty_compiler:compile("../test/cfiles/structs.h", nt_structs, []).
 
--spec  call_functions_structs()-> ok.
-call_functions_structs()->
+-spec  call_functions_structs() -> ok.
+call_functions_structs() ->
     {_,_,_,_,_} =  nifty:dereference(nt_structs:record_to_erlptr(nt_structs:new("struct s1"))),
     {_,_,_} = nifty:dereference(nt_structs:record_to_erlptr(nt_structs:new("struct s2"))),
     {_,_,_} = nifty:dereference(nt_structs:record_to_erlptr(nt_structs:new("struct s3"))),
     ok.
 
 -spec structs_test() -> ok.
-structs_test()->
+structs_test() ->
     ok = compile_structs(),
     ok = call_functions_structs().
 
@@ -106,4 +106,3 @@ call_functions_proxy() ->
 proxy_test()->
     ok = compile_proxy(),
     ok = call_functions_proxy().
-    
