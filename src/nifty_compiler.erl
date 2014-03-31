@@ -109,10 +109,14 @@ compile(InterfaceFile, Module, Options) ->
 	    {error, E};
 	Output ->
 	    ok = store_files(InterfaceFile, ModuleName, UCO, Output),
-	    ok = compile_module(ModuleName),
-	    ModulePath = filename:absname(filename:join([ModuleName, "ebin"])),
-	    true = code:add_path(ModulePath),
-	    ok
+	    case compile_module(ModuleName) of
+		ok ->
+		    ModulePath = filename:absname(filename:join([ModuleName, "ebin"])),
+		    true = code:add_path(ModulePath),
+		    ok;
+		fail ->
+		    {error, compile}
+	    end
     end.
 
 build_env(ModuleName, Options) ->
