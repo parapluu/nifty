@@ -31,18 +31,31 @@ build_vars([], Definitions) ->
     Definitions;
 build_vars([H|T], Definitions) ->
     {NewT, Defs} = case H of
-	"FUNCTION" ->
-	    build_function(T, Definitions);
-	"STRUCT" ->
-	    build_struct(T, Definitions);
-	"TYPEDEF" ->
-	    build_typedef(T, Definitions);
-	%% Defs = Definitions,
-	%% [_|[_|NewT]] = T;
-	_ ->
-	    {[H|T], false}
-    end,
+		       "FUNCTION" ->
+			   build_function(T, Definitions);
+		       "STRUCT" ->
+			   build_struct(T, Definitions);
+		       "TYPEDEF" ->
+			   build_typedef(T, Definitions);
+		       _ ->
+			   io:format("r"),
+			   recover(T, Definitions)
+		       end,
     build_vars(NewT, Defs).
+
+recover([], Defs) ->
+    Defs;
+recover([H|T], Defs) ->
+    case H of
+	"FUNCTION" ->
+	    {[H|T], Defs};
+	"STRUCT" ->
+	    {[H|T], Defs};
+	"TYPEDEF" ->
+	    {[H|T], Defs};
+	_ ->
+	    recover(T, Defs)
+    end.
 
 build_type([Type|T], {Functions, TypeDefs, Structs}) ->
     {NT, Defs} = 
@@ -116,15 +129,25 @@ build_fields(T, Definitions, Name, Fields) ->
     case Field of
 	stop -> 
 	    {NT, Defs, Fields};
-	_ -> build_fields(NT, Defs, Name, [Field|Fields])
+	_ -> 
+	    build_fields(NT, Defs, Name, [Field|Fields])
     end.
 
 build_named_struct(T, Definitions, Name) ->
     {NT, {Functions, TypeDefs, Structs}, Fields} = build_fields(T, Definitions, Name),
     {NT, {Functions, TypeDefs, dict:store(Name, Fields, Structs)}}.
 
+build_anonymous_struct(T, Definitions) ->
+    {T, Definitions}.
+
 build_struct([Name|T], Definitions) ->
-    build_named_struct(T, Definitions, Name).
+    case Name of
+	[] ->
+	    %% anonymous struct
+	    build_anonymous_struct(T, Definitions);
+	_ ->
+	    build_named_struct(T, Definitions, Name)
+    end.
 
 build_typedef([Name| T], Definitions) ->
     {NT, {Functions, TypeDefs, Structs}, Type} = build_type(T, Definitions),

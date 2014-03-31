@@ -2,40 +2,48 @@
 -export([render/4,
 	 compile/3]).
 
+-type reason() :: atom().
 -type options()   :: proplists:proplist().
 -type renderout() :: {iolist(), iolist(), iolist(), iolist()}.
 -type modulename() :: string().
 
--spec render(string(), modulename(), [string()], options()) -> fail | renderout().
+-spec render(string(), modulename(), [string()], options()) -> {error,reason()} | renderout().
 render(InterfaceFile, ModuleName, CFlags, Options) ->
     io:format("generating ~s -> ~s ~s ~n", [InterfaceFile, ModuleName++"_nif.c", ModuleName++".erl"]),
     %% c parse stuff
     PathToH = InterfaceFile,
     case clang_parse:parse([PathToH|CFlags]) of
 	{fail, _} -> 
-	    fail;
+	    {error, compile};
 	{[], _} ->
-	    fail;
+	    {error, empty};
 	{Token, _} -> 
-	    {Functions, Typedefs, Structs} = clang_parse:build_vars(Token),
-	    {Types, Symbols} = nifty_typetable:build({Functions, Typedefs, Structs}),
-	    %%	    io:format("~p~n", [Functions]),
-	    RenderVars = [
-			  {"functions", Functions},  % ?
-			  {"structs", Structs},      % ?
-			  {"typedefs", Typedefs},    % ? 
-			  {"module", ModuleName},
-			  {"header", InterfaceFile},
-			  {"config", Options},
-			  {"types", Types},
-			  {"symbols", Symbols},
-			  {"none", none}
-			 ],
-	    {ok, COutput} = nifty_c_template:render(RenderVars),
-	    {ok, ErlOutput} = nifty_erl_template:render(RenderVars),
-	    {ok, AppOutput} = nifty_app_template:render(RenderVars),
-	    {ok, ConfigOutput} = nifty_config_template:render(RenderVars),
-	    {ErlOutput, COutput, AppOutput, ConfigOutput}
+	    case clang_parse:build_vars(Token) of 
+		{Functions, Typedefs, Structs} ->
+		    {Types, Symbols} = nifty_typetable:build({Functions, Typedefs, Structs}),
+		    %%	    io:format("~p~n", [Functions]),
+		    RenderVars = [
+				  {"functions", Functions},  % ?
+				  {"structs", Structs},      % ?
+				  {"typedefs", Typedefs},    % ? 
+				  {"module", ModuleName},
+				  {"header", InterfaceFile},
+				  {"config", Options},
+				  {"types", Types},
+				  {"symbols", Symbols},
+				  {"none", none}
+				 ],
+		    {ok, COutput} = nifty_c_template:render(RenderVars),
+		    {ok, ErlOutput} = nifty_erl_template:render(RenderVars),
+		    {ok, AppOutput} = nifty_app_template:render(RenderVars),
+		    {ok, ConfigOutput} = nifty_config_template:render(RenderVars),
+		    {ErlOutput, COutput, AppOutput, ConfigOutput};
+		{fail, T} ->
+		    io:format("Token: ~p~n", [T]),
+		    {error, parse};
+		_ ->
+		    {error, undefined}
+	    end
     end.
 
 store_files(InterfaceFile, ModuleName, Options, RenderOutput) ->
@@ -97,8 +105,8 @@ compile(InterfaceFile, Module, Options) ->
     Env = build_env(ModuleName, UCO),
     CFlags = string:tokens(proplists:get_value("CFLAGS", Env, ""), " "),
     case render(InterfaceFile, ModuleName, CFlags, UCO) of
-	fail -> 
-	    fail;
+	{error, E} -> 
+	    {error, E};
 	Output ->
 	    ok = store_files(InterfaceFile, ModuleName, UCO, Output),
 	    ok = compile_module(ModuleName),
