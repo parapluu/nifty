@@ -17,7 +17,7 @@
 		{% if record=="to_record" %}
 	ERL_NIF_TERM {{erlarg}};
 		{% endif %}
-		{% if record=="to_ptr" and typedef|getNth:1=="char" %}
+		{% if record=="to_ptr" and (typedef|getNth:1=="char" or typedef|getNth:3=="short") %}
 			{% if typedef|getNth:2=="unsigned" %}
 	unsigned int helper{{N}};
 			{% else %}
