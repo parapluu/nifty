@@ -18,32 +18,25 @@ render(InterfaceFile, ModuleName, CFlags, Options) ->
 	{[], _} ->
 	    {error, empty};
 	{Token, _} -> 
-	    case clang_parse:build_vars(Token) of 
-		{Functions, Typedefs, Structs} ->
-		    {Types, Symbols} = nifty_typetable:build({Functions, Typedefs, Structs}),
-		    %%	    io:format("~p~n", [Functions]),
-		    RenderVars = [
-				  {"functions", Functions},  % ?
-				  {"structs", Structs},      % ?
-				  {"typedefs", Typedefs},    % ? 
-				  {"module", ModuleName},
-				  {"header", InterfaceFile},
-				  {"config", Options},
-				  {"types", Types},
-				  {"symbols", Symbols},
-				  {"none", none}
-				 ],
-		    {ok, COutput} = nifty_c_template:render(RenderVars),
-		    {ok, ErlOutput} = nifty_erl_template:render(RenderVars),
-		    {ok, AppOutput} = nifty_app_template:render(RenderVars),
-		    {ok, ConfigOutput} = nifty_config_template:render(RenderVars),
-		    {ErlOutput, COutput, AppOutput, ConfigOutput};
-		{fail, T} ->
-		    io:format("Token: ~p~n", [T]),
-		    {error, parse};
-		_ ->
-		    {error, undefined}
-	    end
+	    {Functions, Typedefs, Structs} = clang_parse:build_vars(Token),
+	    {Types, Symbols} = nifty_typetable:build({Functions, Typedefs, Structs}),
+	    %%	    io:format("~p~n", [Functions]),
+	    RenderVars = [
+			  {"functions", Functions},  % ?
+			  {"structs", Structs},      % ?
+			  {"typedefs", Typedefs},    % ? 
+			  {"module", ModuleName},
+			  {"header", InterfaceFile},
+			  {"config", Options},
+			  {"types", Types},
+			  {"symbols", Symbols},
+			  {"none", none}
+			 ],
+	    {ok, COutput} = nifty_c_template:render(RenderVars),
+	    {ok, ErlOutput} = nifty_erl_template:render(RenderVars),
+	    {ok, AppOutput} = nifty_app_template:render(RenderVars),
+	    {ok, ConfigOutput} = nifty_config_template:render(RenderVars),
+	    {ErlOutput, COutput, AppOutput, ConfigOutput}
     end.
 
 store_files(InterfaceFile, ModuleName, Options, RenderOutput) ->

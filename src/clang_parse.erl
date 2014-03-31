@@ -25,8 +25,6 @@ parse(Args) ->
 build_vars(Token) ->
     build_vars(Token, {dict:new(), dict:new(), dict:new()}).
 
-build_vars(L, false) ->
-    {fail, L};
 build_vars([], Definitions) ->
     Definitions;
 build_vars([H|T], Definitions) ->
