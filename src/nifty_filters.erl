@@ -1,13 +1,12 @@
 -module(nifty_filters).
--export([
-	 raw_include/1,
+-export([raw_include/1,
 	 raw_path/1,
 	 absname/1,
 	 getNth/2,
 	 resolved/2,
 	 reversed/1,
 	 fetch/2,
-	 fetch_keys/1,
+ 	 fetch_keys/1,
 	 has_key/2,
 	 is_argument/1,
 	 is_return/1,
@@ -19,6 +18,7 @@
 	 norm_type/1,
 	 dereference_type/1,
 	 discard_const/1,
+	 discard_restrict/1,
 	 loopcounter/2]).
 
 -spec norm_type(string()) -> string().
@@ -74,11 +74,23 @@ getNth(I, N) when is_tuple(I) ->
 reversed(L) ->
     lists:reverse(L).
 
+
+-spec discard_restrict(string()) -> string().
+discard_restrict(Type) ->
+    case string:str(Type, "restrict") of
+    	0 ->
+    	    Type;
+    	P ->
+    	    string:strip(string:substr(Type, 1,P-1) ++ string:substr(Type, P+length("restrict")))
+    end.
+
 -spec resolved(string(), dict()) -> string().
 resolved(Type, Types) ->
     case dict:fetch(Type, Types) of
-	{typedef, RefType} -> resolved(RefType, Types);
-	_ -> Type
+	{typedef, RefType} -> 
+	    resolved(RefType, Types);
+	_ -> 
+	    Type
     end.
 
 %%% dict
