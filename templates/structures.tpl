@@ -83,7 +83,7 @@ record_to_erlptr_{{type}}(ErlNifEnv* env, ERL_NIF_TERM record)
 		{% endfor %}
 	{% endwith %}
 
-	cstruct = (struct {{type}}*)enif_alloc(sizeof(struct {{type}}*));
+	cstruct = (struct {{type}}*)enif_alloc(sizeof(struct {{type}}));
 
 	err = enif_get_tuple(env, record, &ar, (const ERL_NIF_TERM**)(&tpl));
 	if (!err) {

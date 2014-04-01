@@ -19,6 +19,11 @@ struct s3 {
   struct s1 f2;
 };
 
+struct s4 {
+  float myfloat;
+  short int myint;
+};
+
 /* No functions */
 
 #endif /* NIFTY_STRUCTS_TEST */

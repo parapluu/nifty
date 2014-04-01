@@ -68,6 +68,7 @@ call_functions_structs() ->
     {_,_,_,_,_} =  nifty:dereference(nt_structs:record_to_erlptr(nt_structs:new("struct s1"))),
     {_,_,_} = nifty:dereference(nt_structs:record_to_erlptr(nt_structs:new("struct s2"))),
     {_,_,_} = nifty:dereference(nt_structs:record_to_erlptr(nt_structs:new("struct s3"))),
+    {_,_,_} = nifty:dereference(nt_structs:record_to_erlptr(nt_structs:new("struct s4"))),
     ok.
 
 -spec structs_test() -> ok.
