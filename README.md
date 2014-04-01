@@ -67,6 +67,16 @@ Run the following command to check that everything works correct:
 + **libclang** including the header files
 + **clang** compiler
 
+### Types
+
+| C Types                                  | Erlang Types                 |
+|------------------------------------------|------------------------------|
+| ```[unsigned/signed] [short/long] int``` | ```integer()```              |
+| ```float```                              | ```float()```                |
+| ```double```                             | ```float()```                |
+| ```<type> *```                           | ```{integer(), string()}```  |
+| ```struct name { ... }```                | erlang record                |
+
 ### Limitations
 + So far there is no support for unions and anonymous struct. However, Nifty tries to recover from types that it cannot translate and prints an r during compilation. 
 
