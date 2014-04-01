@@ -2,7 +2,8 @@
 #define NIFTY_PROXY_TEST
 
 #include "structs.h"
+#include "arguments.h"
 
-extern void* f1(struct s1* arg);
+extern void* fproxy(struct s1* arg);
 
 #endif

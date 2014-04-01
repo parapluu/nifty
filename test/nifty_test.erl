@@ -90,8 +90,10 @@ compile_proxy() ->
 -spec call_functions_proxy() -> ok.
 call_functions_proxy() ->
     F = {0, "nifty.void*"},
-    {0, _} = nt_proxy:f1(F),
+    {0, _} = nt_proxy:fproxy(F),
+    none = proplists:lookup(strcmp, nt_proxy:module_info(exports)),
     ok.
+
 
 -spec proxy_test() -> ok.
 proxy_test()->
