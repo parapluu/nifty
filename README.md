@@ -68,4 +68,10 @@ Run the following command to check that everything works correct:
 + **clang** compiler
 
 ### Limitations
-So far there is no support for unions and anonymous struct. There is no nice way of using arrays although **nifty:mem_alloc/1** and **nifty:mem_read/1** allow to use them on a basic level. The tool has not been tested under Windows or 32 bit.
++ So far there is no support for unions and anonymous struct. However, Nifty tries to recover from types that it cannot translate and prints an r during compilation. 
+
++ Variable arguments of functions (va_list) is not supported. 
+
++ There is no nice way of using arrays although **nifty:mem_alloc/1** and **nifty:mem_read/1** allow basic usage. 
+
++ The tool has not been tested under Windows or 32 bit.
