@@ -30,6 +30,7 @@ cparse(ErlNifEnv* env, int argc, char *argv[]) {
 typedef struct _clientd {
   ErlNifEnv* env;
   ERL_NIF_TERM payload;
+  ERL_NIF_TERM func_file;
 } Data;
 
 
@@ -39,10 +40,11 @@ walk_cursor(ErlNifEnv* env, CXTranslationUnit t, CXCursor c) {
   ERL_NIF_TERM retval;
   data->env = env;
   data->payload = enif_make_list(env, 0);
+  data->func_file = enif_make_list(env, 0);
   CXCursorVisitor visitor = visitor_cb;
   clang_visitChildren(c, visitor, (CXClientData)data);
   enif_make_reverse_list(env, data->payload, &retval);
-  return retval;
+  return enif_make_tuple2(env, retval, data->func_file);
 }
 
 static enum CXChildVisitResult
@@ -51,15 +53,36 @@ visitor_cb(CXCursor cursor, CXCursor parent, CXClientData client_data)
   char* ctmp;
   CXString tmp;
   CXType type;
+
+  CXFile file;
+  unsigned line;
+  unsigned column;
+  unsigned offset;
+  CXSourceLocation loc;
+
   ERL_NIF_TERM data = ((Data*)client_data)->payload;
+  ERL_NIF_TERM ff_l = ((Data*)client_data)->func_file;
+  ERL_NIF_TERM fn, funcname;
   ErlNifEnv* env = ((Data*)client_data)->env;
 
   switch (clang_getCursorKind(cursor)) {
   case CXCursor_FunctionDecl: {
+    loc = clang_getCursorLocation(cursor);
+    clang_getFileLocation(loc,
+			  &file,
+			  &line,
+			  &column,
+			  &offset);
+    
+    tmp=clang_getFileName(file);
+    fn = enif_make_string(env, clang_getCString(tmp), ERL_NIF_LATIN1);
+    clang_disposeString(tmp);
+
     data = enif_make_list_cell(env, enif_make_string(env, "FUNCTION", ERL_NIF_LATIN1), data);
 
     tmp = clang_getCursorSpelling(cursor);
-    data = enif_make_list_cell(env, enif_make_string(env, clang_getCString(tmp), ERL_NIF_LATIN1), data);
+    funcname = enif_make_string(env, clang_getCString(tmp), ERL_NIF_LATIN1);
+    data = enif_make_list_cell(env, funcname, data);
     clang_disposeString(tmp);
 
     type = clang_getCursorType(cursor);
@@ -67,7 +90,11 @@ visitor_cb(CXCursor cursor, CXCursor parent, CXClientData client_data)
     data = enif_make_list_cell(env, enif_make_string(env, clang_getCString(tmp), ERL_NIF_LATIN1), data);
     clang_disposeString(tmp);
 
+    ff_l = enif_make_list_cell(env, enif_make_tuple2(env, funcname, fn), ff_l);
+
     ((Data*)client_data)->payload = data;
+    ((Data*)client_data)->func_file = ff_l;
+
     return CXChildVisit_Recurse;
   }
   case CXCursor_StructDecl: {

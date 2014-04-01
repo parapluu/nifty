@@ -17,7 +17,7 @@ init() -> %% loading code from jiffy
 cparse(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
--spec parse(Args) -> {[string()], Args} | {'fail', Args} when Args :: [string()].
+-spec parse(Args) -> {{[string()],[{string(), string()}]}, Args} | {'fail', Args} when Args :: [string()].
 parse(Args) ->
     {cparse(Args), Args}.
 

@@ -15,14 +15,15 @@ render(InterfaceFile, ModuleName, CFlags, Options) ->
     case clang_parse:parse([PathToH|CFlags]) of
 	{fail, _} -> 
 	    {error, compile};
-	{[], _} ->
+	{{[],[]}, _} ->
 	    {error, empty};
-	{Token, _} -> 
+	{{Token, FuncLoc}, _} -> 
 	    {Functions, Typedefs, Structs} = clang_parse:build_vars(Token),
-	    {Types, Symbols} = nifty_typetable:build({Functions, Typedefs, Structs}),
+	    NFunctions = filter_functions(InterfaceFile, Functions, FuncLoc),
+	    {Types, Symbols} = nifty_typetable:build({NFunctions, Typedefs, Structs}),
 	    %%	    io:format("~p~n", [Functions]),
 	    RenderVars = [
-			  {"functions", Functions},  % ?
+			  {"functions", NFunctions},  % ?
 			  {"structs", Structs},      % ?
 			  {"typedefs", Typedefs},    % ? 
 			  {"module", ModuleName},
@@ -38,6 +39,20 @@ render(InterfaceFile, ModuleName, CFlags, Options) ->
 	    {ok, ConfigOutput} = nifty_config_template:render(RenderVars),
 	    {ErlOutput, COutput, AppOutput, ConfigOutput}
     end.
+
+filter_functions(InterfaceFile, Functions, FuncLoc) ->
+    filter_functions(filename:basename(InterfaceFile), dict:new(), Functions, FuncLoc).
+
+filter_functions(_, New, _, []) ->
+    New;
+filter_functions(Ref, New, Old, [{Func, File}|T]) ->
+    Updated_New = case Ref=:=filename:basename(File) of
+		      true ->
+			  dict:store(Func, dict:fetch(Func, Old), New);
+		      false ->
+			  New
+		  end,
+    filter_functions(Ref, Updated_New, Old, T).
 
 store_files(InterfaceFile, ModuleName, Options, RenderOutput) ->
     {ok, Path} = file:get_cwd(),
