@@ -2,7 +2,8 @@
 -export([cstr_list_test/0,
 	 read_write_test/0,
 	 short_test/0,
-	 int_deref_test/0]).
+	 int_deref_test/0,
+	 pointer_of_pointer_test/0]).
 
 -include_lib("proper/include/proper.hrl").
 -inlcude_lib("eunit/include/eunit.hrl").
@@ -70,3 +71,7 @@ int_deref_test() ->
     -1 = nifty:dereference(nifty:as_type(Ptr, nifty, "long long *")),
     ok = nifty:free(Ptr),
     true.
+
+-spec pointer_of_pointer_test() -> boolean().
+pointer_of_pointer_test() ->
+    10 =:= nifty:dereference(nifty:dereference(nifty:pointer_of(nifty:pointer_of(10, "int"), "nifty.int *"))).

@@ -139,43 +139,58 @@ build_builtin_type(DType, Address) ->
 
 build_type(Module, Type, Address) ->
     Types = Module:get_types(),
-    {Kind, Def} = dict:fetch(Type, Types),
-    case Kind of
-	userdef ->
-	    [Name] = Def,
-	    RR = dict:fetch(Name, Types),
-	    case  RR of
-		{struct, _} -> 
-		    Module:erlptr_to_record({Address, Name});
-		_ -> 
-		    {error, undef}
-	    end;
-	base ->
-	    case Def of
-		["*", "char", Sign, _] ->
-		    int_deref(Address, 1, Sign);
-		["*", "int", Sign, L] ->
-		    {_, {ShI, I, LI, LLI, _, _}} = proplists:lookup("sizes", get_config()),
-		    Size = case L of
-			       "short" ->
-				   ShI;
-			       "none" ->
-				   I;
-			       "long" ->
-				   LI;
-			       "longlong" ->
-				   LLI
-			   end,
-		    int_deref(Address, Size, Sign);
-		["*", "float", _, _] ->
-		    float_deref(Address);
-		["*", "double", _, _] ->
-		    double_deref(Address);
+    case dict:is_key(Type, Types) of
+	true -> 
+	    {Kind, Def} =  dict:fetch(Type, Types),
+	    case Kind of
+		userdef ->
+		    [Name] = Def,
+		    RR = dict:fetch(Name, Types),
+		    case  RR of
+			{struct, _} -> 
+			    Module:erlptr_to_record({Address, Name});
+			_ -> 
+			    {error, undef}
+		    end;
+		base ->
+		    case Def of
+			["*", "char", Sign, _] ->
+			    int_deref(Address, 1, Sign);
+			["*", "int", Sign, L] ->
+			    {_, {ShI, I, LI, LLI, _, _}} = proplists:lookup("sizes", get_config()),
+			    Size = case L of
+				       "short" ->
+					   ShI;
+				       "none" ->
+					   I;
+				       "long" ->
+					   LI;
+				       "longlong" ->
+					   LLI
+				   end,
+			    int_deref(Address, Size, Sign);
+			["*", "float", _, _] ->
+			    float_deref(Address);
+			["*", "double", _, _] ->
+			    double_deref(Address);
+			_ ->
+			    {error, unknown_builtin_type}
+		    end;
 		_ ->
-		    {error, unknown_builtin_type}
+		    {error, unknown_type}
 	    end;
-	_ ->
-	    {error, unknown_type}
+	false ->
+	    %% check if the type is a pointer and try
+	    %% to dereference the type "blind"
+	    case string:right(Type, 1) of
+		"*" ->
+		    %% pointer
+		    {_, Size} = proplists:get_value("arch", nifty:get_config()),
+		    NAddr = int_deref(Address, Size, "unsigned"),
+		    {NAddr, atom_to_list(Module)++"."++string:left(Type, length(Type)-1)};
+		_ ->
+		    undefined
+	    end
     end.
 
 int_deref(Addr, Size, Sign) ->
@@ -398,7 +413,7 @@ get_env() ->
 as_type({Address, _}, Module, Type) ->
     case dict:is_key(Type, Module:get_types()) of
 	true -> 
-	    {Address, erlang:atom_to_list(Module)++"."++Type};
+	    {Address, atom_to_list(Module)++"."++Type};
 	false ->
 	    undef
     end.
