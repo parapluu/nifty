@@ -189,7 +189,7 @@ build_type(Module, Type, Address) ->
 		    NAddr = int_deref(Address, Size, "unsigned"),
 		    {NAddr, atom_to_list(Module)++"."++string:left(Type, length(Type)-1)};
 		_ ->
-		    undefined
+		    {error, unknown_type}
 	    end
     end.
 
