@@ -18,12 +18,12 @@ render(InterfaceFile, ModuleName, CFlags, Options) ->
 	{{[],[]}, _} ->
 	    {error, empty};
 	{{Token, FuncLoc}, _} -> 
-	    {Functions, Typedefs, Structs} = clang_parse:build_vars(Token),
-	    NFunctions = filter_functions(InterfaceFile, Functions, FuncLoc),
+	    {Raw_Functions, Typedefs, Structs} = clang_parse:build_vars(Token),
+	    %% io:format("~p~n", [Functions]),
+	    Functions = filter_functions(InterfaceFile, Raw_Functions, FuncLoc),
 	    {Types, Symbols} = nifty_typetable:build({NFunctions, Typedefs, Structs}),
-	    %%	    io:format("~p~n", [Functions]),
 	    RenderVars = [
-			  {"functions", NFunctions},  % ?
+			  {"functions", Functions},  % ?
 			  {"structs", Structs},      % ?
 			  {"typedefs", Typedefs},    % ? 
 			  {"module", ModuleName},
@@ -48,11 +48,31 @@ filter_functions(_, New, _, []) ->
 filter_functions(Ref, New, Old, [{Func, File}|T]) ->
     Updated_New = case Ref=:=filename:basename(File) of
 		      true ->
-			  dict:store(Func, dict:fetch(Func, Old), New);
+			  case has_va_list(dict:fetch(Func, Old)) of
+			      true ->
+				  io:format("skipping function ~p(); va_list is unsupported~n", [Func]),
+				  New;
+			      false ->
+				  dict:store(Func, dict:fetch(Func, Old), New)
+			  end;
 		      false ->
 			  New
 		  end,
     filter_functions(Ref, Updated_New, Old, T).
+
+has_va_list({_, Args}) ->
+    has_va_list_args(Args).
+
+has_va_list_args([]) ->
+    false;
+has_va_list_args([{_,Type}|T]) ->
+    case Type=:="va_list" of
+	true ->
+	    true;
+	false ->
+	    has_va_list_args(T)
+    end.
+
 
 store_files(InterfaceFile, ModuleName, Options, RenderOutput) ->
     {ok, Path} = file:get_cwd(),
