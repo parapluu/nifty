@@ -18,21 +18,20 @@ render(InterfaceFile, ModuleName, CFlags, Options) ->
 	{{[],[]}, _} ->
 	    {error, empty};
 	{{Token, FuncLoc}, _} -> 
-	    {Raw_Functions, Typedefs, Structs} = clang_parse:build_vars(Token),
+	    {Raw_Functions, Raw_Typedefs, Raw_Structs} = clang_parse:build_vars(Token),
 	    %% io:format("~p~n", [Functions]),
-	    Functions = filter_functions(InterfaceFile, Raw_Functions, FuncLoc),
-	    {Types, Symbols} = nifty_typetable:build({Functions, Typedefs, Structs}),
-	    RenderVars = [
-			  {"functions", Functions},  % ?
-			  {"structs", Structs},      % ?
-			  {"typedefs", Typedefs},    % ? 
+	    Unsave_Functions = filter_functions(InterfaceFile, Raw_Functions, FuncLoc),
+	    {Unsave_Types, Symbols} = nifty_typetable:build({Raw_Functions, Raw_Typedefs, Raw_Structs}),
+	    {{Functions, Typedefs, Structs}, Types} = nifty_typetable:check_types({Unsave_Functions, Raw_Typedefs, Raw_Structs}, Unsave_Types),
+	    RenderVars = [{"functions", Functions},
+			  {"structs", Structs},
+			  {"typedefs", Typedefs},
 			  {"module", ModuleName},
 			  {"header", InterfaceFile},
 			  {"config", Options},
 			  {"types", Types},
 			  {"symbols", Symbols},
-			  {"none", none}
-			 ],
+			  {"none", none}],
 	    {ok, COutput} = nifty_c_template:render(RenderVars),
 	    {ok, ErlOutput} = nifty_erl_template:render(RenderVars),
 	    {ok, AppOutput} = nifty_app_template:render(RenderVars),
@@ -48,31 +47,11 @@ filter_functions(_, New, _, []) ->
 filter_functions(Ref, New, Old, [{Func, File}|T]) ->
     Updated_New = case Ref=:=filename:basename(File) of
 		      true ->
-			  case has_va_list(dict:fetch(Func, Old)) of
-			      true ->
-				  io:format("skipping function ~p(); va_list is unsupported~n", [Func]),
-				  New;
-			      false ->
-				  dict:store(Func, dict:fetch(Func, Old), New)
-			  end;
+			  dict:store(Func, dict:fetch(Func, Old), New);
 		      false ->
 			  New
 		  end,
     filter_functions(Ref, Updated_New, Old, T).
-
-has_va_list({_, Args}) ->
-    has_va_list_args(Args).
-
-has_va_list_args([]) ->
-    false;
-has_va_list_args([{_,Type}|T]) ->
-    case Type=:="va_list" of
-	true ->
-	    true;
-	false ->
-	    has_va_list_args(T)
-    end.
-
 
 store_files(InterfaceFile, ModuleName, Options, RenderOutput) ->
     {ok, Path} = file:get_cwd(),

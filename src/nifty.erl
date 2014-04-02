@@ -76,14 +76,14 @@ get_types() ->
 
 get_derefed_type(Type, Module) ->
     Types = Module:get_types(),
-    ResType = resolve_type(Type, Types),
+    ResType = nifty_typetable:resolve_type(Type, Types),
     {_, TypeDef} = dict:fetch(ResType, Types),
     [H|_] = TypeDef,
     case (H=:="*") orelse (string:str(H, "[")>0) of
 	true -> 
 	    [_|Token] = lists:reverse(string:tokens(ResType, " ")),
 	    NType = string:join(lists:reverse(Token), " "),
-	    ResNType = resolve_type(NType, Types),
+	    ResNType = nifty_typetable:resolve_type(NType, Types),
 	    case dict:is_key(ResNType, Types) of
 		true ->
 		    {_, DTypeDef} = dict:fetch(ResNType, Types),
@@ -99,18 +99,6 @@ get_derefed_type(Type, Module) ->
 	    {final, ResType}
     end.
 
-resolve_type(Type, Types) ->
-    case dict:is_key(Type, Types) of 
-	true ->
-	    {Kind, TypeDef} = dict:fetch(Type, Types),
-	    case Kind of
-		typedef -> resolve_type(TypeDef, Types);
-		_ -> Type
-	    end;
-	false ->
-	    undef
-    end.
-
 %% pointer arithmetic
 -spec dereference(ptr()) -> ptr() | integer() | float() | list() | {string(), integer()} | {'error', reason()}.
 dereference(Pointer) ->
@@ -123,10 +111,12 @@ dereference(Pointer) ->
 	_ ->
 	    NType = get_derefed_type(Type, Module),
 	    case NType of
-		{pointer, NType} ->
-		    {raw_deref(Address), ModuleName++"."++NType};
+		{pointer, PType} ->
+		    {raw_deref(Address), ModuleName++"."++PType};
 		{final, DType} ->
-		    build_type(Module, DType, Address)
+		    build_type(Module, DType, Address);
+		undef ->
+		    undefined
 	    end
     end.
 
@@ -317,7 +307,7 @@ pointer_of(Value, Type) ->
 			    %% resolve type and try again
 			    Module = list_to_atom(ModuleName),
 			    Types = Module:get_types(),
-			    case resolve_type(T, Types) of
+			    case nifty_typetable:resolve_type(T, Types) of
 				undef ->
 				    %% can (right now) only be a struct
 				    Module:record_to_erlptr(Value);

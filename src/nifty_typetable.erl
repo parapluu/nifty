@@ -1,10 +1,131 @@
 -module(nifty_typetable).
--export([build/1]).
+-export([build/1,
+	 check_types/2,
+	 resolve_type/2]).
 
 -define(BASE_TYPES, ["char", "int", "float", "double", "void"]).
 -define(SPECIFIER, ["signed", "unsigned", "short", "long"]).
 -define(CLANG_BUILTINS, ["__int128_t", "__builtin_va_list", "__uint128_t"]).
+-define(CLANG_BLACKLIST, ["__builtin_va_list"]).
 
+-spec resolve_type(string(), dict()) -> string()|undef.
+resolve_type(Type, Types) ->
+    case dict:is_key(Type, Types) of 
+	true ->
+	    {Kind, TypeDef} = dict:fetch(Type, Types),
+	    case Kind of
+		typedef -> resolve_type(TypeDef, Types);
+		_ -> Type
+	    end;
+	false ->
+	    undef
+    end.
+
+-spec check_types({dict(), dict(), dict()}, dict()) -> {{dict(), dict(), dict()}, dict()}.
+check_types({Functions, Typedefs, Structs}, Types) ->
+    NTypes = check_types_types(Types),
+    {NStructs, NNTypes} = check_types_structs(Structs, NTypes),
+    NFunc = check_types_functions(Functions, NNTypes),
+    {{NFunc, Typedefs, NStructs}, NNTypes}.
+
+check_type(Type, Types) ->
+    case dict:is_key(Type, Types) of
+	true ->
+	    RType = resolve_type(Type, Types),
+	    case dict:fetch(RType, Types) of
+		{userdef, [RType]} ->
+		    %% unknown and dead end
+		    false;
+		{userdef, [H|_]} ->
+		    case string:right(H, 1) of
+			")" ->
+			    %% function pointer
+			    false;
+			_ ->
+			    %% ok
+			    true
+		    end;
+		TypeName ->
+		    not lists:member(TypeName, ?CLANG_BLACKLIST)
+	    end;
+	false ->
+	    false
+    end.
+
+check_types_functions(Functions, Types) ->
+    Names = dict:fetch_keys(Functions),
+    check_types_functions(Names, Functions, dict:new(), Types).
+
+check_types_functions([], _, NFunc, _) ->
+    NFunc;
+check_types_functions([Func|Tail],OldFunc,NewFunc,Types) ->
+    {RetType, ArgList}  = dict:fetch(Func, OldFunc),
+    case check_type(RetType, Types) andalso check_types_list(ArgList, Types) of
+	true ->
+	    check_types_functions(Tail, 
+				  OldFunc, 
+				  dict:store(Func,
+					     dict:fetch(Func, OldFunc),
+					     NewFunc),
+				  Types);
+	false ->
+	    check_types_functions(Tail, OldFunc, NewFunc, Types)
+    end.
+    
+check_types_structs(Structs, Types) ->
+    Names = dict:fetch_keys(Structs),
+    check_types_structs(Names, Structs, dict:new(), Types).
+
+check_types_structs([], _, NewStructs, Types) ->
+    {NewStructs,Types};
+check_types_structs([Struct|Tail], OldStructs, NewStructs, Types) ->
+    case check_types_fields(dict:fetch(Struct, OldStructs), Types) of
+	true ->
+	    check_types_structs(Tail, 
+				OldStructs, 
+				dict:store(Struct, 
+					   dict:fetch(Struct, OldStructs), 
+					   NewStructs),
+				Types);
+	false ->
+	    check_types_structs(Tail,
+				OldStructs,
+				NewStructs,
+				dict:erase(Struct, Types))
+    end.
+    
+check_types_fields([], _) ->
+    false;
+check_types_fields(Fields, Types) ->
+    check_types_list(Fields, Types).
+
+check_types_list([], _) ->
+    true;
+check_types_list([{_, Type}|Tail], Types) ->
+    case check_type(Type, Types) of
+	true ->
+	    check_types_list(Tail, Types);
+	false ->
+	    false
+    end.
+    
+check_types_types(Types) ->
+    Names = dict:fetch_keys(Types),
+    check_types_types(Names, Types, dict:new()).
+
+check_types_types([], _, NewTypes) ->
+    NewTypes;
+check_types_types([Type|Tail], OldTypes, NewTypes) ->
+    case check_type(Type, OldTypes) of
+	true ->
+	    check_types_types(Tail, 
+			      OldTypes, 
+			      dict:store(Type, 
+					 dict:fetch(Type, OldTypes), 
+					 NewTypes));
+	false ->
+	    check_types_types(Tail, OldTypes, NewTypes)
+    end.
 
 -spec build({dict(), dict(), dict()}) -> {dict(), dict()}.
 build({Functions, Typedefs, Structs} = Dicts) ->
@@ -133,8 +254,8 @@ parse_type([E|T], TypeDef, Kind) ->
 	"struct" ->
 	    [StructName|TT] = T,
 	    parse_type(TT, [StructName|TypeDef], userdef);
-	%% 		"union" ->
-	%% 			io:format("TODO Parse Union ~n");
+	%% "union" ->
+	%%     io:format("TODO Parse Union ~n");
 	_ ->
 	    %% simple type
 	    case lists:member(E, ?BASE_TYPES) of
