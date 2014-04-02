@@ -271,8 +271,57 @@ pointer(Type) ->
 	    undefined
     end.
 
--spec pointer_of(float()|integer(), string()) -> ptr().
+
+-spec pointer_of(term(), string()) -> ptr().
 pointer_of(Value, Type) ->
+    case string:right(Type, 1) of
+	"*" ->
+	    %% pointer
+	    {Addr, VType} = Value,
+	    case VType=:=Type of
+		true ->
+		    {_, Size} = proplists:get_value("arch", nifty:get_config()),
+		    {NAddr, _} = int_constr(Addr, Size),
+		    {NAddr, Type++"*"};
+		false ->
+		    undefined
+	    end;
+	_ ->
+	    %% something else
+	    case string:tokens(Type, ".") of
+		[_] ->
+		    %% base types
+		    builtin_pointer_of(Value, Type);
+		["nifty", T] ->
+		    %% base type
+		    builtin_pointer_of(Value, T);
+		[ModuleName, T] ->
+		    case builtin_pointer_of(Value, T) of
+			undefined ->
+			    %% no base type, try the module
+			    %% resolve type and try again
+			    Module = list_to_atom(ModuleName),
+			    Types = Module:get_types(),
+			    case resolve_type(T, Types) of
+				undef ->
+				    %% can (right now) only be a struct
+				    Module:record_to_erlptr(Value);
+				ResT ->
+				    case builtin_pointer_of(Value, ResT) of
+					undefined ->
+					    %% can (right now) only be a struct
+					    Module:record_to_erlptr(Value);
+					Ptr ->
+					    Ptr
+				    end
+			    end;
+			Ptr ->
+			    Ptr
+		    end
+	    end
+    end.
+
+builtin_pointer_of(Value, Type) ->
     Types = get_types(),
     case dict:is_key(Type, Types) of
 	true ->

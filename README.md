@@ -77,7 +77,7 @@ Run the following command to check that everything works correct:
 | ```<type> *```                           | ```{integer(), string()}```  |
 | ```struct name { ... }```                | erlang record                |
 
-Pointers of types can be optained by Nifty's **pointer_of/2** method, which takes a value and a type (stirng()) and returns a pointer to this value. This currently works only with base types and not with structs.
+Pointers of types can be optained by Nifty's **pointer_of/2** method, which takes a value and a type (stirng()) and returns a pointer to this value.
 
 ### Limitations
 + unions, enums and function pointers are not supported and Nifty will not be able to translate them correctly.

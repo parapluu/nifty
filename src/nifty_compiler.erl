@@ -21,7 +21,7 @@ render(InterfaceFile, ModuleName, CFlags, Options) ->
 	    {Raw_Functions, Typedefs, Structs} = clang_parse:build_vars(Token),
 	    %% io:format("~p~n", [Functions]),
 	    Functions = filter_functions(InterfaceFile, Raw_Functions, FuncLoc),
-	    {Types, Symbols} = nifty_typetable:build({NFunctions, Typedefs, Structs}),
+	    {Types, Symbols} = nifty_typetable:build({Functions, Typedefs, Structs}),
 	    RenderVars = [
 			  {"functions", Functions},  % ?
 			  {"structs", Structs},      % ?
