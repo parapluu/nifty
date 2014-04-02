@@ -77,13 +77,14 @@ Run the following command to check that everything works correct:
 | ```<type> *```                           | ```{integer(), string()}```  |
 | ```struct name { ... }```                | erlang record                |
 
-Pointers of types can be optained by Nifty's **pointer_of/2** method, which takes a value and a type (stirng()) and returns a pointer to this value*.
-
-*This currently works only with base types and not with structs.
+Pointers of types can be optained by Nifty's **pointer_of/2** method, which takes a value and a type (stirng()) and returns a pointer to this value. This currently works only with base types and not with structs.
 
 ### Limitations
-+ So far there is no support for unions and anonymous struct. However, Nifty tries to recover from types that it cannot translate and prints an warning (r) during compilation. 
++ unions, enums and function pointers are not supported and Nifty will not be able to translate them correctly.
++ So far there is no support for anonymous struct. However, Nifty tries to recover from types that it cannot translate and prints an warning (r) during compilation. 
 + Variable arguments of functions (**va_list** or **...**) is not supported. If **va_list** as type is used, Nifty will print a warning. If **...** is used, then the function is translated **without** the variable arguments: **int printf(const char *format, ...)** will be translated into **printf/1**
 + The header files must be self contained which limits the usage of incomplete types. 
-+ There is currently no nice way of using arrays although **nifty:mem_alloc/1** and **nifty:mem_read/1** allow basic usage. 
++ There is currently no nice way of using arrays although **nifty:mem_alloc/1** and **nifty:mem_read/1** allow basic usage.
 + Nifty has not been tested under Windows or 32 bit.
++ The C-Code Nifty creates contains many empty lines. If you want to inspect the Code or modify it, you should use a tool like astyle (with option -xe) to format the generated code. 
+
