@@ -40,11 +40,16 @@ init() -> %% loading code from jiffy
 	      end,
     erlang:load_nif(filename:join(PrivDir, "nifty"), 0).
 
-%% @doc translates a C header file into a NIF module and compiles it
+%% @doc <code>compile/3</code> generates a NIF module out of a C header file and compiles it, 
+%% generating wrapper functions for all functions present in the header file. 
+%% <code>InterfaceFile</code> specifies the header file. <code>Module</code> specifies 
+%% the module name of the translated NIF. <code>Options</code> specifies the compile
+%% options. These options are equivalent to rebar's config options.
 -spec compile(string(), module(), options()) -> 'ok' | 'fail'.
 compile(InterfaceFile, Module, Options) ->
     nifty_compiler:compile(InterfaceFile, Module, Options).
 
+%% @doc returns nifty's base types as a dict
 -spec get_types() -> dict().
 get_types() ->
     %% builtin types:
@@ -110,7 +115,7 @@ get_derefed_type(Type, Module) ->
 	    {final, ResType}
     end.
 
-%% pointer arithmetic
+%% @doc dereference a nifty pointer
 -spec dereference(ptr()) -> ptr() | integer() | float() | list() | {string(), integer()} | {'error', reason()}.
 dereference(Pointer) ->
     {Address, ModuleType} = Pointer,
@@ -127,7 +132,7 @@ dereference(Pointer) ->
 		{final, DType} ->
 		    build_type(Module, DType, Address);
 		undef ->
-		    undefined
+		    {error, undefined}
 	    end
     end.
 
@@ -212,6 +217,7 @@ int_deref([], Acc) -> Acc;
 int_deref([E|T], Acc) ->
     int_deref(T, (Acc bsl 8) + E).
 
+%% @doc free's the memory associated with a nifty pointer
 -spec free(ptr()) -> 'ok'.
 free({Addr, _}) ->
     raw_free(Addr).
@@ -232,16 +238,16 @@ double_deref(_) ->
 double_ref(_) ->    
     erlang:nif_error(nif_library_not_loaded).
 
-%% string conversion
+%% @doc converts an erlang string into a 0 terminated C string and returns a nifty pointer to it
 -spec list_to_cstr(string()) -> ptr().
 list_to_cstr(_) ->
     erlang:nif_error(nif_library_not_loaded).
-
+%% @doc converts a nifty pointer to a 0 terminated C string into a erlang string.
 -spec cstr_to_list(ptr()) -> string().
 cstr_to_list(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
-%% pointer arithmetic
+%% size of a base type
 size_of(Type) -> 
     Types = get_types(),
     case dict:fetch(Type, Types) of
@@ -270,12 +276,13 @@ size_of(Type) ->
 	    P
     end.
     
-
+%% @doc returns a pointer to a memory area that is the size of a pointer
 -spec pointer() -> ptr().
 pointer() ->
     {_, Size} = proplists:get_value("arch", nifty:get_config()),
     mem_alloc(Size).
 
+%% @doc returns a pointer to the specified <code>Type</code>. This function allocates memory of <b>sizeof(</b><code>Type</code><b>)</b>
 -spec pointer(nonempty_string()) -> ptr() | undefined.
 pointer(Type) ->
     Types = get_types(),
@@ -287,7 +294,7 @@ pointer(Type) ->
 	    undefined
     end.
 
-
+%% @doc returns a pointer to the <code>Value</code> with the type <code>Type</code>
 -spec pointer_of(term(), string()) -> ptr().
 pointer_of(Value, Type) ->
     case string:right(Type, 1) of
@@ -375,7 +382,7 @@ int_constr(Val, S, Acc) ->
 raw_deref(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
-%% memory operation
+%% @doc writes the <code>Data</code> to memory and returns a nifty pointer to it; the list elements are interpreted as byte values
 -spec mem_write(binary() | list()) -> ptr().
 mem_write(Data) ->
     case is_binary(Data) of
@@ -393,24 +400,29 @@ mem_write_list(_, _) ->
 mem_write_binary(_, _) ->
     erlang:nif_error(nif_library_not_loaded).
 
+%% @doc reads <code>X2</code> bytes from the pointer <code>X1</code> and returns it as list
 -spec mem_read(ptr(), integer()) -> list().
 mem_read(_, _) ->
     erlang:nif_error(nif_library_not_loaded).
 
+%% @doc allocates <code>X1</code> bytes and returns a pointer to it
 -spec mem_alloc(non_neg_integer()) -> ptr().
 mem_alloc(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
 %% config
+%% @doc returns the platform specific configuration of nifty
 -spec get_config() -> proplists:proplist().
 get_config() ->
     erlang:nif_error(nif_library_not_loaded).
 
+%% @doc returns erlangs NIF environment
 -spec get_env() -> {integer(), nonempty_string()}.
 get_env() ->
     erlang:nif_error(nif_library_not_loaded).
 
--spec as_type(ptr(), atom(), nonempty_string()) -> ptr().
+%% @doc casts a pointer to a <code>Type</code> of a <code>Module</code>; returns an error if the module does not specify the type
+-spec as_type(ptr(), atom(), nonempty_string()) -> ptr() | undef.
 as_type({Address, _}, Module, Type) ->
     case dict:is_key(Type, Module:get_types()) of
 	true -> 
