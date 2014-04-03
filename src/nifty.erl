@@ -1,19 +1,24 @@
 -module(nifty).
--export([
-	 dereference/1,
-	 free/1,
-	 %% nif functions
+-export([%% create modules
+	 compile/3,
+	 %% strings
 	 list_to_cstr/1,
 	 cstr_to_list/1,
+	 %% pointers
+	 dereference/1,
 	 pointer/0,
 	 pointer/1,
 	 pointer_of/2,
+	 as_type/3,
+	 %% memory allocation
 	 mem_write/1,
 	 mem_read/2,
 	 mem_alloc/1,
+	 free/1,
+	 %% configuration
 	 get_config/0,
 	 get_env/0,
-	 as_type/3,
+	 %% builtin types
 	 get_types/0
 	]).
 
@@ -22,6 +27,7 @@
 -type reason() :: atom().
 -type addr() :: integer().
 -type ptr() :: {addr(), nonempty_string()}.
+-type options() :: proplists:proplist().
 
 init() -> %% loading code from jiffy
     PrivDir = case code:priv_dir(?MODULE) of
@@ -33,6 +39,11 @@ init() -> %% loading code from jiffy
 		      Path
 	      end,
     erlang:load_nif(filename:join(PrivDir, "nifty"), 0).
+
+%% @doc translates a C header file into a NIF module and compiles it
+-spec compile(string(), module(), options()) -> 'ok' | 'fail'.
+compile(InterfaceFile, Module, Options) ->
+    nifty_compiler:compile(InterfaceFile, Module, Options).
 
 -spec get_types() -> dict().
 get_types() ->

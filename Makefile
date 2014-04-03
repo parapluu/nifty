@@ -11,7 +11,7 @@ else
     SEP := $(strip /)
 endif
 
-BEAMS = ebin$(SEP)clang_parse.beam \
+BEAMS = ebin$(SEP)nifty_clangparse.beam \
 	ebin$(SEP)nifty.beam \
 	ebin$(SEP)nifty_compiler.beam \
 	ebin$(SEP)nifty_filters.beam \

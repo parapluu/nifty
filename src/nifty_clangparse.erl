@@ -1,4 +1,4 @@
--module(clang_parse).
+-module(nifty_clangparse).
 -export([parse/1, build_vars/1]).
 
 -on_load(init/0).
@@ -12,7 +12,7 @@ init() -> %% loading code from jiffy
 		  Path ->
 		      Path
 	      end,
-    erlang:load_nif(filename:join(PrivDir, "clang_parse"), 0).
+    erlang:load_nif(filename:join(PrivDir, "nifty_clangparse"), 0).
 
 cparse(_) ->
     erlang:nif_error(nif_library_not_loaded).

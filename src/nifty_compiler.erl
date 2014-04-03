@@ -3,7 +3,7 @@
 	 compile/3]).
 
 -type reason() :: atom().
--type options()   :: proplists:proplist().
+-type options() :: proplists:proplist().
 -type renderout() :: {iolist(), iolist(), iolist(), iolist()}.
 -type modulename() :: string().
 
@@ -12,13 +12,13 @@ render(InterfaceFile, ModuleName, CFlags, Options) ->
     io:format("generating ~s -> ~s ~s ~n", [InterfaceFile, ModuleName++"_nif.c", ModuleName++".erl"]),
     %% c parse stuff
     PathToH = InterfaceFile,
-    case clang_parse:parse([PathToH|CFlags]) of
+    case nifty_clangparse:parse([PathToH|CFlags]) of
 	{fail, _} -> 
 	    {error, compile};
 	{{[],[]}, _} ->
 	    {error, empty};
 	{{Token, FuncLoc}, _} -> 
-	    {Raw_Functions, Raw_Typedefs, Raw_Structs} = clang_parse:build_vars(Token),
+	    {Raw_Functions, Raw_Typedefs, Raw_Structs} = nifty_clangparse:build_vars(Token),
 	    %% io:format("~p~n", [Functions]),
 	    Unsave_Functions = filter_functions(InterfaceFile, Raw_Functions, FuncLoc),
 	    {Unsave_Types, Symbols} = nifty_typetable:build({Raw_Functions, Raw_Typedefs, Raw_Structs}),

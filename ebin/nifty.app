@@ -7,8 +7,8 @@
 		{vsn,
 			"0.1"},
 		{modules, [
-			clang_parse, 
 			nifty, 
+			nifty_clangparse,
 			nifty_filters,
 			nifty_tags,
 			nifty_rebar,
