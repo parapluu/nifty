@@ -8,6 +8,7 @@
 -define(CLANG_BUILTINS, ["__int128_t", "__builtin_va_list", "__uint128_t"]).
 -define(CLANG_BLACKLIST, ["__builtin_va_list"]).
 
+%% @doc takes a type and a typetable and returns the resolved type (according to the type table)
 -spec resolve_type(string(), dict()) -> string()|undef.
 resolve_type(Type, Types) ->
     case dict:is_key(Type, Types) of 
@@ -21,6 +22,8 @@ resolve_type(Type, Types) ->
 	    undef
     end.
 
+%% @doc removes all non-resolvable types from the typetable and depending structs or functions and returns 
+%% the filtered type information
 -spec check_types({dict(), dict(), dict()}, dict()) -> {{dict(), dict(), dict()}, dict()}.
 check_types({Functions, Typedefs, Structs}, Types) ->
     NTypes = check_types_types(Types),
@@ -127,6 +130,7 @@ check_types_types([Type|Tail], OldTypes, NewTypes) ->
 	    check_types_types(Tail, OldTypes, NewTypes)
     end.
 
+%% @doc builds a typetable and symbol table out of type information
 -spec build({dict(), dict(), dict()}) -> {dict(), dict()}.
 build({Functions, Typedefs, Structs} = Dicts) ->
     Empty_Tables = {dict:new(), dict:new()}, % { Types, Symbols }
