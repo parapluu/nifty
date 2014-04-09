@@ -51,7 +51,7 @@ init() -> %% loading code from jiffy
 compile(InterfaceFile, Module, Options) ->
     nifty_compiler:compile(InterfaceFile, Module, Options).
 
-%% @doc returns nifty's base types as a dict
+%% @doc Returns nifty's base types as a dict
 -spec get_types() -> dict().
 get_types() ->
     %% builtin types:
@@ -117,7 +117,7 @@ get_derefed_type(Type, Module) ->
 	    {final, ResType}
     end.
 
-%% @doc dereference a nifty pointer
+%% @doc Dereference a nifty pointer
 -spec dereference(ptr()) -> ptr() | integer() | float() | list() | {string(), integer()} | {'error', reason()}.
 dereference(Pointer) ->
     {Address, ModuleType} = Pointer,
@@ -224,7 +224,7 @@ int_deref([], Acc) -> Acc;
 int_deref([E|T], Acc) ->
     int_deref(T, (Acc bsl 8) + E).
 
-%% @doc free's the memory associated with a nifty pointer
+%% @doc Free's the memory associated with a nifty pointer
 -spec free(ptr()) -> 'ok'.
 free({Addr, _}) ->
     raw_free(Addr).
@@ -245,11 +245,11 @@ double_deref(_) ->
 double_ref(_) ->    
     erlang:nif_error(nif_library_not_loaded).
 
-%% @doc converts an erlang string into a 0 terminated C string and returns a nifty pointer to it
+%% @doc Converts an erlang string into a 0 terminated C string and returns a nifty pointer to it
 -spec list_to_cstr(string()) -> ptr().
 list_to_cstr(_) ->
     erlang:nif_error(nif_library_not_loaded).
-%% @doc converts a nifty pointer to a 0 terminated C string into a erlang string.
+%% @doc Converts a nifty pointer to a 0 terminated C string into a erlang string.
 -spec cstr_to_list(ptr()) -> string().
 cstr_to_list(_) ->
     erlang:nif_error(nif_library_not_loaded).
@@ -283,13 +283,13 @@ size_of(Type) ->
 	    P
     end.
     
-%% @doc returns a pointer to a memory area that is the size of a pointer
+%% @doc Returns a pointer to a memory area that is the size of a pointer
 -spec pointer() -> ptr().
 pointer() ->
     {_, Size} = proplists:get_value("arch", nifty:get_config()),
     mem_alloc(Size).
 
-%% @doc returns a pointer to the specified <code>Type</code>. This function allocates memory of <b>sizeof(</b><code>Type</code><b>)</b>
+%% @doc Returns a pointer to the specified <code>Type</code>. This function allocates memory of <b>sizeof(</b><code>Type</code><b>)</b>
 -spec pointer(nonempty_string()) -> ptr() | undefined.
 pointer(Type) ->
     Types = get_types(),
@@ -301,12 +301,12 @@ pointer(Type) ->
 	    undefined
     end.
 
-%% @doc returns a pointer to the given pointer
+%% @doc Returns a pointer to the given pointer
 -spec pointer_of(ptr()) -> ptr() | undefined.
 pointer_of({_, Type} = Ptr) ->
     pointer_of(Ptr, Type).
 
-%% @doc returns a pointer to the <code>Value</code> with the type <code>Type</code>
+%% @doc Returns a pointer to the <code>Value</code> with the type <code>Type</code>
 -spec pointer_of(term(), string()) -> ptr() | undefined.
 pointer_of(Value, Type) ->
     case string:right(Type, 1) of
@@ -394,7 +394,7 @@ int_constr(Val, S, Acc) ->
 raw_deref(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
-%% @doc writes the <code>Data</code> to the memory area pointed to by <code>Ptr</code> and returns a the pointer; the list elements are interpreted as byte values
+%% @doc Writes the <code>Data</code> to the memory area pointed to by <code>Ptr</code> and returns a the pointer; the list elements are interpreted as byte values
 -spec mem_write(ptr(), binary() | list()) -> ptr().
 mem_write({Addr, _} = Ptr, Data) ->
     {Addr, _} = case is_binary(Data) of
@@ -405,7 +405,7 @@ mem_write({Addr, _} = Ptr, Data) ->
 	end,
     Ptr.
 
-%% @doc writes the <code>Data</code> to memory and returns a nifty pointer to it; the list elements are interpreted as byte values
+%% @doc Writes the <code>Data</code> to memory and returns a nifty pointer to it; the list elements are interpreted as byte values
 -spec mem_write(binary() | list()) -> ptr().
 mem_write(Data) ->
     case is_binary(Data) of
@@ -423,28 +423,28 @@ mem_write_list(_, _) ->
 mem_write_binary(_, _) ->
     erlang:nif_error(nif_library_not_loaded).
 
-%% @doc reads <code>X2</code> bytes from the pointer <code>X1</code> and returns it as list
+%% @doc Reads <code>X2</code> bytes from the pointer <code>X1</code> and returns it as list
 -spec mem_read(ptr(), integer()) -> list().
 mem_read(_, _) ->
     erlang:nif_error(nif_library_not_loaded).
 
-%% @doc allocates <code>X1</code> bytes and returns a pointer to it
+%% @doc Allocates <code>X1</code> bytes and returns a pointer to it
 -spec mem_alloc(non_neg_integer()) -> ptr().
 mem_alloc(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
 %% config
-%% @doc returns the platform specific configuration of nifty
+%% @doc Returns the platform specific configuration of nifty
 -spec get_config() -> proplists:proplist().
 get_config() ->
     erlang:nif_error(nif_library_not_loaded).
 
-%% @doc returns erlangs NIF environment
+%% @doc Returns erlangs NIF environment
 -spec get_env() -> {integer(), nonempty_string()}.
 get_env() ->
     erlang:nif_error(nif_library_not_loaded).
 
-%% @doc casts a pointer to a <code>Type</code> of a <code>Module</code>; returns an error if the module does not specify the type
+%% @doc Casts a pointer to a <code>Type</code> of a <code>Module</code>; returns an error if the module does not specify the type
 -spec as_type(ptr(), atom(), nonempty_string()) -> ptr() | undef.
 as_type({Address, _}, Module, Type) ->
     case dict:is_key(Type, Module:get_types()) of
