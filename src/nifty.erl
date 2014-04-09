@@ -9,9 +9,11 @@
 	 pointer/0,
 	 pointer/1,
 	 pointer_of/2,
+	 pointer_of/1,
 	 as_type/3,
 	 %% memory allocation
 	 mem_write/1,
+	 mem_write/2,
 	 mem_read/2,
 	 mem_alloc/1,
 	 free/1,
@@ -179,8 +181,13 @@ build_type(Module, Type, Address) ->
 			    float_deref(Address);
 			["*", "double", _, _] ->
 			    double_deref(Address);
-			_ ->
-			    {error, unknown_builtin_type}
+			[H|_] ->
+			    case H of
+				$* ->
+				    {error, unknown_builtin_type};
+				_ ->
+				    {error, not_a_pointer}
+			    end
 		    end;
 		_ ->
 		    {error, unknown_type}
@@ -294,8 +301,13 @@ pointer(Type) ->
 	    undefined
     end.
 
+%% @doc returns a pointer to the given pointer
+-spec pointer_of(ptr()) -> ptr() | undefined.
+pointer_of({_, Type} = Ptr) ->
+    pointer_of(Ptr, Type).
+
 %% @doc returns a pointer to the <code>Value</code> with the type <code>Type</code>
--spec pointer_of(term(), string()) -> ptr().
+-spec pointer_of(term(), string()) -> ptr() | undefined.
 pointer_of(Value, Type) ->
     case string:right(Type, 1) of
 	"*" ->
@@ -381,6 +393,17 @@ int_constr(Val, S, Acc) ->
 
 raw_deref(_) ->
     erlang:nif_error(nif_library_not_loaded).
+
+%% @doc writes the <code>Data</code> to the memory area pointed to by <code>Ptr</code> and returns a the pointer; the list elements are interpreted as byte values
+-spec mem_write(ptr(), binary() | list()) -> ptr().
+mem_write({Addr, _} = Ptr, Data) ->
+    {Addr, _} = case is_binary(Data) of
+	true ->
+	    mem_write_binary(Data, Ptr);
+	false ->
+	    mem_write_list(Data, Ptr)
+	end,
+    Ptr.
 
 %% @doc writes the <code>Data</code> to memory and returns a nifty pointer to it; the list elements are interpreted as byte values
 -spec mem_write(binary() | list()) -> ptr().

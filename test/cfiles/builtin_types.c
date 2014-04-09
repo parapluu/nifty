@@ -31,6 +31,12 @@ f5(long signed int arg)
   return arg;
 }
 
+long long int
+f13(long long int arg)
+{
+  return arg;
+}
+
 long unsigned int
 f6(long unsigned int arg)
 {

@@ -10,6 +10,7 @@ main(_) ->
 	       {compiler_options, [debug_info]}],
     {ok, nifty_c_template} = erlydtl:compile("templates/cmodule.tpl", nifty_c_template, Options),
     {ok, nifty_erl_template} = erlydtl:compile("templates/emodule.tpl", nifty_erl_template, Options),
+    {ok, nifty_hrl_template} = erlydtl:compile("templates/hrlmodule.tpl", nifty_hrl_template, Options),
     {ok, nifty_app_template} = erlydtl:compile("templates/app.tpl", nifty_app_template, Options),
     {ok, nifty_config_template} = erlydtl:compile("templates/config.tpl", nifty_config_template, Options).
 

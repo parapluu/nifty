@@ -4,7 +4,7 @@
 
 -type reason() :: atom().
 -type options() :: proplists:proplist().
--type renderout() :: {iolist(), iolist(), iolist(), iolist()}.
+-type renderout() :: {iolist(), iolist(), iolist(), iolist(), iolist()}.
 -type modulename() :: string().
 
 %% @doc renders an <code>InterfaceFile</code> into a Erlang module containing of <code>ModuleName</code>.erl
@@ -39,9 +39,10 @@ render(InterfaceFile, ModuleName, CFlags, Options) ->
 			  {"none", none}],
 	    {ok, COutput} = nifty_c_template:render(RenderVars),
 	    {ok, ErlOutput} = nifty_erl_template:render(RenderVars),
+	    {ok, HrlOutput} = nifty_hrl_template:render(RenderVars),
 	    {ok, AppOutput} = nifty_app_template:render(RenderVars),
 	    {ok, ConfigOutput} = nifty_config_template:render(RenderVars),
-	    {ErlOutput, COutput, AppOutput, ConfigOutput}
+	    {ErlOutput, HrlOutput, COutput, AppOutput, ConfigOutput}
     end.
 
 filter_functions(InterfaceFile, Functions, FuncLoc) ->
@@ -73,6 +74,11 @@ store_files(_, ModuleName, _, RenderOutput, Path) ->
 	     {error,eexist} -> ok;
 	     _ -> fail
 	 end,
+    ok = case file:make_dir(filename:join([Path,ModuleName, "include"])) of
+	     ok -> ok;
+	     {error,eexist} -> ok;
+	     _ -> fail
+	 end,
     ok = case file:make_dir(filename:join([Path,ModuleName, "c_src"])) of
 	     ok -> ok;
 	     {error,eexist} -> ok;
@@ -83,8 +89,9 @@ store_files(_, ModuleName, _, RenderOutput, Path) ->
 	     {error,eexist} -> ok;
 	     _ -> fail
 	 end,
-    {ErlOutput, COutput, AppOutput, ConfigOutput} = RenderOutput,
+    {ErlOutput, HrlOutput, COutput, AppOutput, ConfigOutput} = RenderOutput,
     ok = fwrite_render(Path, ModuleName, "src", ModuleName++".erl", ErlOutput),
+    ok = fwrite_render(Path, ModuleName, "include", ModuleName++".hrl", HrlOutput),
     ok = fwrite_render(Path, ModuleName, "c_src", ModuleName++"_nif.c", COutput),
     ok = fwrite_render(Path, ModuleName, "ebin", ModuleName++".app", AppOutput),
     ok = fwrite_render(Path, ModuleName, ".", "rebar.config", ConfigOutput).

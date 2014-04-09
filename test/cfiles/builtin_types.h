@@ -10,6 +10,7 @@ extern long signed int f5(long signed int arg);
 extern long unsigned int f6(long unsigned int arg);
 extern signed char f7(signed char arg);
 extern unsigned char f8(unsigned char arg);
+extern long long int f13(long long int);
 
 /* float */
 extern float f9(float arg);
