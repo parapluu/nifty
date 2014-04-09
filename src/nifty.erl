@@ -42,7 +42,7 @@ init() -> %% loading code from jiffy
 	      end,
     erlang:load_nif(filename:join(PrivDir, "nifty"), 0).
 
-%% @doc <code>compile/3</code> generates a NIF module out of a C header file and compiles it, 
+%% @doc Generates a NIF module out of a C header file and compiles it, 
 %% generating wrapper functions for all functions present in the header file. 
 %% <code>InterfaceFile</code> specifies the header file. <code>Module</code> specifies 
 %% the module name of the translated NIF. <code>Options</code> specifies the compile

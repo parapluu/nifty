@@ -7,7 +7,7 @@
 -type renderout() :: {iolist(), iolist(), iolist(), iolist(), iolist()}.
 -type modulename() :: string().
 
-%% @doc renders an <code>InterfaceFile</code> into a Erlang module containing of <code>ModuleName</code>.erl
+%% @doc Renders an <code>InterfaceFile</code> into a Erlang module containing of <code>ModuleName</code>.erl
 %% <code>ModuleName</code>.c, <code>ModuleName</code>.app and  <code>rebar</code>.config and returns the 
 %% contents of these files as tuple of iolists (in this order). It uses <code>CFlags</code> to parse the
 %% <code>InterfaceFile</code> and <code>Options</code> to compile it. <code>Options</code> are equivalent to
@@ -116,7 +116,7 @@ rebar_commands(RawArgs) ->
     {BaseConfig1, Cmds} = nifty_rebar:save_options(BaseConfig, Args),
     nifty_rebar:run(BaseConfig1, Cmds).
 
-%% @doc <code>compile/3</code> generates a NIF module out of a C header file and compiles it, 
+%% @doc Generates a NIF module out of a C header file and compiles it, 
 %% generating wrapper functions for all functions present in the header file. 
 %% <code>InterfaceFile</code> specifies the header file. <code>Module</code> specifies 
 %% the module name of the translated NIF. <code>Options</code> specifies the compile

@@ -1,12 +1,14 @@
 -module(nifty_utils).
 -export([expand/1]).
 
+%% @doc Returns <code>Path</code> with all environment variables 
+%% expanded
 -spec expand(string()) -> string().
-expand(String) ->
+expand(Path) ->
     string:strip(lists:foldr(fun(A, Acc) ->
 				     A++" "++Acc end,
 			     [],
-			     tokenize(String))).
+			     tokenize(Path))).
 
 %% copied from getopts 
 -define(IS_WHITESPACE(Char), ((Char) =:= $\s orelse (Char) =:= $\t orelse (Char) =:= $\n orelse (Char) =:= $\r)).

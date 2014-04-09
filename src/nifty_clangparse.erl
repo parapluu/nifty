@@ -17,13 +17,13 @@ init() -> %% loading code from jiffy
 cparse(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
-%% @doc takes clang compiler arguments, and returns a list of token and a proplist of functions names with 
+%% @doc Takes clang compiler arguments, and returns a list of token and a proplist of functions names with 
 %% their file locations
 -spec parse([string()]) -> {{[string()],[{string(), string()}]}, Args} | {'fail', Args} when Args :: [string()].
 parse(Args) ->
     {cparse(Args), Args}.
 
-%% @doc takes a list of token as produced by <code>parse/1</code> and returns type information about functions, structs
+%% @doc Takes a list of token as produced by <code>parse/1</code> and returns type information about functions, structs
 %% and typedefs
 -spec build_vars([string()]) -> {dict(), dict(), dict()}.
 build_vars(Token) ->
