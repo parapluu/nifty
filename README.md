@@ -45,41 +45,40 @@ In fact, Nifty uses rebar to compile the generated interface.
 After succesfully cloning enter the following commands
 
 ```
-./rebar get-deps
-./rebar compile
+make
 ```
 
 and include Nifty in your ERL_LIBS path.
 
-## Running Unit Tests
+## Unit Tests
 Run the following command to check that everything works correct:
-```
-./rebar clean compile eunit skip_deps=true
-```
 
-**libclang.so** has to be in your search-path and nifty and it's dependencies have to be in you **ERL_LIBS** path.
+{% highlight bash %}
+make tests
+{% endhighlight %}
 
-```
- LD_LIBRARY_PATH=<PATH_TO_LIBCLANG> ERL_LIBS=<PATH_TO_NIFTY>:<PATH_TO_NIFTY>/deps ./rebar clean compile eunit skip_deps=true
-```
+Make sure, that you have included <a href="http://proper.softlab.ntua.gr/">PropEr</a> in your **ERL_LIBS** path.
 
-### Dependencies
+## Dependencies
 + **libclang** including the header files
 + **clang** compiler
++ **PropEr** for the unit tests
 
-### Types
+## Base Types
 
-| C Types                                  | Erlang Types                 |
-|------------------------------------------|------------------------------|
-| ```[unsigned/signed] [short/long] int``` | ```integer()```              |
-| ```float```                              | ```float()```                |
-| ```double```                             | ```float()```                |
-| ```<type> *```                           | ```{integer(), string()}```  |
-| ```struct name { ... }```                | erlang record                |
+| C Types                                  | Erlang Types                 | Nifty Type Name
+|------------------------------------------|------------------------------|---------------------------
+| ```signed int``` or ```int```            | ```integer()```              | ```nifty.int```
+| ```unsigned int```                       | ```integer()```              | ```nifty.unsigned int```
+| ```char```                               | ```integer()```              | ```nifty.char```
+| ```short```                              | ```integer()```              | ```nifty.short```
+| ```long```                               | ```integer()```              | ```nifty.long```
+| ```long long```                          | ```integer()```              | ```nifty.long long```
+| ```float```                              | ```float()```                | ```nifty.float```
+| ```double```                             | ```float()```                | ```nifty.double```
+| ```<type> *```                           | ```{integer(), string()}```  | ```<module>.<type> *```
 
-Pointers of types can be optained by Nifty's **pointer_of/2** method, which takes a value and a type (stirng()) and returns a pointer to this value.
-
-### Limitations
+## Limitations
 + unions, enums and function pointers are not supported and Nifty will not be able to translate them correctly.
 + So far there is no support for anonymous struct. However, Nifty tries to recover from types that it cannot translate and prints an warning (r) during compilation. 
 + Variable arguments of functions (**va_list** or **...**) is not supported. If **va_list** as type is used, Nifty will print a warning. If **...** is used, then the function is translated **without** the variable arguments: **int printf(const char *format, ...)** will be translated into **printf/1**
