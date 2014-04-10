@@ -40,7 +40,27 @@ init() -> %% loading code from jiffy
 		  Path ->
 		      Path
 	      end,
-    erlang:load_nif(filename:join(PrivDir, "nifty"), 0).
+    ok = erlang:load_nif(filename:join(PrivDir, "nifty"), 0),
+    load_dependencies().
+
+load_dependencies() ->
+    ok = load_dependency(rebar),
+    ok = load_dependency(erlydtl).
+
+load_dependency(Module) ->		    
+    case code:load_file(Module) of
+	{error, nofile} ->
+	    %% module not found
+	    NiftyPath = code:lib_dir(nifty, deps),
+	    case code:add_patha(filename:join([NiftyPath, "rebar", "ebin"])) of
+		{error, _} ->
+		    {error, dependencie_not_found};
+		true ->
+		    ok
+	    end;
+	{module, Module} ->
+	    ok
+    end.    
 
 %% @doc Generates a NIF module out of a C header file and compiles it, 
 %% generating wrapper functions for all functions present in the header file. 

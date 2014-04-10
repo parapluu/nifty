@@ -22,7 +22,7 @@ BEAMS = ebin$(SEP)nifty_clangparse.beam \
 
 REBAR := .$(SEP)rebar
 
-default: fast dialyzer
+default: fast
 
 fast: get-deps compile
 
