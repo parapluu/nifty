@@ -64,10 +64,10 @@
 -type config() :: {config,
               nonempty_string(),
               [{atom(), term()} | atom()],
-              dict(),
-              dict(),
-              dict(),
-              dict() }.
+              dict:dict(),
+              dict:dict(),
+              dict:dict(),
+              dict:dict() }.
 
 %% ====================================================================
 %% Public API

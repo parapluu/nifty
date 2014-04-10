@@ -72,7 +72,7 @@ compile(InterfaceFile, Module, Options) ->
     nifty_compiler:compile(InterfaceFile, Module, Options).
 
 %% @doc Returns nifty's base types as a dict
--spec get_types() -> dict().
+-spec get_types() -> dict:dict().
 get_types() ->
     %% builtin types:
     %%  int types ( [(short|long)] [(long|short)] int; [(signed|unsigned)] char )

@@ -25,7 +25,7 @@ parse(Args) ->
 
 %% @doc Takes a list of token as produced by <code>parse/1</code> and returns type information about functions, structs
 %% and typedefs
--spec build_vars([string()]) -> {dict(), dict(), dict()}.
+-spec build_vars([string()]) -> {dict:dict(), dict:dict(), dict:dict()}.
 build_vars(Token) ->
     build_vars(Token, {dict:new(), dict:new(), dict:new()}).
 

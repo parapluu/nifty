@@ -9,7 +9,7 @@
 -define(CLANG_BLACKLIST, ["__builtin_va_list"]).
 
 %% @doc takes a type and a typetable and returns the resolved type (according to the type table)
--spec resolve_type(string(), dict()) -> string()|undef.
+-spec resolve_type(string(), dict:dict()) -> string()|undef.
 resolve_type(Type, Types) ->
     case dict:is_key(Type, Types) of 
 	true ->
@@ -24,7 +24,7 @@ resolve_type(Type, Types) ->
 
 %% @doc removes all non-resolvable types from the typetable and depending structs or functions and returns 
 %% the filtered type information
--spec check_types({dict(), dict(), dict()}, dict()) -> {{dict(), dict(), dict()}, dict()}.
+-spec check_types({dict:dict(), dict:dict(), dict:dict()}, dict:dict()) -> {{dict:dict(), dict:dict(), dict:dict()}, dict:dict()}.
 check_types({Functions, Typedefs, Structs}, Types) ->
     NTypes = check_types_types(Types),
     {NStructs, NNTypes} = check_types_structs(Structs, NTypes),
@@ -131,7 +131,7 @@ check_types_types([Type|Tail], OldTypes, NewTypes) ->
     end.
 
 %% @doc builds a typetable and symbol table out of type information
--spec build({dict(), dict(), dict()}) -> {dict(), dict()}.
+-spec build({dict:dict(), dict:dict(), dict:dict()}) -> {dict:dict(), dict:dict()}.
 build({Functions, Typedefs, Structs} = Dicts) ->
     Empty_Tables = {dict:new(), dict:new()}, % { Types, Symbols }
     Tables_With_Functions = build_entries(Empty_Tables,

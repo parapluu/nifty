@@ -84,7 +84,7 @@ discard_restrict(Type) ->
     	    string:strip(string:substr(Type, 1,P-1) ++ string:substr(Type, P+length("restrict")))
     end.
 
--spec resolved(string(), dict()) -> string().
+-spec resolved(string(), dict:dict()) -> string().
 resolved(Type, Types) ->
     case dict:fetch(Type, Types) of
 	{typedef, RefType} -> 
@@ -94,15 +94,15 @@ resolved(Type, Types) ->
     end.
 
 %%% dict
--spec fetch(dict(), string()) -> term().
+-spec fetch(dict:dict(), string()) -> term().
 fetch(Dict, Key) ->
     dict:fetch(Key, Dict).
 
--spec fetch_keys(dict()) -> list().
+-spec fetch_keys(dict:dict()) -> list().
 fetch_keys(Dict) ->
     dict:fetch_keys(Dict).
 
--spec has_key(dict(), string()) -> boolean().
+-spec has_key(dict:dict(), string()) -> boolean().
 has_key(Dict, Key) ->
     dict:is_key(Key, Dict).
 
