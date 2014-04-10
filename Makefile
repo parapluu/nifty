@@ -40,5 +40,8 @@ dialyzer: compile
 tests: compile
 	CLANG_LIBRARY=$(CLANG_LIBRARY) CLANG_INCLUDE=$(CLANG_INCLUDE) ERL_LIBS=$(ERL_INCLUDE) LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(CLANG_LIBRARY) $(REBAR) clean compile eunit skip_deps=true
 
+doc:
+	$(REBAR) doc skip_deps=true
+
 clean:
 	$(REBAR) clean
