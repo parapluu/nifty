@@ -50,3 +50,6 @@ doc:
 
 clean:
 	$(REBAR) clean
+
+mrproper: clean
+	rm -rf deps/

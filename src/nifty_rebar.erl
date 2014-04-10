@@ -203,7 +203,7 @@ run_aux(BaseConfig, Commands) ->
 -spec help() -> ok.
 help() ->
     OptSpecList = option_spec_list(),
-    getopt:usage(OptSpecList, "rebar",
+    rebar_getopt:usage(OptSpecList, "rebar",
                  "[var=value,...] <command,...>",
                  [{"var=value", "rebar global variables (e.g. force=1)"},
                   {"command", "Command to run (e.g. compile)"}]),
@@ -241,7 +241,7 @@ help() ->
 parse_args(RawArgs) ->
     %% Parse getopt options
     OptSpecList = option_spec_list(),
-    case getopt:parse(OptSpecList, RawArgs) of
+    case rebar_getopt:parse(OptSpecList, RawArgs) of
         {ok, Args} ->
             Args;
         {error, {Reason, Data}} ->

@@ -42,7 +42,7 @@ erlptr_to_record(_) ->
 record_to_erlptr(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
--spec get_types() -> dict().
+-spec get_types() -> dict:dict().
 get_types() -> ?TYPES.
 
 -spec new(typename()) -> term().
