@@ -52,7 +52,7 @@ load_dependency(Module) ->
 	{error, nofile} ->
 	    %% module not found
 	    NiftyPath = code:lib_dir(nifty, deps),
-	    case code:add_patha(filename:join([NiftyPath, "rebar", "ebin"])) of
+	    case code:add_patha(filename:join([NiftyPath, atom_to_list(Module), "ebin"])) of
 		{error, _} ->
 		    {error, dependencie_not_found};
 		true ->

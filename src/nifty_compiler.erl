@@ -125,6 +125,8 @@ rebar_commands(RawArgs) ->
 compile(InterfaceFile, Module, Options) ->
     ModuleName = atom_to_list(Module),
     os:putenv("NIF", libname(ModuleName)),
+    {ok, NiftyRoot} = file:get_cwd(),
+    os:putenv("NIFTY_ROOT", NiftyRoot),
     UCO = update_compile_options(InterfaceFile, ModuleName, Options),
     Env = build_env(ModuleName, UCO),
     CFlags = string:tokens(proplists:get_value("CFLAGS", Env, ""), " "),

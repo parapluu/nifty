@@ -1,9 +1,14 @@
 .PHONY: default fast all get-deps compile dialyzer tests clean
 
+ifndef CLANG_LIBRARY
 CLANG_LIBRARY = /usr/lib/llvm-3.4/lib
-CLANG_INCLUDE = /usr/lib/llvm-3.4/include
+endif
 
-ERL_INCLUDE = $(PWD):$(PWD)/deps:$(ERL_LIBS)
+ifndef CLANG_INCLUDE
+CLANG_INCLUDE = /usr/lib/llvm-3.4/include
+endif
+
+ERL_INCLUDE = $(PWD):$(ERL_LIBS)
 
 ifneq (,$(findstring Windows,$(OS)))
     SEP := $(strip \)
