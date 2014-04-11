@@ -14,7 +14,8 @@
 			nifty_rebar,
 			nifty_compiler,
 			nifty_utils,
-			nifty_typetable]},
+			nifty_typetable,
+			nifty_remotecall]},
 		{applications,[kernel,stdlib,compile]}
 	]
 }.

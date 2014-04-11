@@ -7,8 +7,6 @@
 	new/1
 	]).
 
--compile(nowarn_unused_record).
-
 -define(TYPES, {{types}}).
 
 -on_load(init/0).

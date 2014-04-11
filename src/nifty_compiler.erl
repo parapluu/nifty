@@ -4,7 +4,7 @@
 
 -type reason() :: atom().
 -type options() :: proplists:proplist().
--type renderout() :: {iolist(), iolist(), iolist(), iolist(), iolist()}.
+-type renderout() :: {iolist(), iolist(), iolist(), iolist(), iolist(), iolist()}.
 -type modulename() :: string().
 
 %% @doc Renders an <code>InterfaceFile</code> into a Erlang module containing of <code>ModuleName</code>.erl
@@ -39,10 +39,11 @@ render(InterfaceFile, ModuleName, CFlags, Options) ->
 			  {"none", none}],
 	    {ok, COutput} = nifty_c_template:render(RenderVars),
 	    {ok, ErlOutput} = nifty_erl_template:render(RenderVars),
+	    {ok, SaveErlOutput} = nifty_save_erl_template:render(RenderVars),
 	    {ok, HrlOutput} = nifty_hrl_template:render(RenderVars),
 	    {ok, AppOutput} = nifty_app_template:render(RenderVars),
 	    {ok, ConfigOutput} = nifty_config_template:render(RenderVars),
-	    {ErlOutput, HrlOutput, COutput, AppOutput, ConfigOutput}
+	    {ErlOutput, SaveErlOutput, HrlOutput, COutput, AppOutput, ConfigOutput}
     end.
 
 filter_functions(InterfaceFile, Functions, FuncLoc) ->
@@ -89,8 +90,9 @@ store_files(_, ModuleName, _, RenderOutput, Path) ->
 	     {error,eexist} -> ok;
 	     _ -> fail
 	 end,
-    {ErlOutput, HrlOutput, COutput, AppOutput, ConfigOutput} = RenderOutput,
+    {ErlOutput, SaveErlOutput, HrlOutput, COutput, AppOutput, ConfigOutput} = RenderOutput,
     ok = fwrite_render(Path, ModuleName, "src", ModuleName++".erl", ErlOutput),
+    ok = fwrite_render(Path, ModuleName, "src", ModuleName++"_remote"++".erl", SaveErlOutput),
     ok = fwrite_render(Path, ModuleName, "include", ModuleName++".hrl", HrlOutput),
     ok = fwrite_render(Path, ModuleName, "c_src", ModuleName++"_nif.c", COutput),
     ok = fwrite_render(Path, ModuleName, "ebin", ModuleName++".app", AppOutput),
@@ -138,7 +140,7 @@ compile(InterfaceFile, Module, Options) ->
 	    case compile_module(ModuleName) of
 		ok ->
 		    ModulePath = filename:absname(filename:join([ModuleName, "ebin"])),
-		    true = code:add_path(ModulePath),
+		    true = code:add_patha(ModulePath),
 		    ok;
 		fail ->
 		    {error, compile}

@@ -5,7 +5,8 @@
 		{description,
 			"Nifty interface of {{module}}"},
 		{modules, [
-			{{module}}]},
+			{{module}},
+			{{module}}_remote]},
 		{applications,[kernel,stdlib,compile]}
 	]
 }.
