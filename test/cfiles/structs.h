@@ -24,6 +24,13 @@ struct s4 {
   short int myint;
 };
 
+typedef struct s4 t4;
+
+struct s5 {
+  unsigned long long bla;
+};
+
+
 /* No functions */
 
 #endif /* NIFTY_STRUCTS_TEST */

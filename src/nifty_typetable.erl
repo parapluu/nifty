@@ -1,6 +1,7 @@
 -module(nifty_typetable).
 -export([build/1,
 	 check_types/2,
+	 check_type/2,
 	 resolve_type/2]).
 
 -define(BASE_TYPES, ["char", "int", "float", "double", "void"]).
@@ -31,14 +32,17 @@ check_types({Functions, Typedefs, Structs}, Types) ->
     NFunc = check_types_functions(Functions, NNTypes),
     {{NFunc, Typedefs, NStructs}, NNTypes}.
 
+-spec check_type(term(), term()) -> term().
 check_type(Type, Types) ->
     case dict:is_key(Type, Types) of
 	true ->
 	    RType = resolve_type(Type, Types),
 	    case dict:fetch(RType, Types) of
 		{userdef, [RType]} ->
-		    %% unknown and dead end
-		    false;
+		    false; %% loop
+		{userdef, [T]} ->
+		    %% struct or dead end
+		    check_type(T, Types);
 		{userdef, [H|_]} ->
 		    case string:right(H, 1) of
 			")" ->
@@ -48,8 +52,10 @@ check_type(Type, Types) ->
 			    %% ok
 			    true
 		    end;
-		TypeName ->
-		    not lists:member(TypeName, ?CLANG_BLACKLIST)
+		{struct, _} ->
+		    true;
+		{base, _} ->
+		    true
 	    end;
 	false ->
 	    false
