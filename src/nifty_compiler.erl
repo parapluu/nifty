@@ -54,7 +54,12 @@ filter_functions(_, New, _, []) ->
 filter_functions(Ref, New, Old, [{Func, File}|T]) ->
     Updated_New = case Ref=:=filename:basename(File) of
 		      true ->
-			  dict:store(Func, dict:fetch(Func, Old), New);
+			  case dict:is_key(Func, Old) of
+			      true ->
+				  dict:store(Func, dict:fetch(Func, Old), New);
+			      false ->
+				  New
+			  end;
 		      false ->
 			  New
 		  end,

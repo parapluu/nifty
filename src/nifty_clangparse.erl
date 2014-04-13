@@ -46,7 +46,7 @@ build_vars([H|T], Definitions) ->
     build_vars(NewT, Defs).
 
 recover([], Defs) ->
-    Defs;
+    {[], Defs};
 recover([H|T], Defs) ->
     case H of
 	"FUNCTION" ->
@@ -71,14 +71,24 @@ build_type([Type|T], {Functions, TypeDefs, Structs}) ->
     {NT, Defs, Type}.
 
 build_function([FuncName|T], {Functions, TypeDefs, Structs}) ->
-    {PT, PD, Rettype} = build_rettype(T, {Functions, TypeDefs, Structs}),
-    {NT, {FD, TD, SD}, Params} = build_params(PT, PD),
-    NFD = dict:store(FuncName, {Rettype, Params}, FD),
-    {NT, {NFD, TD, SD}}.
+    try
+	{PT, PD, Rettype} = build_rettype(T, {Functions, TypeDefs, Structs}),
+	{NT, {FD, TD, SD}, Params} = build_params(PT, PD),
+	NFD = dict:store(FuncName, {Rettype, Params}, FD),
+	{NT, {NFD, TD, SD}}
+    catch
+	_ ->
+	    {[recover|T], {Functions, TypeDefs, Structs}}
+    end.
 
 build_rettype([Type|T], Definitions) ->
-    PureType = string:strip(string:substr(Type, 1, string:str(Type, "(")-1)),
-    build_type([PureType|T], Definitions).
+    case string:tokens(Type, "(") of 
+	[PType, _] ->
+	    PureType = string:strip(PType),
+	    build_type([PureType|T], Definitions);
+	_ ->
+	    throw(parse_function_pointer)
+    end.
 
 build_param([Ident|T], Definitions) ->
     case Ident of

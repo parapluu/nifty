@@ -20,9 +20,9 @@
 
 %%% Generated
 
-{% with fn=functions|fetch_keys %}{% for name in fn %}'{{name}}'({% with arguments=symbols|fetch:name %}{% for argument in arguments %}{% if argument|is_argument %}X{{forloop.counter}}{% if not forloop.last %},{%endif%}{% endif %}{% endfor %}{% endwith %}) ->
-	nifty_remotecall:call_remote({{module}}, '{{name}}', [{% for argument in arguments %}{% if argument|is_argument %}X{{forloop.counter}}{% if not forloop.last %},{%endif%}{% endif %}{% endfor %}]).
-{% endfor %}{% endwith %}
+{% with fn=functions|fetch_keys %}{% for name in fn %}'{{name}}'({% with arguments=symbols|fetch:name %}{% for argument in arguments %}{% if argument|is_argument %}X{{forloop.counter0}}{% if not forloop.last %},{%endif%}{% endif %}{% endfor %}) ->
+	nifty_remotecall:call_remote({{module}}, '{{name}}', [{% for argument in arguments %}{% if argument|is_argument %}X{{forloop.counter0}}{% if not forloop.last %},{%endif%}{% endif %}{% endfor %}]).
+{% endwith %}{% endfor %}{% endwith %}
 
 %%% static
 
