@@ -6,3 +6,4 @@
 	{% with fields=types|fetch:type|getNth:2 %}{% for _, name, t, __ in fields %}'{{name}}'{% if not forloop.last %},{% endif %}{% endfor %}{% endwith %}
 	}).
 {% endif %}{% endwith%}{% endfor %}{% endwith %}
+

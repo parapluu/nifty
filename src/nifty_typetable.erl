@@ -26,7 +26,16 @@ resolve_type(Type, Types) ->
 %% @doc removes all non-resolvable types from the typetable and depending structs or functions and returns 
 %% the filtered type information
 -spec check_types({dict:dict(), dict:dict(), dict:dict()}, dict:dict()) -> {{dict:dict(), dict:dict(), dict:dict()}, dict:dict()}.
-check_types({Functions, Typedefs, Structs}, Types) ->
+check_types(Defs, Types) ->
+    {NDefs, NTypes} = check_types_once(Defs, Types),
+    case length(dict:fetch_keys(Types)) =:= length(dict:fetch_keys(NTypes)) of
+	true ->
+	    {NDefs, NTypes};
+	false ->
+	    check_types(NDefs, NTypes)
+    end.
+
+check_types_once({Functions, Typedefs, Structs}, Types) ->
     NTypes = check_types_types(Types),
     {NStructs, NNTypes} = check_types_structs(Structs, NTypes),
     NFunc = check_types_functions(Functions, NNTypes),
@@ -41,8 +50,13 @@ check_type(Type, Types) ->
 		{userdef, [RType]} ->
 		    false; %% loop
 		{userdef, [T]} ->
-		    %% struct or dead end
-		    check_type(T, Types);
+		    %% constructor or dead end
+		    case Type=:=T of
+			true ->
+			    false; %% loop - typedef with same name as constructor/no constructor available
+			false->
+			    check_type(T, Types)
+		    end;
 		{userdef, [H|_]} ->
 		    case string:right(H, 1) of
 			")" ->
@@ -213,7 +227,14 @@ build_typedef_entries({Types, Symbols}, Alias, Type, _) ->
 	true -> {Types, Symbols};
 	false ->
 	    NTypes = build_type_entry(Types, Type),
-	    {dict:store(Alias, {typedef, Type}, dict:erase(Alias, NTypes)), Symbols}
+	    case dict:is_key(Alias, NTypes) of
+		true ->
+		    %% oh my, we stroe a constructor for a userdefined type here, no typedef
+		    {NTypes, Symbols};
+		false ->
+		    %% everything is ok 
+		    {dict:store(Alias, {typedef, Type}, NTypes), Symbols}
+	    end
     end.
 
 build_struct_entries({Types, Symbols}, Alias, _, Dict) ->
