@@ -30,11 +30,11 @@ start() ->
     %% stop eventuall nodes
     ok = stop(),
     Host = list_to_atom(net_adm:localhost()),
-    case net_kernel:start([mastername(),shortnames]) of
+    case net_kernel:start([mastername(), shortnames]) of
 	{ok, Pid} ->
 	    Pid;
 	{error, {already_started, Pid}} ->
-	    Pid;	    
+	    Pid
     end,
     case slave:start_link(Host, slavename()) of
 	{ok, Node} ->
@@ -42,7 +42,7 @@ start() ->
 	    SlavePid ! {self(), code:get_path()},
 	    undefined = put(slave_pid, SlavePid),
 	    ok;
-	{error, {already_running,_}} ->
+	{error, {already_running, _}} ->
 	    ok
     end.
 
@@ -132,6 +132,6 @@ is_slave_alive() ->
 	    slave:stop(Node),
 	    erase(slave_pid),
 	    false;
-	{error, {already_running,_}} ->
+	{error, {already_running, _}} ->
 	    true
     end.
