@@ -39,6 +39,35 @@ builtin_test() ->
     ok = compile_builtin(),
     ok = call_functions_builtin().
 
+    
+-spec call_functions_builtin_remote() -> ok.
+call_functions_builtin_remote() ->
+    1 = nt_builtin_remote:f1(1),
+    1 = nt_builtin_remote:f2(1),
+    1 = nt_builtin_remote:f3(1),
+    1 = nt_builtin_remote:f4(1),
+    1 = nt_builtin_remote:f5(1),
+    1 = nt_builtin_remote:f6(1),
+    1 = nt_builtin_remote:f7(1),
+    1 = nt_builtin_remote:f8(1),
+    1.0 = nt_builtin_remote:f9(1.0),
+    1.0 = nt_builtin_remote:f10(1.0),
+    P = nifty:pointer(),
+    nt_builtin_remote:f11(P),
+    nifty:free(P),
+    P2 = nifty:mem_alloc(10),
+    nt_builtin_remote:f11(P2),
+    nifty:free(P2),
+    ok.
+
+-spec builtin_remote_test() -> ok.
+builtin_remote_test() ->
+   ok = nt_builtin_remote:start(),
+   ok = call_functions_builtin_remote(),
+   ok = nt_builtin_remote:stop().
+
+
+
 -spec compile_arguments() -> ok.
 compile_arguments() ->
     ok = nifty_compiler:compile("../test/cfiles/arguments.h", 
@@ -102,3 +131,7 @@ call_functions_proxy() ->
 proxy_test()->
     ok = compile_proxy(),
     ok = call_functions_proxy().
+    
+-spec fptr_test() -> ok.
+fptr_test() ->
+    ok = nifty_compiler:compile("../test/cfiles/fptr.h", nt_fptr, []).

@@ -60,15 +60,22 @@ recover([H|T], Defs) ->
     end.
 
 build_type([Type|T], {Functions, TypeDefs, Structs}) ->
-    {NT, Defs} = 
-	case (string:str(Type, "<anonymous")>0) of
-	    true-> 
-		[_,_|RestToken] = T,
-		build_named_struct(RestToken, {Functions, TypeDefs, Structs}, string:substr(Type, 8));
-	    false ->
-		{T, {Functions, TypeDefs, Structs}}
-	end,
-    {NT, Defs, Type}.
+    case (string:str(Type, "<anonymous")>0) of
+	true-> 
+	    %% Placeholder for anonymous structs
+	    [_,_|RestToken] = T,
+	    {NT, Defs} = build_named_struct(RestToken, {Functions, TypeDefs, Structs}, string:substr(Type, 8)),
+	    {NT, Defs, Type};
+	false ->
+	    case string:str(Type, "(*)") of
+		0 ->
+		    %% normal type
+		    {T, {Functions, TypeDefs, Structs}, Type};
+		_ ->
+		    %% function pointers default to void *
+		    {T, {Functions, TypeDefs, Structs}, "void *"}
+	    end
+    end.
 
 build_function([FuncName|T], {Functions, TypeDefs, Structs}) ->
     try
@@ -78,16 +85,62 @@ build_function([FuncName|T], {Functions, TypeDefs, Structs}) ->
 	{NT, {NFD, TD, SD}}
     catch
 	_ ->
+	    io:format("F"),
 	    {[recover|T], {Functions, TypeDefs, Structs}}
     end.
 
 build_rettype([Type|T], Definitions) ->
-    case string:tokens(Type, "(") of 
-	[PType, _] ->
-	    PureType = string:strip(PType),
-	    build_type([PureType|T], Definitions);
+    case string:str(Type, "__attribute__") of
+	0 -> 
+	    case string:tokens(Type, "(") of 
+		[PType, _] ->
+		    PureType = string:strip(PType),
+		    build_type([PureType|T], Definitions);
+		[_,"*"|FPtrSpec] ->
+		    %% throw away return type of inner most function type
+		    %% of the return type
+		    {FPtrType, NT} = build_fptr(FPtrSpec, T),
+		    build_type([FPtrType|NT], Definitions);
+		[PType|_] ->
+		    %% function pointer in argument list
+		    PureType = string:strip(PType),
+		    build_type([PureType|T], Definitions)
+	    end;
+	P ->
+	    NormType = string:strip(string:substr(Type, 1, P -1)),
+	    build_rettype([NormType|T], Definitions)
+    end.
+
+build_fptr([], _) ->
+    throw(parse_function_pointer);
+build_fptr([SP|R], T) ->
+    case SP of
+	"*" ->
+	    build_fptr(R, T);
 	_ ->
-	    throw(parse_function_pointer)
+	    case string:str(SP, ")") of
+		5 ->
+		    NT = build_fptr_token(T,0),
+		    {"void *", NT};
+		_ ->
+		    NT = build_fptr_token(T,length(string:tokens(SP, ","))),
+		    {"void *", NT}
+	    end
+    end.
+
+build_fptr_token(Token, Keep) ->
+    {NT, Params} = build_fptr_all_params(Token, []),
+    lists:nthtail(length(Params) - (3*Keep), Params) ++ NT.
+
+build_fptr_all_params([], Acc) ->
+    {[], Acc};
+build_fptr_all_params([H|T], Acc) ->
+    case H of
+	"PARAMETER" ->
+	    [Name, Type|NT] = T,
+	    build_fptr_all_params(NT, Acc ++ ["PARAMETER", Name, Type]);
+	_ ->
+	    {[H|T], Acc}
     end.
 
 build_param([Ident|T], Definitions) ->

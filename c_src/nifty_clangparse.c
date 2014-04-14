@@ -170,7 +170,8 @@ visitor_cb(CXCursor cursor, CXCursor parent, CXClientData client_data)
     // 			clang_disposeString(tmp);
 
     ((Data*)client_data)->payload = data;
-    return CXChildVisit_Recurse;
+    return CXChildVisit_Continue;
+    //    return CXChildVisit_Recurse;
   }
   default: {
     return CXChildVisit_Continue;
