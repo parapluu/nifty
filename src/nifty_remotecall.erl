@@ -4,25 +4,8 @@
 	 restart/0,
 	 call_remote/3]).
 
-processname() ->
-    I = pid_to_list(self()),
-    [_, PN1, PN2] = string:tokens(I, "<.>"),
-    "p"++PN1++"_p"++PN2.
 
-mastername() ->
-    list_to_atom(processname()++"_master").
-
-slavename() ->
-    list_to_atom(processname()++"_slave").
-
-update_paths([]) ->
-    ok;
-update_paths([H|T]) ->
-    code:add_patha(H),
-    update_paths(T).
-
-
-%% @doc Starts remote node to savely call NIFs
+%% @doc Starts remote node to safely call NIFs
 -spec start() -> ok.
 start() ->
     %% try to start epmd
@@ -61,7 +44,7 @@ stop() ->
     net_kernel:stop(),
     ok.
 
-%% @doc Restarts remote node, usefull for testing (side-effects are reset)
+%% @doc Restarts remote node, useful for testing (side-effects are reset)
 -spec restart() -> ok.
 restart() ->
     stop(),
@@ -72,7 +55,7 @@ slave_server() ->
 	stop ->
 	    ok;
 	{P, Paths} ->
-	    update_paths(Paths),
+	    lists:foreach(fun code:add_patha/1, Paths),
 	    slave_server(P)
     end.
 
@@ -135,3 +118,15 @@ is_slave_alive() ->
 	{error, {already_running, _}} ->
 	    true
     end.
+
+
+mastername() ->
+    list_to_atom(processname()++"_master").
+
+slavename() ->
+    list_to_atom(processname()++"_slave").
+
+processname() ->
+    I = pid_to_list(self()),
+    [_, PN1, PN2] = string:tokens(I, "<.>"),
+    "p"++PN1++"_p"++PN2.
