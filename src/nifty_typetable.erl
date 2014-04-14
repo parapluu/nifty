@@ -58,14 +58,7 @@ check_type(Type, Types) ->
 			    check_type(T, Types)
 		    end;
 		{userdef, [H|_]} ->
-		    case string:right(H, 1) of
-			")" ->
-			    %% function pointer
-			    false;
-			_ ->
-			    %% ok
-			    true
-		    end;
+		    string:right(H, 1) =/= ")";  %% function pointer
 		{struct, _} ->
 		    true;
 		{base, _} ->
@@ -82,7 +75,7 @@ check_types_functions(Functions, Types) ->
 check_types_functions([], _, NFunc, _) ->
     NFunc;
 check_types_functions([Func|Tail],OldFunc,NewFunc,Types) ->
-    {RetType, ArgList}  = dict:fetch(Func, OldFunc),
+    {RetType, ArgList} = dict:fetch(Func, OldFunc),
     case check_type(RetType, Types) andalso check_types_list(ArgList, Types) of
 	true ->
 	    check_types_functions(Tail, 
@@ -125,12 +118,7 @@ check_types_fields(Fields, Types) ->
 check_types_list([], _) ->
     true;
 check_types_list([{_, Type}|Tail], Types) ->
-    case check_type(Type, Types) of
-	true ->
-	    check_types_list(Tail, Types);
-	false ->
-	    false
-    end.
+    check_type(Type, Types) andalso check_types_list(Tail, Types).
     
 check_types_types(Types) ->
     Names = dict:fetch_keys(Types),
