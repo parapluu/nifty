@@ -25,6 +25,7 @@ update_paths([H|T]) ->
 %% @doc Starts remote node to savely call NIFs
 -spec start() -> ok.
 start() ->
+    net_kernel:stop(),
     Host = list_to_atom(net_adm:localhost()),
     case net_kernel:start([mastername(),shortnames]) of
 	{ok, Pid} ->

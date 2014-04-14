@@ -39,7 +39,7 @@ builtin_test() ->
     ok = compile_builtin(),
     ok = call_functions_builtin().
 
-    
+
 -spec call_functions_builtin_remote() -> ok.
 call_functions_builtin_remote() ->
     1 = nt_builtin_remote:f1(1),
@@ -62,9 +62,10 @@ call_functions_builtin_remote() ->
 
 -spec builtin_remote_test() -> ok.
 builtin_remote_test() ->
-   ok = nt_builtin_remote:start(),
-   ok = call_functions_builtin_remote(),
-   ok = nt_builtin_remote:stop().
+    [] = os:cmd("epmd -daemon"),
+    ok = nt_builtin_remote:start(),
+    ok = call_functions_builtin_remote(),
+    ok = nt_builtin_remote:stop().
 
 
 
@@ -131,7 +132,7 @@ call_functions_proxy() ->
 proxy_test()->
     ok = compile_proxy(),
     ok = call_functions_proxy().
-    
+
 -spec fptr_test() -> ok.
 fptr_test() ->
     ok = nifty_compiler:compile("../test/cfiles/fptr.h", nt_fptr, []).
