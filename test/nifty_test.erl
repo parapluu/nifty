@@ -62,7 +62,6 @@ call_functions_builtin_remote() ->
 
 -spec builtin_remote_test() -> ok.
 builtin_remote_test() ->
-    [] = os:cmd("epmd -daemon"),
     ok = nt_builtin_remote:start(),
     ok = call_functions_builtin_remote(),
     ok = nt_builtin_remote:stop().

@@ -25,13 +25,16 @@ update_paths([H|T]) ->
 %% @doc Starts remote node to savely call NIFs
 -spec start() -> ok.
 start() ->
-    net_kernel:stop(),
+    %% try to start epmd
+    [] = os:cmd("epmd -daemon"),
+    %% stop eventuall nodes
+    ok = stop(),
     Host = list_to_atom(net_adm:localhost()),
     case net_kernel:start([mastername(),shortnames]) of
 	{ok, Pid} ->
 	    Pid;
 	{error, {already_started, Pid}} ->
-	    Pid
+	    Pid;	    
     end,
     case slave:start_link(Host, slavename()) of
 	{ok, Node} ->
