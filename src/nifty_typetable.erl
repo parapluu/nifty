@@ -9,8 +9,14 @@
 -define(CLANG_BUILTINS, ["__int128_t", "__builtin_va_list", "__uint128_t"]).
 -define(CLANG_BLACKLIST, ["__builtin_va_list"]).
 
-%% @doc takes a type and a typetable and returns the resolved type (according to the type table)
--spec resolve_type(string(), dict:dict()) -> string()|undef.
+-type ctype() :: string().
+-type field() :: {string(), ctype()}.
+-type ctypedef() :: {'base', [string()]} | {'struct', [field()]} | {'typedef', [string()]}.
+-type type_table() :: dict:dict(ctype(), ctypedef()).
+-type symbol_table() :: dict:dict().  %% XXX: refine
+
+%% @doc takes a type and a type table and returns the resolved type (according to the type table)
+-spec resolve_type(ctype(), type_table()) -> ctype() | undef.
 resolve_type(Type, Types) ->
     case dict:is_key(Type, Types) of 
 	true ->
@@ -23,9 +29,10 @@ resolve_type(Type, Types) ->
 	    undef
     end.
 
-%% @doc removes all non-resolvable types from the typetable and depending structs or functions and returns 
-%% the filtered type information
--spec check_types({dict:dict(), dict:dict(), dict:dict()}, dict:dict()) -> {{dict:dict(), dict:dict(), dict:dict()}, dict:dict()}.
+%% @doc removes all non-resolvable types from the type table and
+%% structs or functions that depend on them and returns the filtered
+%% type information
+-spec check_types(nifty_clangparse:defs(), type_table()) -> {nifty_clangparse:defs(), type_table()}.
 check_types(Defs, Types) ->
     {NDefs, NTypes} = check_types_once(Defs, Types),
     case length(dict:fetch_keys(Types)) =:= length(dict:fetch_keys(NTypes)) of
@@ -41,7 +48,7 @@ check_types_once({Functions, Typedefs, Structs}, Types) ->
     NFunc = check_types_functions(Functions, NNTypes),
     {{NFunc, Typedefs, NStructs}, NNTypes}.
 
--spec check_type(term(), term()) -> term().
+-spec check_type(ctype(), type_table()) -> boolean().
 check_type(Type, Types) ->
     case dict:is_key(Type, Types) of
 	true ->
@@ -51,10 +58,10 @@ check_type(Type, Types) ->
 		    false; %% loop
 		{userdef, [T]} ->
 		    %% constructor or dead end
-		    case Type=:=T of
+		    case Type =:= T of
 			true ->
 			    false; %% loop - typedef with same name as constructor/no constructor available
-			false->
+			false ->
 			    check_type(T, Types)
 		    end;
 		{userdef, [H|_]} ->
@@ -139,7 +146,7 @@ check_types_types([Type|Tail], OldTypes, NewTypes) ->
     end.
 
 %% @doc builds a typetable and symbol table out of type information
--spec build({dict:dict(), dict:dict(), dict:dict()}) -> {dict:dict(), dict:dict()}.
+-spec build(nifty_clangparse:defs()) -> {type_table(), symbol_table()}.
 build({Functions, Typedefs, Structs} = Dicts) ->
     Empty_Tables = {dict:new(), dict:new()}, % { Types, Symbols }
     Tables_With_Functions = build_entries(Empty_Tables,
@@ -194,14 +201,9 @@ build_entries(Tables, Builder, Dict, [H|T], Dicts) ->
 build_function_entries({Types, Symbols}, Name, Data, Dicts) ->
     {ReturnType, ArgumentList} = Data,
     Types_With_Return = build_type_entry(Types, ReturnType),
-    Symbol_With_Return = dict:append(Name, {return, ReturnType}, Symbols), 
-    build_arguments(
-      {Types_With_Return, Symbol_With_Return},
-      Dicts,
-      Name,
-      ArgumentList).
-
-build_arguments(Tables, Dicts, FName, Args) -> build_arguments(Tables, Dicts, FName, 0, Args).
+    Symbol_With_Return = dict:append(Name, {return, ReturnType}, Symbols),
+    Tables = {Types_With_Return, Symbol_With_Return},
+    build_arguments(Tables, Dicts, Name, 0, ArgumentList).
 
 build_arguments(Tables, _, _, _, []) -> Tables;
 build_arguments({Types, Symbols}, Dicts, FunctionName, Pos, [Arg|T]) ->
@@ -217,7 +219,7 @@ build_typedef_entries({Types, Symbols}, Alias, Type, _) ->
 	    NTypes = build_type_entry(Types, Type),
 	    case dict:is_key(Alias, NTypes) of
 		true ->
-		    %% oh my, we stroe a constructor for a userdefined type here, no typedef
+		    %% oh my, we store a constructor for a user-defined type here, no typedef
 		    {NTypes, Symbols};
 		false ->
 		    %% everything is ok 
@@ -241,7 +243,7 @@ count_in_list(L, E) ->
 
 count_in_list([], _, Acc) -> Acc;
 count_in_list([H|T], E, Acc) ->
-    case H=:=E of
+    case H =:= E of
 	true -> count_in_list(T, E, Acc+1);
 	false -> count_in_list(T, E, Acc)
     end.
@@ -323,4 +325,3 @@ build_type_entry(TypeTable, Type) ->
 		    dict:store(Type, {userdef, Def}, TypeTable)
 	    end
     end.
-
