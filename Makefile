@@ -39,7 +39,7 @@ get-deps:
 compile:
 	CLANG_LIBRARY=$(CLANG_LIBRARY) CLANG_INCLUDE=$(CLANG_INCLUDE) $(REBAR) compile
 
-dialyzer: compile
+dialyze: compile
 	dialyzer -n -nn -Wunmatched_returns ebin $(find .  -path 'deps/*/ebin/*.beam')
 
 tests: compile
