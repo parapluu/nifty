@@ -1,0 +1,202 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>Troubleshooting &#8211; Nifty - NIF Interface Generator</title>
+<meta name="description" content="">
+<meta name="keywords" content="tutorial">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Troubleshooting">
+<meta property="og:description" content="New, Documentation and Tutorials of Nifty">
+<meta property="og:url" content="http://parapluu.github.io/nifty//tutorial_trouble/">
+<meta property="og:site_name" content="Nifty - NIF Interface Generator">
+
+
+
+
+
+<link rel="canonical" href="http://parapluu.github.io/nifty//tutorial_trouble/">
+<link href="http://parapluu.github.io/nifty//feed.xml" type="application/atom+xml" rel="alternate" title="Nifty - NIF Interface Generator Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Google Webfonts -->
+<link href='http://fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700|PT+Serif:400,700,400italic' rel='stylesheet' type='text/css'>
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://parapluu.github.io/nifty//assets/css/main.min.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- HTML5 Shiv and Media Query Support -->
+<!--[if lt IE 9]>
+	<script src="http://parapluu.github.io/nifty//assets/js/vendor/html5shiv.min.js"></script>
+	<script src="http://parapluu.github.io/nifty//assets/js/vendor/respond.min.js"></script>
+<![endif]-->
+
+<!-- Modernizr -->
+<script src="http://parapluu.github.io/nifty//assets/js/vendor/modernizr-2.7.1.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="http://parapluu.github.io/nifty//favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="http://parapluu.github.io/nifty//favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="http://parapluu.github.io/nifty//images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="http://parapluu.github.io/nifty//images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="http://parapluu.github.io/nifty//images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="http://parapluu.github.io/nifty//images/apple-touch-icon-144x144-precomposed.png">
+
+</head>
+
+<body class="page">
+
+<!--[if lt IE 9]><div class="browser-upgrade alert alert-info">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div><![endif]-->
+
+<div class="navigation-wrapper">
+	<div class="site-name">
+		<a href="http://parapluu.github.io/nifty/">Nifty - NIF Interface Generator</a>
+	</div><!-- /.site-name -->
+	<div class="top-navigation">
+		<nav role="navigation" id="site-nav" class="nav">
+		    <ul>
+		        
+				<li><a href="http://parapluu.github.io/nifty//about" >About</a></li>
+		        
+				<li><a href="http://parapluu.github.io/nifty//api-doc/index.html" >API Documentation</a></li>
+		        
+				<li><a href="http://parapluu.github.io/nifty//install" >Install Nifty</a></li>
+		        
+				<li><a href="http://parapluu.github.io/nifty//tutorial" >Tutorials</a></li>
+		        
+				<li><a href="https://github.com/parapluu/nifty" target="_blank">GitHub</a></li>
+		        
+		    </ul>
+		</nav>
+	</div><!-- /.top-navigation -->
+</div><!-- /.navigation-wrapper -->
+
+
+  <div class="image-wrap">
+  <img src=
+    
+      "http://parapluu.github.io/nifty//images/nifty_trouble.png"
+    
+  alt="Troubleshooting feature image">
+  
+  </div><!-- /.image-wrap -->
+
+
+<div id="main" role="main">
+  <div class="article-author-side">
+    
+	<img src="http://parapluu.github.io/nifty//images/avatar.png" class="bio-photo" alt="Nifty bio photo"></a>
+
+<h3>Nifty</h3>
+<p>Nifty - NIF interface generator</p>
+
+
+
+
+
+
+<a href="http://github.com/parapluu/nifty" class="author-social" target="_blank"><i class="icon-github"></i> Github</a>
+
+
+
+
+
+
+  </div>
+  <article>
+    <h1>Troubleshooting</h1>
+    <div class="article-wrap">
+      <h1 id="toc_0">Missing Clang Library</h1>
+
+<div class="highlight"><pre><code class="erlang"><span class="mi">2</span><span class="o">&gt;</span> <span class="nn">nifty</span><span class="p">:</span><span class="nf">compile</span><span class="p">(</span><span class="s">&quot;fib.h&quot;</span><span class="p">,</span> <span class="n">fib</span><span class="p">,</span> <span class="p">[{</span><span class="n">port_specs</span><span class="p">,</span> <span class="p">[{</span><span class="s">&quot;.*&quot;</span><span class="p">,</span><span class="s">&quot;$NIF&quot;</span><span class="p">,[</span><span class="s">&quot;fib.c&quot;</span><span class="p">]}]}]).</span>
+<span class="n">generating</span> <span class="n">fib</span><span class="p">.</span><span class="n">h</span> <span class="o">-&gt;</span> <span class="n">fib_nif</span><span class="p">.</span><span class="n">c</span> <span class="n">fib</span><span class="p">.</span><span class="n">erl</span> 
+
+<span class="o">=</span><span class="nv">ERROR</span> <span class="nv">REPORT</span><span class="o">====</span> <span class="mi">4</span><span class="o">-</span><span class="nv">Apr</span><span class="o">-</span><span class="mi">2014</span><span class="p">::</span><span class="mi">14</span><span class="p">:</span><span class="mi">43</span><span class="p">:</span><span class="mi">36</span> <span class="o">===</span>
+<span class="nv">The</span> <span class="n">on_load</span> <span class="n">function</span> <span class="n">for</span> <span class="n">module</span> <span class="n">nifty_clangparse</span> <span class="n">returned</span> 
+<span class="p">{</span><span class="n">error</span><span class="p">,</span>
+ <span class="p">{</span><span class="n">load_failed</span><span class="p">,</span>
+  <span class="s">&quot;Failed to load NIF library .../nifty_clangparse: &#39;libclang.so: cannot open shared object file: No such file or directory&#39;&quot;</span><span class="p">}}</span>
+<span class="o">**</span> <span class="n">exception</span> <span class="nn">error</span><span class="p">:</span> <span class="n">undefined</span> <span class="n">function</span> <span class="nn">nifty_clangparse</span><span class="p">:</span><span class="n">parse</span><span class="o">/</span><span class="mi">1</span>
+     <span class="n">in</span> <span class="n">function</span>  <span class="nn">nifty_compiler</span><span class="p">:</span><span class="n">render</span><span class="o">/</span><span class="mi">4</span> <span class="p">(</span><span class="n">src</span><span class="o">/</span><span class="n">nifty_compiler</span><span class="p">.</span><span class="n">erl</span><span class="p">,</span> <span class="n">line</span> <span class="mi">15</span><span class="p">)</span>
+     <span class="n">in</span> <span class="n">call</span> <span class="n">from</span> <span class="nn">nifty_compiler</span><span class="p">:</span><span class="n">compile</span><span class="o">/</span><span class="mi">3</span> <span class="p">(</span><span class="n">src</span><span class="o">/</span><span class="n">nifty_compiler</span><span class="p">.</span><span class="n">erl</span><span class="p">,</span> <span class="n">line</span> <span class="mi">114</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Nifty uses libclang to analyze the header files but the library is not found. Point your <code>LD_LIBRARY_PATH</code> environment variable to the folder containing <code>libclang.so</code></p>
+
+<h1 id="toc_1">Anonymous Structs</h1>
+
+<div class="highlight"><pre><code class="c++"><span class="c1">// anonymous struct; ignored by Nifty</span>
+<span class="c1">// my_t gets removed since it depends </span>
+<span class="c1">// on the annoymous struct</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+   <span class="kt">int</span> <span class="n">a</span><span class="p">;</span>
+   <span class="kt">int</span> <span class="n">b</span><span class="p">;</span>
+<span class="p">}</span> <span class="kt">my_t</span><span class="p">;</span>
+
+<span class="c1">// named struct and typedef; gets removed since it depends on my_t</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="n">S</span> <span class="p">{</span>
+  <span class="kt">my_t</span> <span class="n">x</span><span class="p">;</span>
+  <span class="kt">my_t</span> <span class="n">y</span><span class="p">;</span>
+<span class="p">}</span> <span class="kt">smth_t</span><span class="p">;</span>
+
+<span class="c1">// gets removed since it depends on types that get are unresolved</span>
+<span class="k">extern</span> <span class="kt">void</span> <span class="nf">missing_function</span><span class="p">(</span><span class="n">S</span> <span class="n">in</span><span class="p">);</span>
+</code></pre></div>
+
+<p>Nifty currently does not support anonymous structs. This means, that they are ignored while parsing the header files. Since
+Nifty checks that the type information for the functions is complete and removes incomplete definition, functions depending
+on anonymous functions are also removed. The same is true for incomplete types. An exception are pointers to those types.
+While Nifty will not be able to dereference those pointers, it can handle them as pointers and pass or get them from functions.</p>
+
+<p>To solve the issue with anonymous functions, just give them a name.</p>
+
+<h1 id="toc_2">Function Pointer and Callback Functions</h1>
+
+<p>Nifty handles function pointers by defaulting their type to <code>void *</code>. This means, that no typechecking or advanced handling
+(like calling a function associated to a function pointer) are supported. However, function pointers can like any other pointer
+be optained and passed to other functions. </p>
+
+<h1 id="toc_3">Variable Argument lists</h1>
+
+<p>Nifty currently does not support variable argument lists of C functions. The variabel arguments are either missing (...) or
+the function is not wrapped (va_list).</p>
+
+    </div><!-- /.article-wrap -->
+    
+  </article>
+</div><!-- /#index -->
+
+<div class="footer-wrap">
+  <footer>
+    <span>&copy; 2014 Nifty. Powered by <a href="http://jekyllrb.com">Jekyll</a> using the <a href="http://mademistakes.com/minimal-mistakes/">Minimal Mistakes</a> theme.</span>
+
+  </footer>
+</div><!-- /.footer-wrap -->
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="http://parapluu.github.io/nifty//assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="http://parapluu.github.io/nifty//assets/js/scripts.min.js"></script>
+
+          
+
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>Tutorial 1: First Steps &#8211; Nifty - NIF Interface Generator</title>
+<meta name="description" content="">
+<meta name="keywords" content="tutorial">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Tutorial 1: First Steps">
+<meta property="og:description" content="New, Documentation and Tutorials of Nifty">
+<meta property="og:url" content="http://parapluu.github.io/nifty//tutorial1/">
+<meta property="og:site_name" content="Nifty - NIF Interface Generator">
+
+
+
+
+
+<link rel="canonical" href="http://parapluu.github.io/nifty//tutorial1/">
+<link href="http://parapluu.github.io/nifty//feed.xml" type="application/atom+xml" rel="alternate" title="Nifty - NIF Interface Generator Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Google Webfonts -->
+<link href='http://fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700|PT+Serif:400,700,400italic' rel='stylesheet' type='text/css'>
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://parapluu.github.io/nifty//assets/css/main.min.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- HTML5 Shiv and Media Query Support -->
+<!--[if lt IE 9]>
+	<script src="http://parapluu.github.io/nifty//assets/js/vendor/html5shiv.min.js"></script>
+	<script src="http://parapluu.github.io/nifty//assets/js/vendor/respond.min.js"></script>
+<![endif]-->
+
+<!-- Modernizr -->
+<script src="http://parapluu.github.io/nifty//assets/js/vendor/modernizr-2.7.1.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="http://parapluu.github.io/nifty//favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="http://parapluu.github.io/nifty//favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="http://parapluu.github.io/nifty//images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="http://parapluu.github.io/nifty//images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="http://parapluu.github.io/nifty//images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="http://parapluu.github.io/nifty//images/apple-touch-icon-144x144-precomposed.png">
+
+</head>
+
+<body class="page">
+
+<!--[if lt IE 9]><div class="browser-upgrade alert alert-info">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div><![endif]-->
+
+<div class="navigation-wrapper">
+	<div class="site-name">
+		<a href="http://parapluu.github.io/nifty/">Nifty - NIF Interface Generator</a>
+	</div><!-- /.site-name -->
+	<div class="top-navigation">
+		<nav role="navigation" id="site-nav" class="nav">
+		    <ul>
+		        
+				<li><a href="http://parapluu.github.io/nifty//about" >About</a></li>
+		        
+				<li><a href="http://parapluu.github.io/nifty//api-doc/index.html" >API Documentation</a></li>
+		        
+				<li><a href="http://parapluu.github.io/nifty//install" >Install Nifty</a></li>
+		        
+				<li><a href="http://parapluu.github.io/nifty//tutorial" >Tutorials</a></li>
+		        
+				<li><a href="https://github.com/parapluu/nifty" target="_blank">GitHub</a></li>
+		        
+		    </ul>
+		</nav>
+	</div><!-- /.top-navigation -->
+</div><!-- /.navigation-wrapper -->
+
+
+  <div class="image-wrap">
+  <img src=
+    
+      "http://parapluu.github.io/nifty//images/nifty_trouble.png"
+    
+  alt="Tutorial 1: First Steps feature image">
+  
+  </div><!-- /.image-wrap -->
+
+
+<div id="main" role="main">
+  <div class="article-author-side">
+    
+	<img src="http://parapluu.github.io/nifty//images/avatar.png" class="bio-photo" alt="Nifty bio photo"></a>
+
+<h3>Nifty</h3>
+<p>Nifty - NIF interface generator</p>
+
+
+
+
+
+
+<a href="http://github.com/parapluu/nifty" class="author-social" target="_blank"><i class="icon-github"></i> Github</a>
+
+
+
+
+
+
+  </div>
+  <article>
+    <h1>Tutorial 1: First Steps</h1>
+    <div class="article-wrap">
+      <p><a  href="http://parapluu.github.io/nifty//files/tut1.tar.gz"><strong>Files For This Tutorial</strong></a></p>
+
+<h2 id="toc_0">A simple Example</h2>
+
+<p>Let&#39;s say you want to create a NIF module from the following example C file <code>fib.c</code>:</p>
+
+<div class="highlight"><pre><code class="c++"><span class="kt">int</span>
+<span class="nf">fib</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">n</span><span class="o">&lt;=</span><span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">fib</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">fib</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Nifty needs a header file to create a NIF module, so let&#39;s write one and store it under <code>fib.h</code></p>
+
+<div class="highlight"><pre><code class="c++"><span class="k">extern</span> <span class="kt">int</span> <span class="nf">fib</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">);</span>
+</code></pre></div>
+
+<p>Now we can create a NIF module, using Nifty:</p>
+
+<div class="highlight"><pre><code class="erlang"><span class="mi">1</span><span class="o">&gt;</span> <span class="nn">nifty</span><span class="p">:</span><span class="nf">compile</span><span class="p">(</span><span class="s">&quot;fib.h&quot;</span><span class="p">,</span> <span class="n">fib</span><span class="p">,</span> <span class="p">[]).</span>
+<span class="n">generating</span> <span class="n">fib</span><span class="p">.</span><span class="n">h</span> <span class="o">-&gt;</span> <span class="n">fib_nif</span><span class="p">.</span><span class="n">c</span> <span class="n">fib</span><span class="p">.</span><span class="n">erl</span> 
+<span class="o">==&gt;</span> <span class="n">fib</span> <span class="p">(</span><span class="n">compile</span><span class="p">)</span>
+<span class="nv">Compiled</span> <span class="n">src</span><span class="o">/</span><span class="n">fib_remote</span><span class="p">.</span><span class="n">erl</span>
+<span class="nv">Compiled</span> <span class="n">src</span><span class="o">/</span><span class="n">fib</span><span class="p">.</span><span class="n">erl</span>
+<span class="nv">Compiling</span> <span class="n">c_src</span><span class="o">/</span><span class="n">fib_nif</span><span class="p">.</span><span class="n">c</span>
+<span class="n">ok</span> 
+</code></pre></div>
+
+<p>Now let&#39;s try to load the module:</p>
+
+<div class="highlight"><pre><code class="erlang"><span class="mi">2</span><span class="o">&gt;</span> <span class="n">l</span><span class="p">(</span><span class="n">fib</span><span class="p">).</span>
+<span class="o">=</span><span class="nv">ERROR</span> <span class="nv">REPORT</span><span class="o">====</span> <span class="mi">4</span><span class="o">-</span><span class="nv">Apr</span><span class="o">-</span><span class="mi">2014</span><span class="p">::</span><span class="mi">14</span><span class="p">:</span><span class="mi">30</span><span class="p">:</span><span class="mi">16</span> <span class="o">===</span>
+<span class="nv">The</span> <span class="n">on_load</span> <span class="n">function</span> <span class="n">for</span> <span class="n">module</span> <span class="n">fib</span> <span class="n">returned</span> 
+<span class="p">{</span><span class="n">error</span><span class="p">,</span>
+ <span class="p">{</span><span class="n">load_failed</span><span class="p">,</span>
+  <span class="s">&quot;Failed to load NIF library: &#39;.../fib/priv/fib_nif.so: undefined symbol: fib&#39;&quot;</span><span class="p">}}</span>
+</code></pre></div>
+
+<p>The loader reports, that it cannot find the function fib. What happened? When we generated the NIF, we forgot to tell
+Nifty that it should also compile <code>fib.c</code>:</p>
+
+<div class="highlight"><pre><code class="erlang"><span class="mi">3</span><span class="o">&gt;</span> <span class="nn">nifty</span><span class="p">:</span><span class="nf">compile</span><span class="p">(</span><span class="s">&quot;fib.h&quot;</span><span class="p">,</span> <span class="n">fib</span><span class="p">,</span> <span class="p">[{</span><span class="n">port_specs</span><span class="p">,</span> <span class="p">[{</span><span class="s">&quot;.*&quot;</span><span class="p">,</span><span class="s">&quot;$NIF&quot;</span><span class="p">,[</span><span class="s">&quot;fib.c&quot;</span><span class="p">]}]}]).</span>
+<span class="n">generating</span> <span class="n">fib</span><span class="p">.</span><span class="n">h</span> <span class="o">-&gt;</span> <span class="n">fib_nif</span><span class="p">.</span><span class="n">c</span> <span class="n">fib</span><span class="p">.</span><span class="n">erl</span> 
+<span class="o">==&gt;</span> <span class="n">fib</span> <span class="p">(</span><span class="n">compile</span><span class="p">)</span>
+<span class="nv">Compiled</span> <span class="n">src</span><span class="o">/</span><span class="n">fib_remote</span><span class="p">.</span><span class="n">erl</span>
+<span class="nv">Compiled</span> <span class="n">src</span><span class="o">/</span><span class="n">fib</span><span class="p">.</span><span class="n">erl</span>
+<span class="nv">Compiling</span> <span class="n">c_src</span><span class="o">/</span><span class="n">fib_nif</span><span class="p">.</span><span class="n">c</span>
+<span class="nv">Compiling</span> <span class="p">...</span><span class="o">/</span><span class="n">fib</span><span class="p">.</span><span class="n">c</span>
+<span class="n">ok</span>
+<span class="mi">4</span><span class="o">&gt;</span> <span class="n">l</span><span class="p">(</span><span class="n">fib</span><span class="p">).</span>
+<span class="p">{</span><span class="n">module</span><span class="p">,</span><span class="n">fib</span><span class="p">}</span>
+<span class="mi">5</span><span class="o">&gt;</span> <span class="nn">fib</span><span class="p">:</span><span class="nf">fib</span><span class="p">(</span><span class="mi">10</span><span class="p">).</span>
+<span class="mi">55</span>
+</code></pre></div>
+
+<p>The third arguments specifies the compile options which are equivalent to the options that you can set in a <code>rebar.config</code>. 
+To add a source file or compile options to your NIF module, you have to use the target
+<code>{&quot;.*&quot;, &quot;$NIF&quot;, [&lt;source files&gt;], &lt;optional options&gt;}</code> in the port_specs option. </p>
+
+<p>When you leave the interactive interpreter, you will see that Nifty created a complete Erlang project:</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">fib
+├── c_src
+│   └── fib_nif.c
+├── ebin
+│   └── fib.app
+├── priv
+├── rebar.config
+└── src
+    ├── fib_remote.erl
+    └── fib.erl
+</code></pre></div>
+<table><thead>
+<tr>
+<th><a  href="http://parapluu.github.io/nifty//files/tut1.tar.gz">Tutorial Files</a></th>
+<th><a  href="http://parapluu.github.io/nifty//tutorial2">Next Tutorial</a></th>
+</tr>
+</thead><tbody>
+</tbody></table>
+
+    </div><!-- /.article-wrap -->
+    
+  </article>
+</div><!-- /#index -->
+
+<div class="footer-wrap">
+  <footer>
+    <span>&copy; 2014 Nifty. Powered by <a href="http://jekyllrb.com">Jekyll</a> using the <a href="http://mademistakes.com/minimal-mistakes/">Minimal Mistakes</a> theme.</span>
+
+  </footer>
+</div><!-- /.footer-wrap -->
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="http://parapluu.github.io/nifty//assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="http://parapluu.github.io/nifty//assets/js/scripts.min.js"></script>
+
+          
+
+</body>
+</html>

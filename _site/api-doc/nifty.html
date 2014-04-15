@@ -1,0 +1,150 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Module nifty</title>
+<link rel="stylesheet" type="text/css" href="stylesheet.css" title="EDoc">
+</head>
+<body bgcolor="white">
+<div class="navbar"><a name="#navbar_top"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<hr>
+
+<h1>Module nifty</h1>
+<ul class="index"><li><a href="#types">Data Types</a></li><li><a href="#index">Function Index</a></li><li><a href="#functions">Function Details</a></li></ul>
+
+
+<h2><a name="types">Data Types</a></h2>
+
+<h3 class="typedecl"><a name="type-addr">addr()</a></h3>
+<p><tt>addr() = integer()</tt></p>
+
+
+<h3 class="typedecl"><a name="type-options">options()</a></h3>
+<p><tt>options() = <a href="proplists.html#type-proplist">proplists:proplist()</a></tt></p>
+
+
+<h3 class="typedecl"><a name="type-ptr">ptr()</a></h3>
+<p><tt>ptr() = {<a href="#type-addr">addr()</a>, nonempty_string()}</tt></p>
+
+
+<h3 class="typedecl"><a name="type-reason">reason()</a></h3>
+<p><tt>reason() = atom()</tt></p>
+
+
+<h2><a name="index">Function Index</a></h2>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#as_type-3">as_type/3</a></td><td>Casts a pointer to a <code>Type</code> of a <code>Module</code>; returns an error if the module does not specify the type.</td></tr>
+<tr><td valign="top"><a href="#compile-3">compile/3</a></td><td>Generates a NIF module out of a C header file and compiles it,
+  generating wrapper functions for all functions present in the header file.</td></tr>
+<tr><td valign="top"><a href="#cstr_to_list-1">cstr_to_list/1</a></td><td>Converts a nifty pointer to a 0 terminated C string into a erlang string.</td></tr>
+<tr><td valign="top"><a href="#dereference-1">dereference/1</a></td><td>Dereference a nifty pointer.</td></tr>
+<tr><td valign="top"><a href="#free-1">free/1</a></td><td>Free's the memory associated with a nifty pointer.</td></tr>
+<tr><td valign="top"><a href="#get_config-0">get_config/0</a></td><td>Returns the platform specific configuration of nifty.</td></tr>
+<tr><td valign="top"><a href="#get_env-0">get_env/0</a></td><td>Returns erlangs NIF environment.</td></tr>
+<tr><td valign="top"><a href="#get_types-0">get_types/0</a></td><td>Returns nifty's base types as a dict.</td></tr>
+<tr><td valign="top"><a href="#list_to_cstr-1">list_to_cstr/1</a></td><td>Converts an erlang string into a 0 terminated C string and returns a nifty pointer to it.</td></tr>
+<tr><td valign="top"><a href="#mem_alloc-1">mem_alloc/1</a></td><td>Allocates <code>X1</code> bytes and returns a pointer to it.</td></tr>
+<tr><td valign="top"><a href="#mem_read-2">mem_read/2</a></td><td>Reads <code>X2</code> bytes from the pointer <code>X1</code> and returns it as list.</td></tr>
+<tr><td valign="top"><a href="#mem_write-1">mem_write/1</a></td><td>Writes the <code>Data</code> to memory and returns a nifty pointer to it; the list elements are interpreted as byte values.</td></tr>
+<tr><td valign="top"><a href="#mem_write-2">mem_write/2</a></td><td>Writes the <code>Data</code> to the memory area pointed to by <code>Ptr</code> and returns a the pointer; the list elements are interpreted as byte values.</td></tr>
+<tr><td valign="top"><a href="#pointer-0">pointer/0</a></td><td>Returns a pointer to a memory area that is the size of a pointer.</td></tr>
+<tr><td valign="top"><a href="#pointer-1">pointer/1</a></td><td>Returns a pointer to the specified <code>Type</code>.</td></tr>
+<tr><td valign="top"><a href="#pointer_of-1">pointer_of/1</a></td><td>Returns a pointer to the given pointer.</td></tr>
+<tr><td valign="top"><a href="#pointer_of-2">pointer_of/2</a></td><td>Returns a pointer to the <code>Value</code> with the type <code>Type</code></td></tr>
+</table>
+
+<h2><a name="functions">Function Details</a></h2>
+
+<h3 class="function"><a name="as_type-3">as_type/3</a></h3>
+<div class="spec">
+<p><tt>as_type(X1::<a href="#type-ptr">ptr()</a>, Module::atom(), Type::nonempty_string()) -&gt; <a href="#type-ptr">ptr()</a> | undef</tt><br></p>
+</div><p>Casts a pointer to a <code>Type</code> of a <code>Module</code>; returns an error if the module does not specify the type</p>
+
+<h3 class="function"><a name="compile-3">compile/3</a></h3>
+<div class="spec">
+<p><tt>compile(InterfaceFile::string(), Module::module(), Options::<a href="#type-options">options()</a>) -&gt; ok | fail</tt><br></p>
+</div><p>Generates a NIF module out of a C header file and compiles it,
+  generating wrapper functions for all functions present in the header file.
+  <code>InterfaceFile</code> specifies the header file. <code>Module</code> specifies
+  the module name of the translated NIF. <code>Options</code> specifies the compile
+  options. These options are equivalent to rebar's config options.</p>
+
+<h3 class="function"><a name="cstr_to_list-1">cstr_to_list/1</a></h3>
+<div class="spec">
+<p><tt>cstr_to_list(X1::<a href="#type-ptr">ptr()</a>) -&gt; string()</tt><br></p>
+</div><p>Converts a nifty pointer to a 0 terminated C string into a erlang string.</p>
+
+<h3 class="function"><a name="dereference-1">dereference/1</a></h3>
+<div class="spec">
+<p><tt>dereference(Pointer::<a href="#type-ptr">ptr()</a>) -&gt; <a href="#type-ptr">ptr()</a> | integer() | float() | list() | {string(), integer()} | {error, <a href="#type-reason">reason()</a>}</tt><br></p>
+</div><p>Dereference a nifty pointer</p>
+
+<h3 class="function"><a name="free-1">free/1</a></h3>
+<div class="spec">
+<p><tt>free(X1::<a href="#type-ptr">ptr()</a>) -&gt; ok</tt><br></p>
+</div><p>Free's the memory associated with a nifty pointer</p>
+
+<h3 class="function"><a name="get_config-0">get_config/0</a></h3>
+<div class="spec">
+<p><tt>get_config() -&gt; <a href="proplists.html#type-proplist">proplists:proplist()</a></tt><br></p>
+</div><p>Returns the platform specific configuration of nifty</p>
+
+<h3 class="function"><a name="get_env-0">get_env/0</a></h3>
+<div class="spec">
+<p><tt>get_env() -&gt; {integer(), nonempty_string()}</tt><br></p>
+</div><p>Returns erlangs NIF environment</p>
+
+<h3 class="function"><a name="get_types-0">get_types/0</a></h3>
+<div class="spec">
+<p><tt>get_types() -&gt; dict()</tt><br></p>
+</div><p>Returns nifty's base types as a dict</p>
+
+<h3 class="function"><a name="list_to_cstr-1">list_to_cstr/1</a></h3>
+<div class="spec">
+<p><tt>list_to_cstr(X1::string()) -&gt; <a href="#type-ptr">ptr()</a></tt><br></p>
+</div><p>Converts an erlang string into a 0 terminated C string and returns a nifty pointer to it</p>
+
+<h3 class="function"><a name="mem_alloc-1">mem_alloc/1</a></h3>
+<div class="spec">
+<p><tt>mem_alloc(X1::non_neg_integer()) -&gt; <a href="#type-ptr">ptr()</a></tt><br></p>
+</div><p>Allocates <code>X1</code> bytes and returns a pointer to it</p>
+
+<h3 class="function"><a name="mem_read-2">mem_read/2</a></h3>
+<div class="spec">
+<p><tt>mem_read(X1::<a href="#type-ptr">ptr()</a>, X2::integer()) -&gt; list()</tt><br></p>
+</div><p>Reads <code>X2</code> bytes from the pointer <code>X1</code> and returns it as list</p>
+
+<h3 class="function"><a name="mem_write-1">mem_write/1</a></h3>
+<div class="spec">
+<p><tt>mem_write(Data::binary() | list()) -&gt; <a href="#type-ptr">ptr()</a></tt><br></p>
+</div><p>Writes the <code>Data</code> to memory and returns a nifty pointer to it; the list elements are interpreted as byte values</p>
+
+<h3 class="function"><a name="mem_write-2">mem_write/2</a></h3>
+<div class="spec">
+<p><tt>mem_write(Ptr::<a href="#type-ptr">ptr()</a>, Data::binary() | list()) -&gt; <a href="#type-ptr">ptr()</a></tt><br></p>
+</div><p>Writes the <code>Data</code> to the memory area pointed to by <code>Ptr</code> and returns a the pointer; the list elements are interpreted as byte values</p>
+
+<h3 class="function"><a name="pointer-0">pointer/0</a></h3>
+<div class="spec">
+<p><tt>pointer() -&gt; <a href="#type-ptr">ptr()</a></tt><br></p>
+</div><p>Returns a pointer to a memory area that is the size of a pointer</p>
+
+<h3 class="function"><a name="pointer-1">pointer/1</a></h3>
+<div class="spec">
+<p><tt>pointer(Type::nonempty_string()) -&gt; <a href="#type-ptr">ptr()</a> | undefined</tt><br></p>
+</div><p>Returns a pointer to the specified <code>Type</code>. This function allocates memory of <b>sizeof(</b><code>Type</code><b>)</b></p>
+
+<h3 class="function"><a name="pointer_of-1">pointer_of/1</a></h3>
+<div class="spec">
+<p><tt>pointer_of(Ptr::<a href="#type-ptr">ptr()</a>) -&gt; <a href="#type-ptr">ptr()</a> | undefined</tt><br></p>
+</div><p>Returns a pointer to the given pointer</p>
+
+<h3 class="function"><a name="pointer_of-2">pointer_of/2</a></h3>
+<div class="spec">
+<p><tt>pointer_of(Value::term(), Type::string()) -&gt; <a href="#type-ptr">ptr()</a> | undefined</tt><br></p>
+</div><p>Returns a pointer to the <code>Value</code> with the type <code>Type</code></p>
+<hr>
+
+<div class="navbar"><a name="#navbar_bottom"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<p><i>Generated by EDoc, Apr 10 2014, 11:17:11.</i></p>
+</body>
+</html>

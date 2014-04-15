@@ -1,0 +1,350 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>Tutorial 4: Nifty Types &#8211; Nifty - NIF Interface Generator</title>
+<meta name="description" content="">
+<meta name="keywords" content="tutorial">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Tutorial 4: Nifty Types">
+<meta property="og:description" content="New, Documentation and Tutorials of Nifty">
+<meta property="og:url" content="http://parapluu.github.io/nifty//tutorial4/">
+<meta property="og:site_name" content="Nifty - NIF Interface Generator">
+
+
+
+
+
+<link rel="canonical" href="http://parapluu.github.io/nifty//tutorial4/">
+<link href="http://parapluu.github.io/nifty//feed.xml" type="application/atom+xml" rel="alternate" title="Nifty - NIF Interface Generator Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Google Webfonts -->
+<link href='http://fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700|PT+Serif:400,700,400italic' rel='stylesheet' type='text/css'>
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://parapluu.github.io/nifty//assets/css/main.min.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- HTML5 Shiv and Media Query Support -->
+<!--[if lt IE 9]>
+	<script src="http://parapluu.github.io/nifty//assets/js/vendor/html5shiv.min.js"></script>
+	<script src="http://parapluu.github.io/nifty//assets/js/vendor/respond.min.js"></script>
+<![endif]-->
+
+<!-- Modernizr -->
+<script src="http://parapluu.github.io/nifty//assets/js/vendor/modernizr-2.7.1.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="http://parapluu.github.io/nifty//favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="http://parapluu.github.io/nifty//favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="http://parapluu.github.io/nifty//images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="http://parapluu.github.io/nifty//images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="http://parapluu.github.io/nifty//images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="http://parapluu.github.io/nifty//images/apple-touch-icon-144x144-precomposed.png">
+
+</head>
+
+<body class="page">
+
+<!--[if lt IE 9]><div class="browser-upgrade alert alert-info">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div><![endif]-->
+
+<div class="navigation-wrapper">
+	<div class="site-name">
+		<a href="http://parapluu.github.io/nifty/">Nifty - NIF Interface Generator</a>
+	</div><!-- /.site-name -->
+	<div class="top-navigation">
+		<nav role="navigation" id="site-nav" class="nav">
+		    <ul>
+		        
+				<li><a href="http://parapluu.github.io/nifty//about" >About</a></li>
+		        
+				<li><a href="http://parapluu.github.io/nifty//api-doc/index.html" >API Documentation</a></li>
+		        
+				<li><a href="http://parapluu.github.io/nifty//install" >Install Nifty</a></li>
+		        
+				<li><a href="http://parapluu.github.io/nifty//tutorial" >Tutorials</a></li>
+		        
+				<li><a href="https://github.com/parapluu/nifty" target="_blank">GitHub</a></li>
+		        
+		    </ul>
+		</nav>
+	</div><!-- /.top-navigation -->
+</div><!-- /.navigation-wrapper -->
+
+
+  <div class="image-wrap">
+  <img src=
+    
+      "http://parapluu.github.io/nifty//images/nifty_trouble.png"
+    
+  alt="Tutorial 4: Nifty Types feature image">
+  
+  </div><!-- /.image-wrap -->
+
+
+<div id="main" role="main">
+  <div class="article-author-side">
+    
+	<img src="http://parapluu.github.io/nifty//images/avatar.png" class="bio-photo" alt="Nifty bio photo"></a>
+
+<h3>Nifty</h3>
+<p>Nifty - NIF interface generator</p>
+
+
+
+
+
+
+<a href="http://github.com/parapluu/nifty" class="author-social" target="_blank"><i class="icon-github"></i> Github</a>
+
+
+
+
+
+
+  </div>
+  <article>
+    <h1>Tutorial 4: Nifty Types</h1>
+    <div class="article-wrap">
+      <p>The main task of Nifty is to generate the type conversion code that translates
+Erlang types into C types and vice versa. Nifty provides support for most of
+C datatypes with a few notable exceptions. The type information is stored
+in the module defining the type, with the exception of base types, which are
+stored in Nifty&#39;s library module. Nifty&#39;s type representation is in form of a 
+string:</p>
+
+<div class="highlight"><pre><code class="erlang"><span class="s">&quot;&lt;module&gt;.&lt;type&gt;&quot;</span> 
+<span class="nn">examples</span><span class="p">:</span>
+<span class="s">&quot;nifty.int&quot;</span> <span class="c">%% base type</span>
+<span class="s">&quot;nifty.long&quot;</span>
+<span class="s">&quot;mymodule.struct mystruct *&quot;</span> <span class="c">%% derived type</span>
+</code></pre></div>
+
+<h2 id="toc_0">Base Types</h2>
+
+<p>The following table shows, how C types and Erlang types correspond to each other:</p>
+
+<table><thead>
+<tr>
+<th>C Types</th>
+<th>Erlang Types</th>
+<th>Nifty Type Name</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>signed int</code> or <code>int</code></td>
+<td><code>integer()</code></td>
+<td><code>nifty.int</code></td>
+</tr>
+<tr>
+<td><code>unsigned int</code></td>
+<td><code>integer()</code></td>
+<td><code>nifty.unsigned int</code></td>
+</tr>
+<tr>
+<td><code>char</code></td>
+<td><code>integer()</code></td>
+<td><code>nifty.char</code></td>
+</tr>
+<tr>
+<td><code>short</code></td>
+<td><code>integer()</code></td>
+<td><code>nifty.short</code></td>
+</tr>
+<tr>
+<td><code>long</code></td>
+<td><code>integer()</code></td>
+<td><code>nifty.long</code></td>
+</tr>
+<tr>
+<td><code>long long</code></td>
+<td><code>integer()</code></td>
+<td><code>nifty.long long</code></td>
+</tr>
+<tr>
+<td><code>float</code></td>
+<td><code>float()</code></td>
+<td><code>nifty.float</code></td>
+</tr>
+<tr>
+<td><code>double</code></td>
+<td><code>float()</code></td>
+<td><code>nifty.double</code></td>
+</tr>
+<tr>
+<td><code>&lt;type&gt; *</code></td>
+<td><code>{integer(), string()}</code></td>
+<td><code>&lt;module&gt;.&lt;type&gt; *</code></td>
+</tr>
+</tbody></table>
+
+<p>Nifty performs no check that integer values fit into the datatype. Too large integers will overflow.</p>
+
+<h2 id="toc_1">Records</h2>
+
+<p>C records (structs) are translated into erlang records and every definition of a struct results
+in a record definition. Nifty translates the values of each field according to the type
+of the C record definition. Nested C records are translated into nested Erlang records. 
+Nifty stores the record definitions into an <code>hrl</code> file which can be easily included to use
+record notion.</p>
+
+<p>Hint: Nifty not currently supports anonymous structs. They are excluded from the 
+internal type database together with all functions that depend on them. </p>
+
+<h2 id="toc_2">Pointer</h2>
+
+<h3 id="toc_3">Getting A Pointer To A Value</h3>
+
+<p>To get a pointer of a value Nifty provides the <code>nifty:pointer_of/2</code> function. The first argument
+is the value and the second argument is the Nifty Type Name of the base type:</p>
+
+<div class="highlight"><pre><code class="erlang"><span class="mi">1</span><span class="o">&gt;</span> <span class="nn">nifty</span><span class="p">:</span><span class="nf">pointer_of</span><span class="p">(</span><span class="mi">42</span><span class="p">,</span> <span class="s">&quot;nifty.int&quot;</span><span class="p">).</span>
+<span class="p">{</span><span class="mi">140077923569704</span><span class="p">,</span><span class="s">&quot;nifty.int *&quot;</span><span class="p">}</span>
+</code></pre></div>
+
+<p>For base types it is possible to omit the module name:</p>
+
+<div class="highlight"><pre><code class="erlang"><span class="mi">1</span><span class="o">&gt;</span> <span class="nn">nifty</span><span class="p">:</span><span class="nf">pointer_of</span><span class="p">(</span><span class="mi">42</span><span class="p">,</span> <span class="s">&quot;long long&quot;</span><span class="p">).</span>
+<span class="p">{</span><span class="mi">139660089364456</span><span class="p">,</span><span class="s">&quot;nifty.long long *&quot;</span><span class="p">}</span>
+</code></pre></div>
+
+<p>Nifty tries to find the type specification in the given module. If the specification is found,
+Nifty allocates memory according to the corresponding C type and stores the value in this memory
+area. A pointer to this memory area is then returned anoted with the correct type information. </p>
+
+<p>It is of course possible to create pointers of pointers:</p>
+
+<div class="highlight"><pre><code class="erlang"><span class="mi">1</span><span class="o">&gt;</span> <span class="nv">Ptr</span> <span class="o">=</span> <span class="nn">nifty</span><span class="p">:</span><span class="nf">pointer_of</span><span class="p">(</span><span class="mi">42</span><span class="p">,</span> <span class="s">&quot;int&quot;</span><span class="p">).</span>
+<span class="p">{</span><span class="mi">140435755896808</span><span class="p">,</span><span class="s">&quot;nifty.int *&quot;</span><span class="p">}</span>
+<span class="mi">2</span><span class="o">&gt;</span> <span class="nn">nifty</span><span class="p">:</span><span class="nf">pointer_of</span><span class="p">(</span><span class="nv">Ptr</span><span class="p">).</span>
+<span class="p">{</span><span class="mi">140435755896872</span><span class="p">,</span><span class="s">&quot;nifty.int **&quot;</span><span class="p">}</span>
+</code></pre></div>
+
+<p>If you need a pointer to a preallocated memory area for a certain type, but you do not care about
+the containing value, you can use <code>pointer/1</code>, which works like <code>pointer_of</code> without initialization:</p>
+
+<div class="highlight"><pre><code class="erlang"><span class="mi">1</span><span class="o">&gt;</span> <span class="nv">Ptr</span> <span class="o">=</span> <span class="nn">nifty</span><span class="p">:</span><span class="nf">pointer</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">).</span>
+<span class="p">{</span><span class="mi">139715240792040</span><span class="p">,</span><span class="s">&quot;nifty.int *&quot;</span><span class="p">}</span>
+<span class="mi">2</span><span class="o">&gt;</span> <span class="nn">nifty</span><span class="p">:</span><span class="nf">dereference</span><span class="p">(</span><span class="nv">Ptr</span><span class="p">).</span>
+<span class="mi">45350912</span> <span class="c">%% this is a random value</span>
+</code></pre></div>
+
+<h3 id="toc_4">Dereferencing A Pointer</h3>
+
+<p>The reverse function to <code>nifty:pointer_of/2</code> is <code>nifty:dereference</code>. This function takes a pointer
+and translates the value it points to into an Erlang value:</p>
+
+<div class="highlight"><pre><code class="erlang"><span class="mi">1</span><span class="o">&gt;</span> <span class="nv">Ptr</span> <span class="o">=</span> <span class="nn">nifty</span><span class="p">:</span><span class="nf">pointer_of</span><span class="p">(</span><span class="mi">42</span><span class="p">,</span> <span class="s">&quot;int&quot;</span><span class="p">).</span>
+<span class="p">{</span><span class="mi">139766325055464</span><span class="p">,</span><span class="s">&quot;nifty.int *&quot;</span><span class="p">}</span>
+<span class="mi">2</span><span class="o">&gt;</span> <span class="nn">nifty</span><span class="p">:</span><span class="nf">dereference</span><span class="p">(</span><span class="nv">Ptr</span><span class="p">).</span>
+<span class="mi">42</span>
+</code></pre></div>
+
+<p>This translation happens according to the type of the pointer:</p>
+
+<div class="highlight"><pre><code class="erlang"><span class="mi">1</span><span class="o">&gt;</span> <span class="nv">Ptr</span> <span class="o">=</span> <span class="nn">nifty</span><span class="p">:</span><span class="nf">pointer_of</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="s">&quot;unsigned int&quot;</span><span class="p">).</span>
+<span class="p">{</span><span class="mi">140313231101928</span><span class="p">,</span><span class="s">&quot;nifty.unsigned int *&quot;</span><span class="p">}</span>
+<span class="mi">2</span><span class="o">&gt;</span> <span class="nv">Ptr_Char</span> <span class="o">=</span> <span class="nn">nifty</span><span class="p">:</span><span class="nf">as_type</span><span class="p">(</span><span class="nv">Ptr</span><span class="p">,</span> <span class="n">nifty</span><span class="p">,</span> <span class="s">&quot;unsigned char *&quot;</span><span class="p">).</span>
+<span class="p">{</span><span class="mi">140313231101928</span><span class="p">,</span><span class="s">&quot;nifty.unsigned char *&quot;</span><span class="p">}</span>
+<span class="mi">3</span><span class="o">&gt;</span> <span class="nn">nifty</span><span class="p">:</span><span class="nf">dereference</span><span class="p">(</span><span class="nv">Ptr</span><span class="p">).</span>
+<span class="mi">1000</span>
+<span class="mi">4</span><span class="o">&gt;</span> <span class="nn">nifty</span><span class="p">:</span><span class="nf">dereference</span><span class="p">(</span><span class="nv">Ptr_Char</span><span class="p">).</span>
+<span class="mi">232</span>
+</code></pre></div>
+
+<h3 id="toc_5">Casting A Pointer To A Different Type</h3>
+
+<p>As shown in the previous section, it is possible to cast a pointer to a different type. <code>nifty:as_type/3</code>
+takes a pointer, a module and a type and returns that pointer casted to the type. <code>as_type/3</code> also checks
+if the type is known:</p>
+
+<div class="highlight"><pre><code class="erlang"><span class="mi">1</span><span class="o">&gt;</span> <span class="nv">Ptr</span> <span class="o">=</span> <span class="nn">nifty</span><span class="p">:</span><span class="nf">pointer</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">).</span>
+<span class="p">{</span><span class="mi">139715240792040</span><span class="p">,</span><span class="s">&quot;nifty.int *&quot;</span><span class="p">}</span>
+<span class="mi">3</span><span class="o">&gt;</span> <span class="nn">nifty</span><span class="p">:</span><span class="nf">as_type</span><span class="p">(</span><span class="nv">Ptr</span><span class="p">,</span> <span class="n">nifty</span><span class="p">,</span> <span class="s">&quot;char&quot;</span><span class="p">).</span>
+<span class="p">{</span><span class="mi">139715240792040</span><span class="p">,</span><span class="s">&quot;nifty.char&quot;</span><span class="p">}</span>
+<span class="mi">4</span><span class="o">&gt;</span> <span class="nn">nifty</span><span class="p">:</span><span class="nf">as_type</span><span class="p">(</span><span class="nv">Ptr</span><span class="p">,</span> <span class="n">nifty</span><span class="p">,</span> <span class="s">&quot;unknown&quot;</span><span class="p">).</span>
+<span class="n">undef</span> <span class="c">%% type is unknown in the scope of nifty</span>
+</code></pre></div>
+
+<h3 id="toc_6">Function Pointers</h3>
+
+<p>Function pointers default to <code>void *</code> pointers and are handled as such. That means, that you are not able to dereference
+them. You can however optain them from functions or pass them to other functions. </p>
+
+<h2 id="toc_7">Memory Management</h2>
+
+<h3 id="toc_8">Memory Allocation And free()</h3>
+
+<p>Nifty&#39;s <code>malloc()</code> is <code>nifty:mem_alloc/1</code>. It works in the same way as <code>malloc()</code> as it allocates the 
+specified amount of memory and returns a <code>nifty.void *</code> pointer to it. In a similar manner Nifty&#39;s <code>free()</code> 
+is <code>nifty:free/1</code>, which deallocates the memory segment associated by the given pointer:</p>
+
+<div class="highlight"><pre><code class="erlang"><span class="mi">1</span><span class="o">&gt;</span> <span class="nv">Big</span> <span class="o">=</span> <span class="nn">nifty</span><span class="p">:</span><span class="nf">mem_alloc</span><span class="p">(</span><span class="mi">1024</span><span class="p">).</span>
+<span class="p">{</span><span class="mi">140078075875304</span><span class="p">,</span><span class="s">&quot;nifty.void *&quot;</span><span class="p">}</span>
+<span class="mi">2</span><span class="o">&gt;</span> <span class="nn">nifty</span><span class="p">:</span><span class="nf">free</span><span class="p">(</span><span class="nv">Big</span><span class="p">).</span>
+<span class="n">ok</span>
+</code></pre></div>
+
+<p>All of by Nifty allocated memory is not garbage collected, so make sure to free all memory you used.</p>
+
+<h2 id="toc_9">Segfaults</h2>
+
+<p>Be careful when you are using pointers, memory allocation and so on. Like in C it is possible to access
+invalid or protected memory areas that result in a memory access exception more commonly known as
+segfault:</p>
+
+<div class="highlight"><pre><code class="erlang"><span class="mi">8</span><span class="o">&gt;</span> <span class="nn">nifty</span><span class="p">:</span><span class="nf">dereference</span><span class="p">({</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;nifty.int *&quot;</span><span class="p">}).</span>
+<span class="nv">Segmentation</span> <span class="n">fault</span> <span class="p">(</span><span class="n">core</span> <span class="n">dumped</span><span class="p">)</span>
+<span class="sc">$ </span>
+</code></pre></div>
+
+<p>As you will see, a segfault will crash the Erlang runtime. You can however catch segafaults as demonstrated in the 
+<a  href="http://parapluu.github.io/nifty//tutorial5">next tutorial</a>.</p>
+
+<table><thead>
+<tr>
+<th><a  href="http://parapluu.github.io/nifty//tutorial3">Previous Tutorial</a></th>
+<th><a  href="http://parapluu.github.io/nifty//tutorial5">Next Tutorial</a></th>
+</tr>
+</thead><tbody>
+</tbody></table>
+
+    </div><!-- /.article-wrap -->
+    
+  </article>
+</div><!-- /#index -->
+
+<div class="footer-wrap">
+  <footer>
+    <span>&copy; 2014 Nifty. Powered by <a href="http://jekyllrb.com">Jekyll</a> using the <a href="http://mademistakes.com/minimal-mistakes/">Minimal Mistakes</a> theme.</span>
+
+  </footer>
+</div><!-- /.footer-wrap -->
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="http://parapluu.github.io/nifty//assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="http://parapluu.github.io/nifty//assets/js/scripts.min.js"></script>
+
+          
+
+</body>
+</html>

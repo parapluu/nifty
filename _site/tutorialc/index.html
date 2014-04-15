@@ -1,0 +1,175 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>Tutorial C: Creating NIFs for Contiki &#8211; Nifty - NIF Interface Generator</title>
+<meta name="description" content="">
+<meta name="keywords" content="tutorial">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Tutorial C: Creating NIFs for Contiki">
+<meta property="og:description" content="New, Documentation and Tutorials of Nifty">
+<meta property="og:url" content="http://parapluu.github.io/nifty//tutorialc/">
+<meta property="og:site_name" content="Nifty - NIF Interface Generator">
+
+
+
+
+
+<link rel="canonical" href="http://parapluu.github.io/nifty//tutorialc/">
+<link href="http://parapluu.github.io/nifty//feed.xml" type="application/atom+xml" rel="alternate" title="Nifty - NIF Interface Generator Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Google Webfonts -->
+<link href='http://fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700|PT+Serif:400,700,400italic' rel='stylesheet' type='text/css'>
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://parapluu.github.io/nifty//assets/css/main.min.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- HTML5 Shiv and Media Query Support -->
+<!--[if lt IE 9]>
+	<script src="http://parapluu.github.io/nifty//assets/js/vendor/html5shiv.min.js"></script>
+	<script src="http://parapluu.github.io/nifty//assets/js/vendor/respond.min.js"></script>
+<![endif]-->
+
+<!-- Modernizr -->
+<script src="http://parapluu.github.io/nifty//assets/js/vendor/modernizr-2.7.1.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="http://parapluu.github.io/nifty//favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="http://parapluu.github.io/nifty//favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="http://parapluu.github.io/nifty//images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="http://parapluu.github.io/nifty//images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="http://parapluu.github.io/nifty//images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="http://parapluu.github.io/nifty//images/apple-touch-icon-144x144-precomposed.png">
+
+</head>
+
+<body class="page">
+
+<!--[if lt IE 9]><div class="browser-upgrade alert alert-info">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div><![endif]-->
+
+<div class="navigation-wrapper">
+	<div class="site-name">
+		<a href="http://parapluu.github.io/nifty/">Nifty - NIF Interface Generator</a>
+	</div><!-- /.site-name -->
+	<div class="top-navigation">
+		<nav role="navigation" id="site-nav" class="nav">
+		    <ul>
+		        
+				<li><a href="http://parapluu.github.io/nifty//about" >About</a></li>
+		        
+				<li><a href="http://parapluu.github.io/nifty//api-doc/index.html" >API Documentation</a></li>
+		        
+				<li><a href="http://parapluu.github.io/nifty//install" >Install Nifty</a></li>
+		        
+				<li><a href="http://parapluu.github.io/nifty//tutorial" >Tutorials</a></li>
+		        
+				<li><a href="https://github.com/parapluu/nifty" target="_blank">GitHub</a></li>
+		        
+		    </ul>
+		</nav>
+	</div><!-- /.top-navigation -->
+</div><!-- /.navigation-wrapper -->
+
+
+  <div class="image-wrap">
+  <img src=
+    
+      "http://parapluu.github.io/nifty//images/nifty_trouble.png"
+    
+  alt="Tutorial C: Creating NIFs for Contiki feature image">
+  
+  </div><!-- /.image-wrap -->
+
+
+<div id="main" role="main">
+  <div class="article-author-side">
+    
+	<img src="http://parapluu.github.io/nifty//images/avatar.png" class="bio-photo" alt="Nifty bio photo"></a>
+
+<h3>Nifty</h3>
+<p>Nifty - NIF interface generator</p>
+
+
+
+
+
+
+<a href="http://github.com/parapluu/nifty" class="author-social" target="_blank"><i class="icon-github"></i> Github</a>
+
+
+
+
+
+
+  </div>
+  <article>
+    <h1>Tutorial C: Creating NIFs for Contiki</h1>
+    <div class="article-wrap">
+      <h2 id="toc_0">Compiling</h2>
+
+<p>Nifty is able to create bindings for precompiled static libraries. The only restriction is, that the 
+library must be compiled with the <code>-fpic</code> flag. Contiki&#39;s build system is capable of creating such a 
+static library. </p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">$ make TARGET=native contiki-native.a
+</code></pre></div>
+<p>This should work with your standard Contiki Makefile. A library created like this, is created without 
+the <code>-fPIC</code> flag. This can be fixed by adding</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">CFLAGS += -fPIC
+</code></pre></div>
+<p>to your Makefile. </p>
+
+<p>You can now create a NIF with Nifty. Note, that in this example make is invoked as pre-compile hook:</p>
+
+<div class="highlight"><pre><code class="erlang"><span class="mi">1</span><span class="o">&gt;</span> <span class="nn">nifty</span><span class="p">:</span><span class="nf">compile</span><span class="p">(</span><span class="s">&quot;list.h&quot;</span><span class="p">,</span> <span class="n">conli</span><span class="p">,</span> <span class="p">[{</span><span class="n">port_specs</span><span class="p">,[{</span><span class="s">&quot;.*&quot;</span><span class="p">,</span><span class="s">&quot;$NIF&quot;</span><span class="p">,[],</span>
+                     <span class="p">[{</span><span class="n">env</span><span class="p">,[{</span><span class="s">&quot;LDFLAGS&quot;</span><span class="p">,</span><span class="s">&quot;$LDFLAGS contiki-native.a&quot;</span><span class="p">}]}]}]},</span>
+                   <span class="p">{</span><span class="n">pre_hooks</span><span class="p">,[{</span><span class="n">compile</span><span class="p">,</span><span class="s">&quot;sh -c </span><span class="se">\&quot;</span><span class="s">make -f $NIFTY_ROOT/Makefile TARGET=native contiki-native.a</span><span class="se">\&quot;</span><span class="s">&quot;</span><span class="p">}]}]).</span>
+</code></pre></div>
+
+<table><thead>
+<tr>
+<th><a  href="http://parapluu.github.io/nifty//tutorial3">Previous Tutorial</a></th>
+<th><a  href="http://parapluu.github.io/nifty//tutorial_trouble">Next Tutorial</a></th>
+</tr>
+</thead><tbody>
+</tbody></table>
+
+    </div><!-- /.article-wrap -->
+    
+  </article>
+</div><!-- /#index -->
+
+<div class="footer-wrap">
+  <footer>
+    <span>&copy; 2014 Nifty. Powered by <a href="http://jekyllrb.com">Jekyll</a> using the <a href="http://mademistakes.com/minimal-mistakes/">Minimal Mistakes</a> theme.</span>
+
+  </footer>
+</div><!-- /.footer-wrap -->
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="http://parapluu.github.io/nifty//assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="http://parapluu.github.io/nifty//assets/js/scripts.min.js"></script>
+
+          
+
+</body>
+</html>

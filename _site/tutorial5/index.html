@@ -1,0 +1,225 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>Tutorial 5: Dealing With Crashes &#8211; Nifty - NIF Interface Generator</title>
+<meta name="description" content="">
+<meta name="keywords" content="tutorial">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Tutorial 5: Dealing With Crashes">
+<meta property="og:description" content="New, Documentation and Tutorials of Nifty">
+<meta property="og:url" content="http://parapluu.github.io/nifty//tutorial5/">
+<meta property="og:site_name" content="Nifty - NIF Interface Generator">
+
+
+
+
+
+<link rel="canonical" href="http://parapluu.github.io/nifty//tutorial5/">
+<link href="http://parapluu.github.io/nifty//feed.xml" type="application/atom+xml" rel="alternate" title="Nifty - NIF Interface Generator Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Google Webfonts -->
+<link href='http://fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700|PT+Serif:400,700,400italic' rel='stylesheet' type='text/css'>
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://parapluu.github.io/nifty//assets/css/main.min.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- HTML5 Shiv and Media Query Support -->
+<!--[if lt IE 9]>
+	<script src="http://parapluu.github.io/nifty//assets/js/vendor/html5shiv.min.js"></script>
+	<script src="http://parapluu.github.io/nifty//assets/js/vendor/respond.min.js"></script>
+<![endif]-->
+
+<!-- Modernizr -->
+<script src="http://parapluu.github.io/nifty//assets/js/vendor/modernizr-2.7.1.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="http://parapluu.github.io/nifty//favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="http://parapluu.github.io/nifty//favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="http://parapluu.github.io/nifty//images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="http://parapluu.github.io/nifty//images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="http://parapluu.github.io/nifty//images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="http://parapluu.github.io/nifty//images/apple-touch-icon-144x144-precomposed.png">
+
+</head>
+
+<body class="page">
+
+<!--[if lt IE 9]><div class="browser-upgrade alert alert-info">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div><![endif]-->
+
+<div class="navigation-wrapper">
+	<div class="site-name">
+		<a href="http://parapluu.github.io/nifty/">Nifty - NIF Interface Generator</a>
+	</div><!-- /.site-name -->
+	<div class="top-navigation">
+		<nav role="navigation" id="site-nav" class="nav">
+		    <ul>
+		        
+				<li><a href="http://parapluu.github.io/nifty//about" >About</a></li>
+		        
+				<li><a href="http://parapluu.github.io/nifty//api-doc/index.html" >API Documentation</a></li>
+		        
+				<li><a href="http://parapluu.github.io/nifty//install" >Install Nifty</a></li>
+		        
+				<li><a href="http://parapluu.github.io/nifty//tutorial" >Tutorials</a></li>
+		        
+				<li><a href="https://github.com/parapluu/nifty" target="_blank">GitHub</a></li>
+		        
+		    </ul>
+		</nav>
+	</div><!-- /.top-navigation -->
+</div><!-- /.navigation-wrapper -->
+
+
+  <div class="image-wrap">
+  <img src=
+    
+      "http://parapluu.github.io/nifty//images/nifty_trouble.png"
+    
+  alt="Tutorial 5: Dealing With Crashes feature image">
+  
+  </div><!-- /.image-wrap -->
+
+
+<div id="main" role="main">
+  <div class="article-author-side">
+    
+	<img src="http://parapluu.github.io/nifty//images/avatar.png" class="bio-photo" alt="Nifty bio photo"></a>
+
+<h3>Nifty</h3>
+<p>Nifty - NIF interface generator</p>
+
+
+
+
+
+
+<a href="http://github.com/parapluu/nifty" class="author-social" target="_blank"><i class="icon-github"></i> Github</a>
+
+
+
+
+
+
+  </div>
+  <article>
+    <h1>Tutorial 5: Dealing With Crashes</h1>
+    <div class="article-wrap">
+      <p><a  href="http://parapluu.github.io/nifty//files/tut5.tar.gz"><strong>Files For This Tutorial</strong></a></p>
+
+<h2 id="toc_0">Setup</h2>
+
+<p>Let&#39;s say you want to create a NIF module from the following example C file <code>test.c</code>:</p>
+
+<div class="highlight"><pre><code class="c++"><span class="cp">#include &quot;test.h&quot;</span>
+<span class="cp">#include &quot;signal.h&quot;</span>
+
+<span class="kt">int</span>
+<span class="nf">works</span><span class="p">()</span>
+<span class="p">{</span>
+  <span class="k">return</span> <span class="mi">42</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span>
+<span class="nf">fails</span><span class="p">()</span>
+<span class="p">{</span>
+  <span class="n">raise</span><span class="p">(</span><span class="n">SIGSEGV</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>The header file <code>test.h</code> looks like this:</p>
+
+<div class="highlight"><pre><code class="c++"><span class="k">extern</span> <span class="kt">int</span> <span class="nf">works</span><span class="p">();</span>
+<span class="k">extern</span> <span class="kt">void</span> <span class="nf">fails</span><span class="p">();</span>
+</code></pre></div>
+
+<p>We can now create the NIF module as learned in <a href="http://parapluu.github.io/nifty//tutorial1">Tutorial 1</a>:</p>
+
+<div class="highlight"><pre><code class="erlang"><span class="mi">1</span><span class="o">&gt;</span> <span class="nn">nifty</span><span class="p">:</span><span class="nf">compile</span><span class="p">(</span><span class="s">&quot;test.h&quot;</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="p">[{</span><span class="n">port_specs</span><span class="p">,</span> <span class="p">[{</span><span class="s">&quot;.*&quot;</span><span class="p">,</span><span class="s">&quot;$NIF&quot;</span><span class="p">,[</span><span class="s">&quot;test.c&quot;</span><span class="p">]}]}]).</span>
+<span class="n">generating</span> <span class="n">test</span><span class="p">.</span><span class="n">h</span> <span class="o">-&gt;</span> <span class="n">test_nif</span><span class="p">.</span><span class="n">c</span> <span class="n">test</span><span class="p">.</span><span class="n">erl</span> 
+<span class="o">==&gt;</span> <span class="n">test</span> <span class="p">(</span><span class="n">compile</span><span class="p">)</span>
+<span class="nv">Compiled</span> <span class="n">src</span><span class="o">/</span><span class="n">test_remote</span><span class="p">.</span><span class="n">erl</span>
+<span class="nv">Compiled</span> <span class="n">src</span><span class="o">/</span><span class="n">test</span><span class="p">.</span><span class="n">erl</span>
+<span class="nv">Compiling</span> <span class="n">c_src</span><span class="o">/</span><span class="n">test_nif</span><span class="p">.</span><span class="n">c</span>
+<span class="n">ok</span>
+</code></pre></div>
+
+<h2 id="toc_1">Segfault And Other Crashes</h2>
+
+<div class="highlight"><pre><code class="erlang"><span class="mi">2</span><span class="o">&gt;</span> <span class="nn">test</span><span class="p">:</span><span class="nf">works</span><span class="p">().</span>
+<span class="mi">42</span>
+<span class="mi">3</span><span class="o">&gt;</span> <span class="nn">test</span><span class="p">:</span><span class="nf">fails</span><span class="p">().</span>
+<span class="nv">Segmentation</span> <span class="n">fault</span> <span class="p">(</span><span class="n">core</span> <span class="n">dumped</span><span class="p">)</span>
+<span class="sc">$ </span>
+</code></pre></div>
+
+<p>Now this is expected, since a segfault crashes the whole system process, but it breaks with the fault-tolerant nature of Erlang. Nifty
+allows you to call the created NIF modules without crashing the process. For every NIF module, an additional module with the postfix <code>_remote</code> 
+is created. This module exports the same functions as the NIF module plus <code>start\0</code>, <code>stop\0</code> and <code>restart\0</code>. Nifty starts a node in an external
+process, which handles the NIF module:</p>
+
+<div class="highlight"><pre><code class="erlang"><span class="mi">2</span><span class="o">&gt;</span> <span class="nn">test_remote</span><span class="p">:</span><span class="nf">start</span><span class="p">().</span>
+<span class="nf">ok</span>
+<span class="p">(</span><span class="n">p33_p0_master</span><span class="p">@</span><span class="n">cola</span><span class="o">-</span><span class="n">light</span><span class="p">)</span><span class="mi">3</span><span class="o">&gt;</span> <span class="nn">test_remote</span><span class="p">:</span><span class="nf">works</span><span class="p">().</span>
+<span class="mi">42</span>
+<span class="p">(</span><span class="n">p33_p0_master</span><span class="p">@</span><span class="n">cola</span><span class="o">-</span><span class="n">light</span><span class="p">)</span><span class="mi">4</span><span class="o">&gt;</span> <span class="nn">test_remote</span><span class="p">:</span><span class="nf">fails</span><span class="p">().</span>
+<span class="p">{</span><span class="n">error</span><span class="p">,</span><span class="n">node_crashed</span><span class="p">}</span>
+<span class="p">(</span><span class="n">p33_p0_master</span><span class="p">@</span><span class="n">cola</span><span class="o">-</span><span class="n">light</span><span class="p">)</span><span class="mi">5</span><span class="o">&gt;</span> <span class="nn">test_remote</span><span class="p">:</span><span class="nf">stop</span><span class="p">().</span>
+<span class="n">ok</span>
+<span class="mi">6</span><span class="o">&gt;</span> 
+</code></pre></div>
+
+<p>As you can see, <code>fails\0</code> now returns <code>{error, node_crashed}</code> instead of crashing Erlang. After the remote node has crashed, it is necessary to 
+restart it with <code>restart\0</code>. Otherwise every function call will return <code>{error, node_down}</code>. You can also stop the remote node with <code>stop\0</code>. 
+Restarting the or stopping is a hard reset of the NIF module. Static C variables and allocated memory will behave as you freshly
+loaded the NIF module. This means, that all pointers that you still have are invalid. </p>
+
+<table><thead>
+<tr>
+<th><a  href="http://parapluu.github.io/nifty//tutorial4">Previous Tutorial</a></th>
+<th><a  href="http://parapluu.github.io/nifty//files/tut5.tar.gz">Tutorial Files</a></th>
+<th><a  href="http://parapluu.github.io/nifty//tutorialc">Next Tutorial</a></th>
+</tr>
+</thead><tbody>
+</tbody></table>
+
+    </div><!-- /.article-wrap -->
+    
+  </article>
+</div><!-- /#index -->
+
+<div class="footer-wrap">
+  <footer>
+    <span>&copy; 2014 Nifty. Powered by <a href="http://jekyllrb.com">Jekyll</a> using the <a href="http://mademistakes.com/minimal-mistakes/">Minimal Mistakes</a> theme.</span>
+
+  </footer>
+</div><!-- /.footer-wrap -->
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="http://parapluu.github.io/nifty//assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="http://parapluu.github.io/nifty//assets/js/scripts.min.js"></script>
+
+          
+
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Module nifty_filters</title>
+<link rel="stylesheet" type="text/css" href="stylesheet.css" title="EDoc">
+</head>
+<body bgcolor="white">
+<div class="navbar"><a name="#navbar_top"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<hr>
+
+<h1>Module nifty_filters</h1>
+<ul class="index"><li><a href="#index">Function Index</a></li><li><a href="#functions">Function Details</a></li></ul>
+
+
+<h2><a name="index">Function Index</a></h2>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#absname-1">absname/1</a></td><td></td></tr>
+<tr><td valign="top"><a href="#dereference_type-1">dereference_type/1</a></td><td></td></tr>
+<tr><td valign="top"><a href="#discard_const-1">discard_const/1</a></td><td></td></tr>
+<tr><td valign="top"><a href="#discard_restrict-1">discard_restrict/1</a></td><td></td></tr>
+<tr><td valign="top"><a href="#fetch-2">fetch/2</a></td><td></td></tr>
+<tr><td valign="top"><a href="#fetch_keys-1">fetch_keys/1</a></td><td></td></tr>
+<tr><td valign="top"><a href="#getNth-2">getNth/2</a></td><td></td></tr>
+<tr><td valign="top"><a href="#has_key-2">has_key/2</a></td><td></td></tr>
+<tr><td valign="top"><a href="#is_argument-1">is_argument/1</a></td><td></td></tr>
+<tr><td valign="top"><a href="#is_array-1">is_array/1</a></td><td></td></tr>
+<tr><td valign="top"><a href="#is_field-1">is_field/1</a></td><td></td></tr>
+<tr><td valign="top"><a href="#is_input-1">is_input/1</a></td><td></td></tr>
+<tr><td valign="top"><a href="#is_output-1">is_output/1</a></td><td></td></tr>
+<tr><td valign="top"><a href="#is_return-1">is_return/1</a></td><td></td></tr>
+<tr><td valign="top"><a href="#loopcounter-2">loopcounter/2</a></td><td></td></tr>
+<tr><td valign="top"><a href="#norm_type-1">norm_type/1</a></td><td></td></tr>
+<tr><td valign="top"><a href="#raw_include-1">raw_include/1</a></td><td></td></tr>
+<tr><td valign="top"><a href="#raw_path-1">raw_path/1</a></td><td></td></tr>
+<tr><td valign="top"><a href="#resolved-2">resolved/2</a></td><td></td></tr>
+<tr><td valign="top"><a href="#reversed-1">reversed/1</a></td><td></td></tr>
+</table>
+
+<h2><a name="functions">Function Details</a></h2>
+
+<h3 class="function"><a name="absname-1">absname/1</a></h3>
+<div class="spec">
+<p><tt>absname(Path::string()) -&gt; string()</tt><br></p>
+</div>
+
+<h3 class="function"><a name="dereference_type-1">dereference_type/1</a></h3>
+<div class="spec">
+<p><tt>dereference_type(Type::string()) -&gt; string()</tt><br></p>
+</div>
+
+<h3 class="function"><a name="discard_const-1">discard_const/1</a></h3>
+<div class="spec">
+<p><tt>discard_const(Type::string()) -&gt; string()</tt><br></p>
+</div>
+
+<h3 class="function"><a name="discard_restrict-1">discard_restrict/1</a></h3>
+<div class="spec">
+<p><tt>discard_restrict(Type::string()) -&gt; string()</tt><br></p>
+</div>
+
+<h3 class="function"><a name="fetch-2">fetch/2</a></h3>
+<div class="spec">
+<p><tt>fetch(Dict::dict(), Key::string()) -&gt; term()</tt><br></p>
+</div>
+
+<h3 class="function"><a name="fetch_keys-1">fetch_keys/1</a></h3>
+<div class="spec">
+<p><tt>fetch_keys(Dict::dict()) -&gt; list()</tt><br></p>
+</div>
+
+<h3 class="function"><a name="getNth-2">getNth/2</a></h3>
+<div class="spec">
+<p><tt>getNth(I::list() | tuple(), N::integer()) -&gt; term()</tt><br></p>
+</div>
+
+<h3 class="function"><a name="has_key-2">has_key/2</a></h3>
+<div class="spec">
+<p><tt>has_key(Dict::dict(), Key::string()) -&gt; boolean()</tt><br></p>
+</div>
+
+<h3 class="function"><a name="is_argument-1">is_argument/1</a></h3>
+<div class="spec">
+<p><tt>is_argument(Arg::string()) -&gt; boolean()</tt><br></p>
+</div>
+
+<h3 class="function"><a name="is_array-1">is_array/1</a></h3>
+<div class="spec">
+<p><tt>is_array(Arg::string()) -&gt; boolean()</tt><br></p>
+</div>
+
+<h3 class="function"><a name="is_field-1">is_field/1</a></h3>
+<div class="spec">
+<p><tt>is_field(Arg::string()) -&gt; boolean()</tt><br></p>
+</div>
+
+<h3 class="function"><a name="is_input-1">is_input/1</a></h3>
+<div class="spec">
+<p><tt>is_input(Arg::string()) -&gt; boolean()</tt><br></p>
+</div>
+
+<h3 class="function"><a name="is_output-1">is_output/1</a></h3>
+<div class="spec">
+<p><tt>is_output(Arg::string()) -&gt; boolean()</tt><br></p>
+</div>
+
+<h3 class="function"><a name="is_return-1">is_return/1</a></h3>
+<div class="spec">
+<p><tt>is_return(Arg::string()) -&gt; boolean()</tt><br></p>
+</div>
+
+<h3 class="function"><a name="loopcounter-2">loopcounter/2</a></h3>
+<div class="spec">
+<p><tt>loopcounter(Type::string(), Name::string()) -&gt; string()</tt><br></p>
+</div>
+
+<h3 class="function"><a name="norm_type-1">norm_type/1</a></h3>
+<div class="spec">
+<p><tt>norm_type(Type::string()) -&gt; string()</tt><br></p>
+</div>
+
+<h3 class="function"><a name="raw_include-1">raw_include/1</a></h3>
+<div class="spec">
+<p><tt>raw_include(Path::string()) -&gt; string()</tt><br></p>
+</div>
+
+<h3 class="function"><a name="raw_path-1">raw_path/1</a></h3>
+<div class="spec">
+<p><tt>raw_path(Path::string()) -&gt; string()</tt><br></p>
+</div>
+
+<h3 class="function"><a name="resolved-2">resolved/2</a></h3>
+<div class="spec">
+<p><tt>resolved(Type::string(), Types::dict()) -&gt; string()</tt><br></p>
+</div>
+
+<h3 class="function"><a name="reversed-1">reversed/1</a></h3>
+<div class="spec">
+<p><tt>reversed(X::[X]) -&gt; [X]</tt><br></p>
+</div>
+<hr>
+
+<div class="navbar"><a name="#navbar_bottom"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<p><i>Generated by EDoc, Apr 10 2014, 11:17:11.</i></p>
+</body>
+</html>
