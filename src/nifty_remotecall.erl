@@ -10,8 +10,6 @@
 start() ->
     %% try to start epmd
     [] = os:cmd("epmd -daemon"),
-    %% stop eventuall nodes
-    ok = stop(),
     Host = list_to_atom(net_adm:localhost()),
     case net_kernel:start([mastername(), shortnames]) of
 	{ok, Pid} ->
