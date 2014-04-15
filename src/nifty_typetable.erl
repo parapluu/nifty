@@ -11,9 +11,10 @@
 
 -type ctype() :: string().
 -type field() :: {string(), ctype()}.
--type ctypedef() :: {'base', [string()]} | {'struct', [field()]} | {'typedef', [string()]}.
+-type ctypedef() :: {'base', [string()]} | {'struct', [field()]} | {'typedef', string()}.
 -type type_table() :: dict:dict(ctype(), ctypedef()).
--type symbol_table() :: dict:dict().  %% XXX: refine
+-type argument_index() :: integer().
+-type symbol_table() :: dict:dict(string(), [{'return', ctype()} | {'argument', argument_index(), ctype()}]).
 
 %% @doc takes a type and a type table and returns the resolved type (according to the type table)
 -spec resolve_type(ctype(), type_table()) -> ctype() | undef.
@@ -209,7 +210,7 @@ build_arguments(Tables, _, _, _, []) -> Tables;
 build_arguments({Types, Symbols}, Dicts, FunctionName, Pos, [Arg|T]) ->
     {_, ArgType} = Arg,
     Types_With_Arg = build_type_entry(Types, ArgType),
-    Symbol_With_Arg = dict:append(FunctionName, {argument, integer_to_list(Pos), ArgType, input}, Symbols),
+    Symbol_With_Arg = dict:append(FunctionName, {argument, integer_to_list(Pos), ArgType}, Symbols),
     build_arguments({Types_With_Arg, Symbol_With_Arg}, Dicts, FunctionName, Pos+1, T).
 
 build_typedef_entries({Types, Symbols}, Alias, Type, _) ->

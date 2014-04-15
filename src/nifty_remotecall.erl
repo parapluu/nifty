@@ -39,7 +39,7 @@ stop() ->
 	false ->
 	    ok
     end,
-    net_kernel:stop(),
+    _ = net_kernel:stop(), %% after this call the kernel is not running
     ok.
 
 %% @doc Restarts remote node, useful for testing (side-effects are reset)
