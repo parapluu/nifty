@@ -3,6 +3,10 @@
 
 -on_load(init/0).
 
+-export_type([defs/0]).
+
+-type defs() :: {dict:dict(), dict:dict(), dict:dict()}.
+
 init() -> %% loading code from jiffy
     PrivDir = case code:priv_dir(?MODULE) of
 		  {error, _} ->
@@ -25,7 +29,7 @@ parse(Args) ->
 
 %% @doc Takes a list of token as produced by <code>parse/1</code> and returns type information about functions, structs
 %% and typedefs
--spec build_vars([string()]) -> {dict:dict(), dict:dict(), dict:dict()}.
+-spec build_vars([string()]) -> defs().
 build_vars(Token) ->
     build_vars(Token, {dict:new(), dict:new(), dict:new()}).
 
