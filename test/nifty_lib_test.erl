@@ -9,8 +9,6 @@
 -inlcude_lib("eunit/include/eunit.hrl").
 
 -type mystring() :: [1..255].
-%%-type byte() :: 0..255.
-
 
 %% auxilary functions
 -spec cstr_list_comp(mystring()) -> boolean().
