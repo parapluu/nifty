@@ -154,12 +154,14 @@ call_functions_array() ->
 	 1,0,0,0,
 	 1,0,0,0],
     10=nt_array:sumarray(nifty:mem_write(A)),
+    %% struct
+    B = [1,1,1,1,1,1,1,1,1,1],
+    Rec = {array_st, nifty:mem_write(B), 0, nifty:mem_write(B)},
+    Ptr = nifty:pointer_of(Rec, "nt_array.struct array_st"),
+    20 = nt_array:sumstruct_array(Ptr),
     ok.
 
 -spec array_test() -> ok.
 array_test() ->
     ok = compile_array(),
     ok = call_functions_array().
-
-
-
