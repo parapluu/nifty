@@ -15,6 +15,9 @@
 	 is_output/1,
 	 is_array/1,
 
+	 array_size/1,
+	 array_type/1,
+
 	 norm_type/1,
 	 dereference_type/1,
 	 discard_const/1,
@@ -131,3 +134,30 @@ is_output(Arg) ->
 is_array(Arg) -> 
     (is_list(Arg) andalso (string:str(Arg, "[")=:=1 andalso length(Arg)>2)).
 
+
+-spec array_type(string()) -> string().
+array_type(Type) ->
+    Token = string:tokens(Type, " "),
+    array_type_build(Token, []).
+
+array_type_build([H|T], Acc) ->
+    case string:str(H, "[")=:=1 andalso lists:last(H)=:=$] of
+	true ->
+	    string:strip(Acc);
+	false ->
+	    array_type_build(T, Acc++" "++H)
+    end.
+       
+
+-spec array_size(dict:dict()) -> string().
+array_size({_, Typedef}) ->
+    array_size(Typedef, 1).
+
+array_size([H|T], Acc) ->
+    case string:str(H, "[")=:=1 andalso lists:last(H)=:=$] of
+	true ->
+	    {Size,[]} = string:to_integer(string:substr(H, 2, length(H)-2)),
+	    array_size(T, Acc*Size);
+	false ->
+	    Acc
+    end.

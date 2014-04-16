@@ -2,7 +2,7 @@
 	{% if argument|is_argument %}
 	ERL_NIF_TERM *tpl{{N}};
 	int arity{{N}};
-	uint64_t {{carg}};
+	{{type|array_type}} {{carg}}[{{types|fetch:type|array_size}}];
 	uint64_t addr{{N}};
 	{% endif %}
 	{% if argument|is_return %}

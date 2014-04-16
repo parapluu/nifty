@@ -135,3 +135,31 @@ proxy_test()->
 -spec fptr_test() -> ok.
 fptr_test() ->
     ok = nifty_compiler:compile("../test/cfiles/fptr.h", nt_fptr, []).
+
+-spec compile_array() -> ok.
+compile_array() ->
+    ok = nifty_compiler:compile("../test/cfiles/array.h", 
+				nt_array, 
+				?OPTS("../test/cfiles/array.c")).
+-spec call_functions_array() -> ok.
+call_functions_array() ->
+    A = [1,0,0,0,
+	 1,0,0,0,
+	 1,0,0,0,
+	 1,0,0,0,
+	 1,0,0,0,
+	 1,0,0,0,
+	 1,0,0,0,
+	 1,0,0,0,
+	 1,0,0,0,
+	 1,0,0,0],
+    10=nt_array:sumarray(nifty:mem_write(A)),
+    ok.
+
+-spec array_test() -> ok.
+array_test() ->
+    ok = compile_array(),
+    ok = call_functions_array().
+
+
+
