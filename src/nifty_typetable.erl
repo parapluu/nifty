@@ -10,7 +10,7 @@
 -define(CLANG_BLACKLIST, ["__builtin_va_list"]).
 
 -type ctype() :: string().
--type field() :: {string(), ctype()}.
+-type field() :: {field, string(), ctype(), integer()}.
 -type ctypedef() :: {'base', [string()]} | {'struct', [field()]} | {'typedef', string()}.
 -type type_table() :: dict:dict(ctype(), ctypedef()).
 -type argument_index() :: integer().
@@ -65,16 +65,21 @@ check_type(Type, Types) ->
 			false ->
 			    check_type(T, Types)
 		    end;
-		{userdef, [H|_]} ->
-		    string:right(H, 1) =/= ")";  %% function pointer
-		{struct, _} ->
-		    true;
+		{userdef, [H|T]} ->
+		    string:right(H, 1) =/= ")" andalso lists:last(T) =/= "union";  %% function pointer or union
+		{struct, Fields} ->
+		    check_fields(Fields, Types);
 		{base, _} ->
 		    true
 	    end;
 	false ->
 	    false
     end.
+
+check_fields([], _) -> 
+    true;
+check_fields([{field, _, Type, _}|T], Types) ->
+    check_type(Type, Types) andalso check_fields(T, Types).
 
 check_types_functions(Functions, Types) ->
     Names = dict:fetch_keys(Functions),

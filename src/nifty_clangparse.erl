@@ -36,17 +36,22 @@ build_vars(Token) ->
 build_vars([], Definitions) ->
     Definitions;
 build_vars([H|T], Definitions) ->
-    {NewT, Defs} = case H of
-		       "FUNCTION" ->
-			   build_function(T, Definitions);
-		       "STRUCT" ->
-			   build_struct(T, Definitions);
-		       "TYPEDEF" ->
-			   build_typedef(T, Definitions);
+    {NewT, Defs} = try case H of
+			   "FUNCTION" ->
+			       build_function(T, Definitions);
+			   "STRUCT" ->
+			       build_struct(T, Definitions);
+			   "TYPEDEF" ->
+			       build_typedef(T, Definitions);
+			   _ ->
+			       io:format("r"),
+			       recover(T, Definitions)
+		       end
+		   catch
 		       _ ->
 			   io:format("r"),
-			   recover(T, Definitions)
-		       end,
+			   recover(T, Definitions)			   
+		   end,
     build_vars(NewT, Defs).
 
 recover([], Defs) ->
@@ -67,9 +72,11 @@ build_type([Type|T], {Functions, TypeDefs, Structs}) ->
     case (string:str(Type, "<anonymous")>0) of
 	true-> 
 	    %% Placeholder for anonymous structs
-	    [_,_|RestToken] = T,
-	    {NT, Defs} = build_named_struct(RestToken, {Functions, TypeDefs, Structs}, string:substr(Type, 8)),
-	    {NT, Defs, Type};
+	    throw(recover);
+	    %% [_,_|RestToken] = T,
+	    %% {NT, Defs} = build_named_struct(RestToken, {Functions, TypeDefs, Structs}, string:substr(Type, 8)),
+	    %% io:format("~p~n", [string:substr(Type, 8)]),
+	    %% {NT, Defs, Type};
 	false ->
 	    case string:str(Type, "(*)") of
 		0 ->
@@ -82,16 +89,10 @@ build_type([Type|T], {Functions, TypeDefs, Structs}) ->
     end.
 
 build_function([FuncName|T], {Functions, TypeDefs, Structs}) ->
-    try
-	{PT, PD, Rettype} = build_rettype(T, {Functions, TypeDefs, Structs}),
-	{NT, {FD, TD, SD}, Params} = build_params(PT, PD),
-	NFD = dict:store(FuncName, {Rettype, Params}, FD),
-	{NT, {NFD, TD, SD}}
-    catch
-	_ ->
-	    io:format("F"),
-	    {[recover|T], {Functions, TypeDefs, Structs}}
-    end.
+    {PT, PD, Rettype} = build_rettype(T, {Functions, TypeDefs, Structs}),
+    {NT, {FD, TD, SD}, Params} = build_params(PT, PD),
+    NFD = dict:store(FuncName, {Rettype, Params}, FD),
+    {NT, {NFD, TD, SD}}.
 
 build_rettype([Type|T], Definitions) ->
     case string:str(Type, "__attribute__") of
@@ -116,7 +117,7 @@ build_rettype([Type|T], Definitions) ->
     end.
 
 build_fptr([], _) ->
-    throw(parse_function_pointer);
+    throw(recover);
 build_fptr([SP|R], T) ->
     case SP of
 	"*" ->
