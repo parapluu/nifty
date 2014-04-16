@@ -149,7 +149,7 @@ array_type_build([H|T], Acc) ->
     end.
        
 
--spec array_size(dict:dict()) -> string().
+-spec array_size({base | userdef , [string()]}) -> integer().
 array_size({_, Typedef}) ->
     array_size(Typedef, 1).
 
