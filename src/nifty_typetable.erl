@@ -225,8 +225,14 @@ build_typedef_entries({Types, Symbols}, Alias, Type, _) ->
 	    NTypes = build_type_entry(Types, Type),
 	    case dict:is_key(Alias, NTypes) of
 		true ->
-		    %% oh my, we store a constructor for a user-defined type here, no typedef
-		    {NTypes, Symbols};
+		    case dict:fetch(Alias, NTypes) of
+			{struct, _} ->
+			    %% oh my, we store a constructor for a user-defined type here, no typedef
+			    {NTypes, Symbols};
+			_ ->
+			    %% everything is ok (typedef of already stored type)
+			    {dict:store(Alias, {typedef, Type}, NTypes), Symbols}
+		    end;
 		false ->
 		    %% everything is ok 
 		    {dict:store(Alias, {typedef, Type}, NTypes), Symbols}

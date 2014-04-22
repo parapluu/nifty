@@ -66,8 +66,6 @@ builtin_remote_test() ->
     ok = call_functions_builtin_remote(),
     ok = nt_builtin_remote:stop().
 
-
-
 -spec compile_arguments() -> ok.
 compile_arguments() ->
     ok = nifty_compiler:compile("../test/cfiles/arguments.h", 
@@ -165,3 +163,27 @@ call_functions_array() ->
 array_test() ->
     ok = compile_array(),
     ok = call_functions_array().
+
+
+-spec compile_tut2() -> ok.
+compile_tut2() ->
+    ok = nifty_compiler:compile("../test/cfiles/answer.h", 
+				nt_tut2, 
+				[{port_specs,
+				  [{".*",
+				    "$NIF",	
+				    ["../test/cfiles/answer.c"],
+				    [{env, [{"CFLAGS", "$CFLAGS -I../test/cfiles"}]}]
+				   }]
+				 }]).
+
+-spec call_tut2() -> ok.
+call_tut2() ->
+    42=nt_tut2:life_universe_and_everything(),
+    ok.
+
+
+-spec tut2_test() -> ok.
+tut2_test()->
+    ok = compile_tut2(),
+    ok = call_tut2().
