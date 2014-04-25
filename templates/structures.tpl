@@ -255,6 +255,7 @@ new_type_object(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 		{% endwith%}
 	{% endfor %}
 {% endwith %}
+	return enif_make_atom(env, "undefined");
 error:
 	return enif_make_badarg(env);
 /* supress warnings */

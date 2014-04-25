@@ -318,7 +318,38 @@ pointer(Type) ->
 	    Size = size_of(Type),
 	    as_type(mem_alloc(Size), nifty, Type++" *");
 	false ->
-	    undefined
+	    case string:tokens(Type, ".") of
+		["nifty", TypeName] ->
+		    %% builtin type
+		    pointer(TypeName);
+		[ModuleName, TypeName] ->
+		    Mod = list_to_atom(ModuleName),
+		    case code:load_file(Mod) of
+			{module, Mod} ->
+			    case proplists:is_defined(get_types, Mod:module_info(exports)) of
+				true ->
+				    %% resolve and build
+				    RType = nifty_typetable:resolve_type(TypeName, Mod:get_types()),
+				    case pointer(RType) of
+					undefined ->
+					    case Mod:new(RType) of
+						undefined ->
+						    undefined;
+						Value ->
+						    pointer_of(Value, Type)
+					    end;
+					Ptr ->
+					    Ptr
+				    end;
+				_ ->
+				    undefined
+			    end;
+			_ -> 
+			    undefined
+		    end;
+		_ ->
+		    undefined
+	    end
     end.
 
 %% @doc Returns a pointer to the given pointer
