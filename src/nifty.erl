@@ -280,30 +280,52 @@ cstr_to_list(_) ->
 -spec size_of(nonempty_string()) -> integer() | undef.
 size_of(Type) -> 
     Types = get_types(),
-    case dict:fetch(Type, Types) of
-	{base, ["char", _, _]} ->
-	    1;
-	{base, ["int", _, L]} ->
-	    {_, {ShI, I, LI, LLI, _, _}} = proplists:lookup("sizes", get_config()),
-	    case L of
-		"short" ->
-		    ShI;
-		"none" ->
-		    I;
-		"long" ->
-		    LI;
-		"longlong" ->
-		    LLI
+    case dict:is_key(Type, Types) of
+	true ->
+	    %% builtin
+	    case dict:fetch(Type, Types) of
+		{base, ["char", _, _]} ->
+		    1;
+		{base, ["int", _, L]} ->
+		    {_, {ShI, I, LI, LLI, _, _}} = proplists:lookup("sizes", get_config()),
+		    case L of
+			"short" ->
+			    ShI;
+			"none" ->
+			    I;
+			"long" ->
+			    LI;
+			"longlong" ->
+			    LLI
+		    end;
+		{base, ["float", _, _]}->
+		    {_, {_, _, _, _, Fl, _}} = proplists:lookup("sizes", get_config()),
+		    Fl;
+		{base, ["double", _, _]}->
+		    {_, {_, _, _, _, _, Dbl}} = proplists:lookup("sizes", get_config()),
+		    Dbl;
+		{base, ["*"|_]} ->
+		    {_, {_, P}} = proplists:lookup("arch", get_config()),
+		    P
 	    end;
-	{base, ["float", _, _]}->
-	    {_, {_, _, _, _, Fl, _}} = proplists:lookup("sizes", get_config()),
-	    Fl;
-	{base, ["double", _, _]}->
-	    {_, {_, _, _, _, _, Dbl}} = proplists:lookup("sizes", get_config()),
-	    Dbl;
-	{base, ["*"|_]} ->
-	    {_, {_, P}} = proplists:lookup("arch", get_config()),
-	    P
+	false ->
+	    %% full referenced
+	    case string:tokens(Type, ".") of
+		["nifty", TypeName] -> 
+		    %% builtin
+		    size_of(TypeName);
+		[ModuleName, TypeName] ->
+		    Mod = list_to_atom(ModuleName),
+		    case {module, Mod}=:=code:load_file(Mod) andalso 
+			proplists:is_defined(get_types, Mod:module_info(exports)) of
+			true ->
+			    Mod:size_of(TypeName);
+			false ->
+			    undef
+		    end;
+		_ ->
+		    undef
+	    end
     end.
     
 %% @doc Returns a pointer to a memory area that is the size of a pointer

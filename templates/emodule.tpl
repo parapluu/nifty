@@ -4,7 +4,8 @@
 	get_types/0,
 	erlptr_to_record/1,
 	record_to_erlptr/1,
-	new/1
+	new/1,
+	size_of/1
 	]).
 
 -define(TYPES, {{types}}).
@@ -45,4 +46,8 @@ get_types() -> ?TYPES.
 
 -spec new(typename()) -> term().
 new(_) ->
+    erlang:nif_error(nif_library_not_loaded).
+
+-spec size_of(typename()) -> integer() | undef.
+size_of(_) ->
     erlang:nif_error(nif_library_not_loaded).

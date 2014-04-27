@@ -49,7 +49,8 @@ static ErlNifFunc nif_funcs[] = {
 	{% endfor %}{% endwith %}
 	{"erlptr_to_record", 1, erlptr_to_record},
 	{"record_to_erlptr", 1, record_to_erlptr},
-	{"new", 1, new_type_object}
+	{"new", 1, new_type_object},
+	{"size_of", 1, size_of}
 	};
 
 int upgrade(ErlNifEnv* env, void** priv_data, void** old_priv_data, ERL_NIF_TERM load_info)

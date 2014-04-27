@@ -209,6 +209,53 @@ error:
 }
 
 static ERL_NIF_TERM
+size_of(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+{
+	int err, written, tmp;
+	unsigned int l;
+	char* cstr;
+
+	err = enif_get_list_length(env, argv[0], &l);
+	if (!err) {
+		goto error;
+	}
+
+	l+=1;
+	cstr = enif_alloc(sizeof(char)*l);
+	written = 0;
+	while (written<(l)) {
+		tmp = enif_get_string(env, argv[0], cstr+written, l-written, ERL_NIF_LATIN1);
+		if (tmp==-(l-written)) {
+			tmp=-tmp;
+		}
+		if (tmp<=0) {
+			enif_free(cstr);
+			goto error;
+		}
+		written += tmp;
+	}
+/* structs */
+{% with type_keys=types|fetch_keys %}
+	{% for type in type_keys %}
+		{% with kind=types|fetch:type|getNth:1 %}
+			{% if kind=="base" or kind=="userdef" %}
+	if ((!(strcmp((const char*)cstr, "{{type}}")))
+		|| (!(strcmp((const char*)cstr, "struct {{type}}"))))
+	{
+		return enif_make_ulong(env, sizeof({{type}}));
+	}
+			{% endif %}
+			{% if kind=="userdef" %}
+			{% endif %}
+		{% endwith%}
+	{% endfor %}
+{% endwith %}
+	return enif_make_atom(env, "undef");
+error:
+	return enif_make_badarg(env);
+}
+
+static ERL_NIF_TERM
 new_type_object(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
 	int err, written, tmp;
@@ -255,7 +302,7 @@ new_type_object(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 		{% endwith%}
 	{% endfor %}
 {% endwith %}
-	return enif_make_atom(env, "undefined");
+	return enif_make_atom(env, "undef");
 error:
 	return enif_make_badarg(env);
 /* supress warnings */
