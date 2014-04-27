@@ -10,7 +10,9 @@
 	 pointer/1,
 	 pointer_of/2,
 	 pointer_of/1,
-	 as_type/3,
+	 %% types
+	 as_type/2,
+	 size_of/1,
 	 %% memory allocation
 	 mem_write/1,
 	 mem_write/2,
@@ -154,7 +156,7 @@ dereference(Pointer) ->
 		{final, DType} ->
 		    build_type(Module, DType, Address);
 		undef ->
-		    {error, undefined}
+		    {error, undef}
 	    end
     end.
 
@@ -274,7 +276,8 @@ list_to_cstr(_) ->
 cstr_to_list(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
-%% size of a base type
+%% @doc size of a base type
+-spec size_of(nonempty_string()) -> integer().
 size_of(Type) -> 
     Types = get_types(),
     case dict:fetch(Type, Types) of
@@ -310,13 +313,13 @@ pointer() ->
     mem_alloc(Size).
 
 %% @doc Returns a pointer to the specified <code>Type</code>. This function allocates memory of <b>sizeof(</b><code>Type</code><b>)</b>
--spec pointer(nonempty_string()) -> ptr() | undefined.
+-spec pointer(nonempty_string()) -> ptr() | undef.
 pointer(Type) ->
     Types = get_types(),
     case dict:is_key(Type, Types) of
 	true ->
 	    Size = size_of(Type),
-	    as_type(mem_alloc(Size), nifty, Type++" *");
+	    as_type(mem_alloc(Size), "nifty."++Type++" *");
 	false ->
 	    case string:tokens(Type, ".") of
 		["nifty", TypeName] ->
@@ -331,10 +334,10 @@ pointer(Type) ->
 				    %% resolve and build
 				    RType = nifty_typetable:resolve_type(TypeName, Mod:get_types()),
 				    case pointer(RType) of
-					undefined ->
+					undef ->
 					    case Mod:new(RType) of
-						undefined ->
-						    undefined;
+						undef ->
+						    undef;
 						Value ->
 						    pointer_of(Value, Type)
 					    end;
@@ -342,23 +345,23 @@ pointer(Type) ->
 					    Ptr
 				    end;
 				_ ->
-				    undefined
+				    undef
 			    end;
 			_ -> 
-			    undefined
+			    undef
 		    end;
 		_ ->
-		    undefined
+		    undef
 	    end
     end.
 
 %% @doc Returns a pointer to the given pointer
--spec pointer_of(ptr()) -> ptr() | undefined.
+-spec pointer_of(ptr()) -> ptr() | undef.
 pointer_of({_, Type} = Ptr) ->
     pointer_of(Ptr, Type).
 
 %% @doc Returns a pointer to the <code>Value</code> with the type <code>Type</code>
--spec pointer_of(term(), string()) -> ptr() | undefined.
+-spec pointer_of(term(), string()) -> ptr() | undef.
 pointer_of(Value, Type) ->
     case string:right(Type, 1) of
 	"*" ->
@@ -370,7 +373,7 @@ pointer_of(Value, Type) ->
 		    {NAddr, _} = int_constr(Addr, Size),
 		    {NAddr, Type++"*"};
 		false ->
-		    undefined
+		    undef
 	    end;
 	_ ->
 	    %% something else
@@ -383,7 +386,7 @@ pointer_of(Value, Type) ->
 		    builtin_pointer_of(Value, T);
 		[ModuleName, T] ->
 		    case builtin_pointer_of(Value, T) of
-			undefined ->
+			undef ->
 			    %% no base type, try the module
 			    %% resolve type and try again
 			    Module = list_to_atom(ModuleName),
@@ -394,7 +397,7 @@ pointer_of(Value, Type) ->
 				    Module:record_to_erlptr(Value);
 				ResT ->
 				    case builtin_pointer_of(Value, ResT) of
-					undefined ->
+					undef ->
 					    %% can (right now) only be a struct
 					    Module:record_to_erlptr(Value);
 					Ptr ->
@@ -417,19 +420,19 @@ builtin_pointer_of(Value, Type) ->
 		{base, ["double", _, _]}->
 		    double_ref(Value);
 		_ -> case size_of(Type) of
-			 undefined ->
-			     undefined;
+			 undef ->
+			     undef;
 			 Size ->
 			     case is_integer(Value) of
 				 true ->
-				     as_type(int_constr(Value, Size), nifty, Type++" *");
+				     as_type(int_constr(Value, Size), "nifty."++Type++" *");
 				 false ->
-				     undefined
+				     undef
 			     end
 		     end
 	    end;
 	false ->
-	    undefined
+	    undef
     end.
 
 int_constr(Value, Size) ->
@@ -495,12 +498,54 @@ get_config() ->
 get_env() ->
     erlang:nif_error(nif_library_not_loaded).
 
-%% @doc Casts a pointer to a <code>Type</code> of a <code>Module</code>; returns an error if the module does not specify the type
--spec as_type(ptr(), atom(), nonempty_string()) -> ptr() | undef.
-as_type({Address, _}, Module, Type) ->
-    case dict:is_key(Type, Module:get_types()) of
-	true -> 
-	    {Address, atom_to_list(Module)++"."++Type};
+%% @doc Casts a pointer to <code>Type</code>; returns <code>undef</code>
+%%  if the specified type is invalid
+-spec as_type(ptr(), nonempty_string()) -> ptr() | undef.
+as_type({Address, _} = Ptr, Type) ->
+    BaseType = case string:tokens(Type, "*") of
+		   [T] ->
+		       string:strip(T);
+		   _ -> 
+		       []
+	       end,
+    Types = get_types(),
+    case dict:is_key(BaseType, Types) of
+	true ->
+	    {Address, "nifty."++Type};
 	false ->
-	    undef
+	    case string:tokens(Type, ".") of
+		["nifty", TypeName] ->
+		    %% builtin type
+		    as_type(Ptr, TypeName);
+		[ModuleName, TypeName] ->
+		    Mod = list_to_atom(ModuleName),
+		    case {module, Mod}=:=code:load_file(Mod) andalso 
+			proplists:is_defined(get_types, Mod:module_info(exports)) of
+			true ->
+			    %% resolve and build but we are looking for the basetype
+			    %% if the base type is defined or basetype * we are allowing
+			    %% casting
+			    RBType = string:strip(string:tokens(TypeName), "*"),
+			    case nifty_typetable:resolve_type(RBType, Mod:get_types()) of
+				undef ->
+				    case nifty_typetable:resolve_type(RBType++" *", Mod:get_types()) of 
+					undef ->
+					    %% unknown type
+					    undef;
+					_ ->
+					    %% pointer to incomplete type
+					    {Address, Type}
+				    end;
+				_ ->
+				    %% pointer to complete type
+				    {Address, Type}
+			    end;
+			_ ->
+			    %% module part of the type is not a nifty module
+			    undef
+		    end;
+		_ ->
+		    %% malformed type
+		    undef
+	    end
     end.

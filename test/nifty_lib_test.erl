@@ -62,11 +62,11 @@ short_test() ->
 -spec int_deref_test() -> boolean().
 int_deref_test() ->
     Ptr = nifty:mem_write([16#ff, 16#ff, 16#ff, 16#ff, 16#ff, 16#ff, 16#ff, 16#ff]),
-    -1 = nifty:dereference(nifty:as_type(Ptr, nifty, "signed char *")),
-    -1 = nifty:dereference(nifty:as_type(Ptr, nifty, "short *")),
-    -1 = nifty:dereference(nifty:as_type(Ptr, nifty, "int *")),
-    -1 = nifty:dereference(nifty:as_type(Ptr, nifty, "long *")),
-    -1 = nifty:dereference(nifty:as_type(Ptr, nifty, "long long *")),
+    -1 = nifty:dereference(nifty:as_type(Ptr, "signed char *")),
+    -1 = nifty:dereference(nifty:as_type(Ptr, "short *")),
+    -1 = nifty:dereference(nifty:as_type(Ptr, "int *")),
+    -1 = nifty:dereference(nifty:as_type(Ptr, "long *")),
+    -1 = nifty:dereference(nifty:as_type(Ptr, "nifty.long long *")),
     ok = nifty:free(Ptr),
     true.
 
