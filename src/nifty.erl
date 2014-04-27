@@ -276,8 +276,8 @@ list_to_cstr(_) ->
 cstr_to_list(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
-%% @doc size of a base type
--spec size_of(nonempty_string()) -> integer().
+%% @doc size of a base type, no error handling
+-spec size_of(nonempty_string()) -> integer() | undef.
 size_of(Type) -> 
     Types = get_types(),
     case dict:fetch(Type, Types) of
@@ -525,7 +525,7 @@ as_type({Address, _} = Ptr, Type) ->
 			    %% resolve and build but we are looking for the basetype
 			    %% if the base type is defined or basetype * we are allowing
 			    %% casting
-			    RBType = string:strip(string:tokens(TypeName), "*"),
+			    RBType = string:strip(string:tokens(TypeName, "*")),
 			    case nifty_typetable:resolve_type(RBType, Mod:get_types()) of
 				undef ->
 				    case nifty_typetable:resolve_type(RBType++" *", Mod:get_types()) of 
