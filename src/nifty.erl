@@ -50,7 +50,7 @@ load_dependencies() ->
     ok = load_dependency(erlydtl).
 
 load_dependency(Module) ->		    
-    case code:load_file(Module) of
+    case code:ensure_loaded(Module) of
 	{error, nofile} ->
 	    %% module not found
 	    NiftyPath = code:lib_dir(nifty, deps),
@@ -316,7 +316,7 @@ size_of(Type) ->
 		    size_of(TypeName);
 		[ModuleName, TypeName] ->
 		    Mod = list_to_atom(ModuleName),
-		    case {module, Mod}=:=code:load_file(Mod) andalso 
+		    case {module, Mod}=:=code:ensure_loaded(Mod) andalso 
 			proplists:is_defined(get_types, Mod:module_info(exports)) of
 			true ->
 			    Mod:size_of(TypeName);
@@ -349,7 +349,7 @@ pointer(Type) ->
 		    pointer(TypeName);
 		[ModuleName, TypeName] ->
 		    Mod = list_to_atom(ModuleName),
-		    case code:load_file(Mod) of
+		    case code:ensure_loaded(Mod) of
 			{module, Mod} ->
 			    case proplists:is_defined(get_types, Mod:module_info(exports)) of
 				true ->
@@ -541,7 +541,7 @@ as_type({Address, _} = Ptr, Type) ->
 		    as_type(Ptr, TypeName);
 		[ModuleName, TypeName] ->
 		    Mod = list_to_atom(ModuleName),
-		    case {module, Mod}=:=code:load_file(Mod) andalso 
+		    case {module, Mod}=:=code:ensure_loaded(Mod) andalso 
 			proplists:is_defined(get_types, Mod:module_info(exports)) of
 			true ->
 			    %% resolve and build but we are looking for the basetype
