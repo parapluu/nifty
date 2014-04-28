@@ -23,7 +23,7 @@ Unfortunaley Ubuntu installs ```libclang``` and ```libclang-dev``` in a place th
 included in the standart search paths. This however can be easily fixed by setting the
 some environment variables. The path Ubuntu installs those packages it ```/usr/lib/llvm-<version>```.
 If the installed version of the library is 3.4, then we can set the relevant environment variables
-as following:
+as follows:
 
 {% highlight bash %}
 export CPATH=/usr/lib/llvm-3.4/include 
