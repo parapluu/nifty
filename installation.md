@@ -19,7 +19,7 @@ In Ubuntu you can install the dependencies with this command:
 sudo apt-get install libclang-dev libclang1 clang
 {% endhighlight %}
 
-Unfortunaley Ubuntu installs ```libclang`` and ```libclang-dev``` in a place that is not
+Unfortunaley Ubuntu installs ```libclang``` and ```libclang-dev``` in a place that is not
 included in the standart search paths. This however can be easily fixed by setting the
 some environment variables. The path Ubuntu installs those packages it ```/usr/lib/llvm-<version>```.
 If the installed version of the library is 3.4, then we can set the relevant environment variables
