@@ -547,7 +547,8 @@ as_type({Address, _} = Ptr, Type) ->
 			    %% resolve and build but we are looking for the basetype
 			    %% if the base type is defined or basetype * we are allowing
 			    %% casting
-			    RBType = string:strip(string:tokens(TypeName, "*")),
+			    [RBUType] = string:tokens(TypeName, "*"),
+			    RBType = string:strip(RBUType),
 			    case nifty_typetable:resolve_type(RBType, Mod:get_types()) of
 				undef ->
 				    case nifty_typetable:resolve_type(RBType++" *", Mod:get_types()) of 
