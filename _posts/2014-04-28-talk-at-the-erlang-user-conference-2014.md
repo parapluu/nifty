@@ -12,4 +12,4 @@ comments:
 share: 
 ---
 
-On June 9-10 we will give a talk at the <a href="http://www.erlang-factory.com/conference/show/conference-23/home/">Erlang User Conference</a> introducing Nifty.
+On June 9-10 we will give a talk at the <a href="http://www.erlang-factory.com/conference/show/conference-23/home/">Erlang User Conference</a>&nbsp;introducing Nifty.
