@@ -7,3 +7,6 @@
 	}).
 {% endif %}{% endwith%}{% endfor %}{% endwith %}
 
+-defines(SYMBOLS, {{symbols}}).
+
+-defines(FUNCTIONS, {{functions}}).

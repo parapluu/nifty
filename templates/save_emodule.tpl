@@ -1,6 +1,6 @@
 -module({{module}}_remote).
--export([{% with fn=functions|fetch_keys %}{% for name in fn %}
-	'{{name}}'/{{ functions|fetch:name|getNth:2|length }},{% endfor %}{% endwith %}
+-export([{% with fn=symbols|fetch_keys %}{% for name in fn %}
+	'{{name}}'/{{ symbols|fetch:name|length|add:-1 }},{% endfor %}{% endwith %}
 	start/0,
 	stop/0,
 	restart/0,
@@ -20,7 +20,7 @@
 
 %%% Generated
 
-{% with fn=functions|fetch_keys %}{% for name in fn %}'{{name}}'({% with arguments=symbols|fetch:name %}{% for argument in arguments %}{% if argument|is_argument %}X{{forloop.counter0}}{% if not forloop.last %},{%endif%}{% endif %}{% endfor %}) ->
+{% with fn=symbols|fetch_keys %}{% for name in fn %}'{{name}}'({% with arguments=symbols|fetch:name %}{% for argument in arguments %}{% if argument|is_argument %}X{{forloop.counter0}}{% if not forloop.last %},{%endif%}{% endif %}{% endfor %}) ->
 	nifty_remotecall:call_remote({{module}}, '{{name}}', [{% for argument in arguments %}{% if argument|is_argument %}X{{forloop.counter0}}{% if not forloop.last %},{%endif%}{% endif %}{% endfor %}]).
 {% endwith %}{% endfor %}{% endwith %}
 

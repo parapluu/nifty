@@ -1,6 +1,6 @@
 -module({{module}}).
--export([{% with fn=functions|fetch_keys %}{% for name in fn %}
-	'{{name}}'/{{ functions|fetch:name|getNth:2|length }},{% endfor %}{% endwith %}
+-export([{% with fn=symbols|fetch_keys %}{% for name in fn %}
+	'{{name}}'/{{ symbols|fetch:name|length|add:-1 }},{% endfor %}{% endwith %}
 	get_types/0,
 	erlptr_to_record/1,
 	record_to_erlptr/1,
@@ -27,7 +27,7 @@ init() -> %% loading code from jiffy
     end,
     erlang:load_nif(filename:join(PrivDir, "{{module}}_nif"), 0).
 
-{% with fn=functions|fetch_keys %}{% for name in fn %}'{{name}}'({% with arguments=symbols|fetch:name %}{% for argument in arguments %}{% if argument|is_argument %}_{% if not forloop.last %},{%endif%}{% endif %}{% endfor %}{% endwith %}) ->
+{% with fn=symbols|fetch_keys %}{% for name in fn %}'{{name}}'({% with arguments=symbols|fetch:name %}{% for argument in arguments %}{% if argument|is_argument %}_{% if not forloop.last %},{%endif%}{% endif %}{% endfor %}{% endwith %}) ->
 	erlang:nif_error(nif_library_not_loaded).
 {% endfor %}{% endwith %}
 

@@ -14,7 +14,7 @@
 %% rebar options.
 -spec render(string(), modulename(), [string()], options()) -> {error,reason()} | renderout().
 render(InterfaceFile, ModuleName, CFlags, Options) ->
-    io:format("generating ~s -> ~s ~s ~n", [InterfaceFile, ModuleName++"_nif.c", ModuleName++".erl"]),
+    io:format("generating... ~n"),%%, [ModuleName, ModuleName++"_remote", InterfaceFile]),
     %% c parse stuff
     PathToH = InterfaceFile,
     case nifty_clangparse:parse([PathToH|CFlags]) of
@@ -26,8 +26,9 @@ render(InterfaceFile, ModuleName, CFlags, Options) ->
 	    {Raw_Functions, Raw_Typedefs, Raw_Structs} = nifty_clangparse:build_vars(Token),
 	    %% io:format("~p~n", [Functions]),
 	    Unsave_Functions = filter_functions(InterfaceFile, Raw_Functions, FuncLoc),
-	    {Unsave_Types, Symbols} = nifty_typetable:build({Raw_Functions, Raw_Typedefs, Raw_Structs}),
+	    {Unsave_Types, Unsave_Symbols} = nifty_typetable:build({Raw_Functions, Raw_Typedefs, Raw_Structs}),
 	    {{Functions, Typedefs, Structs}, Types} = nifty_typetable:check_types({Unsave_Functions, Raw_Typedefs, Raw_Structs}, Unsave_Types),
+	    Symbols = nifty_typetable:check_symbols({Functions, Typedefs, Structs}, Unsave_Symbols),
 	    RenderVars = [{"functions", Functions},
 			  {"structs", Structs},
 			  {"typedefs", Typedefs},

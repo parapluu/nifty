@@ -31,7 +31,7 @@ typedef unsigned __int32 uint32_t;
 {% endwith %}
 
 /*
- * Stucts
+ * Structs
  */
 {% include "structures.tpl" %}
 
@@ -43,9 +43,9 @@ typedef unsigned __int32 uint32_t;
 /*
  * Function definitions for ErLang
  */
-static ErlNifFunc nif_funcs[] = {
-	{% with fn=functions|fetch_keys %}{% for name in fn %}
-	{"{{name}}", {{ functions|fetch:name|getNth:2|length }}, erl2c_{{name}}},
+static ErlNifFunc nif_functions[] = {
+	{% with fn=symbols|fetch_keys %}{% for name in fn %}
+	{"{{name}}", {{ symbols|fetch:name|length|add:-1 }}, _nifty_{{name}}},
 	{% endfor %}{% endwith %}
 	{"erlptr_to_record", 1, erlptr_to_record},
 	{"record_to_erlptr", 1, record_to_erlptr},
@@ -58,4 +58,4 @@ int upgrade(ErlNifEnv* env, void** priv_data, void** old_priv_data, ERL_NIF_TERM
 	return 0;
 }
 
-ERL_NIF_INIT({{module}}, nif_funcs, NULL, NULL, upgrade, NULL);
+ERL_NIF_INIT({{module}}, nif_functions, NULL, NULL, upgrade, NULL);

@@ -1,7 +1,7 @@
-{% with fn=functions|fetch_keys %}{% for name in fn %}
+{% with fn=symbols|fetch_keys %}{% for name in fn %}
 
 static ERL_NIF_TERM
-erl2c_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+_nifty_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
 	int err=0;
 {#

@@ -2,6 +2,7 @@
 -export([build/1,
 	 check_types/2,
 	 check_type/2,
+	 check_symbols/2,
 	 resolve_type/2]).
 
 -define(BASE_TYPES, ["char", "int", "float", "double", "void"]).
@@ -29,6 +30,16 @@ resolve_type(Type, Types) ->
 	false ->
 	    undef
     end.
+%% @doc makes the symbol table consistent with the checked function types
+-spec check_symbols(nifty_clangparse:defs(), symbol_table()) -> symbol_table().
+check_symbols({Functions, _, _}, Symbols) ->
+    ValidSymbols = dict:fetch_keys(Functions),
+    check_symbols(ValidSymbols, Symbols, dict:new()).
+
+check_symbols([], _, Acc) ->
+    Acc;
+check_symbols([H|T], Old, New) ->
+    check_symbols(T, Old, dict:store(H, dict:fetch(H, Old), New)).
 
 %% @doc removes all non-resolvable types from the type table and
 %% structs or functions that depend on them and returns the filtered
