@@ -89,12 +89,7 @@ discard_restrict(Type) ->
 
 -spec resolved(string(), dict:dict()) -> string().
 resolved(Type, Types) ->
-    case dict:fetch(Type, Types) of
-	{typedef, RefType} -> 
-	    resolved(RefType, Types);
-	_ -> 
-	    Type
-    end.
+    nifty_typetable:resolve_type(Type, Types).
 
 %%% dict
 -spec fetch(dict:dict(), string()) -> term().

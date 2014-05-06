@@ -20,6 +20,12 @@
 %% @doc takes a type and a type table and returns the resolved type (according to the type table)
 -spec resolve_type(ctype(), type_table()) -> ctype() | undef.
 resolve_type(Type, Types) ->
+    case resolve_type2(Type, nifty:get_types()) of
+	undef -> resolve_type2(Type, Types);
+	T -> T
+    end.
+
+resolve_type2(Type, Types) ->
     case dict:is_key(Type, Types) of 
 	true ->
 	    {Kind, TypeDef} = dict:fetch(Type, Types),
@@ -30,6 +36,7 @@ resolve_type(Type, Types) ->
 	false ->
 	    undef
     end.
+
 %% @doc makes the symbol table consistent with the checked function types
 -spec check_symbols(nifty_clangparse:defs(), symbol_table()) -> symbol_table().
 check_symbols({Functions, _, _}, Symbols) ->
@@ -62,6 +69,9 @@ check_types_once({Functions, Typedefs, Structs}, Types) ->
 
 -spec check_type(ctype(), type_table()) -> boolean().
 check_type(Type, Types) ->
+     check_type2(Type, nifty:get_types()) orelse check_type2(Type, Types).
+
+check_type2(Type, Types) ->
     case dict:is_key(Type, Types) of
 	true ->
 	    RType = resolve_type(Type, Types),
