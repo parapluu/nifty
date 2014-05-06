@@ -34,6 +34,9 @@ compile:
 dialyze: compile
 	dialyzer -n -nn -Wunmatched_returns ebin $(find .  -path 'deps/*/ebin/*.beam')
 
+fdialyze: compile
+	dialyzer -n -nn -Wunmatched_returns $(BEAMS)
+
 tests: compile
 	ERL_LIBS=$(ERL_INCLUDE) $(REBAR) clean compile eunit skip_deps=true
 
