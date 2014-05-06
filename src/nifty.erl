@@ -109,7 +109,6 @@ get_types() ->
        {"unsigned long long *",{base,["*","int","unsigned","longlong"]}},
        {"float *",{base,["*","float","signed","none"]}},
        {"double *",{base,["*","double","signed","none"]}},
-       {"bool", {typedef, "int"}},
        {"_Bool", {typedef, "int"}},
        %% special types
        {"void *",{base,["*","void","signed","none"]}},
