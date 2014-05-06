@@ -38,7 +38,7 @@ resolve_type2(Type, Types) ->
     end.
 
 %% @doc makes the symbol table consistent with the checked function types
--spec check_symbols(nifty_clangparse:defs(), symbol_table()) -> symbol_table().
+-spec check_symbols(nifty_clangparse:defs(), symbol_table()) -> {symbol_table(), [nonempty_string()]}.
 check_symbols({Functions, _, _}, Symbols) ->
     AllSymbols = dict:fetch_keys(Symbols),
     check_symbols(AllSymbols, Functions, Symbols, dict:new(), []).

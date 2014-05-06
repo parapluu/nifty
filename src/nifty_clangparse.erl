@@ -29,7 +29,7 @@ parse(Args) ->
 
 %% @doc Takes a list of token as produced by <code>parse/1</code> and returns type information about functions, structs
 %% and typedefs
--spec build_vars([string()]) -> defs().
+-spec build_vars([string()]) -> defs() | {'error', 'internal'}.
 build_vars(Token) ->
     build_vars(Token, {dict:new(), dict:new(), dict:new()}).
 
@@ -44,13 +44,11 @@ build_vars([H|T], Definitions) ->
 			   "TYPEDEF" ->
 			       build_typedef(T, Definitions);
 			   _ ->
-			       io:format("r"),
-			       recover(T, Definitions)
+			       {[], {error, internal}}
 		       end
 		   catch
 		       _ ->
-			   io:format("r"),
-			   recover(T, Definitions)			   
+			   {[], {error, internal}}
 		   end,
     build_vars(NewT, Defs).
 
