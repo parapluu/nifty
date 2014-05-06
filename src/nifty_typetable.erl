@@ -40,13 +40,19 @@ resolve_type2(Type, Types) ->
 %% @doc makes the symbol table consistent with the checked function types
 -spec check_symbols(nifty_clangparse:defs(), symbol_table()) -> symbol_table().
 check_symbols({Functions, _, _}, Symbols) ->
-    ValidSymbols = dict:fetch_keys(Functions),
-    check_symbols(ValidSymbols, Symbols, dict:new()).
+    AllSymbols = dict:fetch_keys(Symbols),
+    check_symbols(AllSymbols, Functions, Symbols, dict:new(), []).
 
-check_symbols([], _, Acc) ->
-    Acc;
-check_symbols([H|T], Old, New) ->
-    check_symbols(T, Old, dict:store(H, dict:fetch(H, Old), New)).
+check_symbols([], _, _, Acc, L) ->
+    {Acc, L};
+check_symbols([H|T], Ref, Old, New, L) ->
+    case dict:is_key(H, Ref) of
+	true ->
+	    check_symbols(T, Ref, Old, dict:store(H, dict:fetch(H, Old), New), L);
+	false ->
+	    io:format("Warning: Unable to translate function ~p() !!!~n", [H]),
+	    check_symbols(T, Ref, Old, New, [H|L])
+    end.
 
 %% @doc removes all non-resolvable types from the type table and
 %% structs or functions that depend on them and returns the filtered

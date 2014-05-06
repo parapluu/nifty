@@ -12,7 +12,7 @@
 %% contents of these files as tuple of iolists (in this order). It uses <code>CFlags</code> to parse the
 %% <code>InterfaceFile</code> and <code>Options</code> to compile it. <code>Options</code> are equivalent to
 %% rebar options.
--spec render(string(), modulename(), [string()], options()) -> {error,reason()} | renderout().
+-spec render(string(), modulename(), [string()], options()) -> {'error',reason()} | renderout().
 render(InterfaceFile, ModuleName, CFlags, Options) ->
     io:format("generating... ~n"),%%, [ModuleName, ModuleName++"_remote", InterfaceFile]),
     %% c parse stuff
@@ -26,9 +26,10 @@ render(InterfaceFile, ModuleName, CFlags, Options) ->
 	    {Raw_Functions, Raw_Typedefs, Raw_Structs} = nifty_clangparse:build_vars(Token),
 	    %% io:format("~p~n", [Functions]),
 	    Unsave_Functions = filter_functions(InterfaceFile, Raw_Functions, FuncLoc),
-	    {Unsave_Types, Unsave_Symbols} = nifty_typetable:build({Raw_Functions, Raw_Typedefs, Raw_Structs}),
-	    {{Functions, Typedefs, Structs}, Types} = nifty_typetable:check_types({Unsave_Functions, Raw_Typedefs, Raw_Structs}, Unsave_Types),
-	    Symbols = nifty_typetable:check_symbols({Functions, Typedefs, Structs}, Unsave_Symbols),
+	    {Unsave_Types, Unsave_Symbols} = nifty_typetable:build({Unsave_Functions, Raw_Typedefs, Raw_Structs}),
+	    {{Functions, Typedefs, Structs}, Types} = nifty_typetable:check_types({Unsave_Functions, Raw_Typedefs, Raw_Structs}, 
+										  Unsave_Types),
+	    {Symbols, Lost} = nifty_typetable:check_symbols({Functions, Typedefs, Structs}, Unsave_Symbols),
 	    RenderVars = [{"functions", Functions},
 			  {"structs", Structs},
 			  {"typedefs", Typedefs},
@@ -44,7 +45,7 @@ render(InterfaceFile, ModuleName, CFlags, Options) ->
 	    {ok, HrlOutput} = nifty_hrl_template:render(RenderVars),
 	    {ok, AppOutput} = nifty_app_template:render(RenderVars),
 	    {ok, ConfigOutput} = nifty_config_template:render(RenderVars),
-	    {ErlOutput, SaveErlOutput, HrlOutput, COutput, AppOutput, ConfigOutput}
+	    {{ErlOutput, SaveErlOutput, HrlOutput, COutput, AppOutput, ConfigOutput}, Lost}
     end.
 
 filter_functions(InterfaceFile, Functions, FuncLoc) ->
@@ -129,7 +130,7 @@ rebar_commands(RawArgs) ->
 %% <code>InterfaceFile</code> specifies the header file. <code>Module</code> specifies 
 %% the module name of the translated NIF. <code>Options</code> specifies the compile
 %% options. These options are equivalent to rebar's config options.
--spec compile(string(), module(), options()) -> 'ok' | 'fail'.
+-spec compile(string(), module(), options()) -> 'ok' | {'error', reason()} | {'warning' , {'not_complete' , [nonempty_string()]}}.
 compile(InterfaceFile, Module, Options) ->
     ModuleName = atom_to_list(Module),
     os:putenv("NIF", libname(ModuleName)),
@@ -141,13 +142,16 @@ compile(InterfaceFile, Module, Options) ->
     case render(InterfaceFile, ModuleName, CFlags, UCO) of
 	{error, E} -> 
 	    {error, E};
-	Output ->
+	{Output, Lost} ->
 	    ok = store_files(InterfaceFile, ModuleName, UCO, Output),
 	    case compile_module(ModuleName) of
 		ok ->
 		    ModulePath = filename:absname(filename:join([ModuleName, "ebin"])),
 		    true = code:add_patha(ModulePath),
-		    ok;
+		    case Lost of
+			[] -> ok;
+			_ -> {warning, {not_complete, Lost}}
+		    end;
 		fail ->
 		    {error, compile}
 	    end

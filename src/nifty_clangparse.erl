@@ -68,11 +68,13 @@ recover([H|T], Defs) ->
 	    recover(T, Defs)
     end.
 
-build_type([Type|T], {Functions, TypeDefs, Structs}) ->
+build_type([Type|T], {Functions, TypeDefs, Structs} = Defs) ->
     case (string:str(Type, "<anonymous")>0) of
-	true-> 
+	true->
+	    {NT, NDefs} = recover(T,Defs),
+	    {NT, NDefs, Type};
 	    %% Placeholder for anonymous structs
-	    throw(recover);
+	    %% throw(recover);
 	    %% [_,_|RestToken] = T,
 	    %% {NT, Defs} = build_named_struct(RestToken, {Functions, TypeDefs, Structs}, string:substr(Type, 8)),
 	    %% io:format("~p~n", [string:substr(Type, 8)]),
@@ -154,7 +156,8 @@ build_param([Ident|T], Definitions) ->
 	    [Name|TT] = T,
 	    {NT, Defs, Type} = build_type(TT, Definitions),
 	    {NT, Defs, {Name, Type}};
-	_ -> {[Ident|T], Definitions, stop}
+	_ -> 
+	    {[Ident|T], Definitions, stop}
     end.
 
 build_params(T, Definitions) ->
@@ -208,7 +211,8 @@ build_named_struct(T, Definitions, Name) ->
     {NT, {Functions, TypeDefs, dict:store(Name, Fields, Structs)}}.
 
 build_anonymous_struct(T, Definitions) ->
-    {T, Definitions}.
+    recover(T, Definitions).
+    %% {T, Definitions}.
 
 build_struct([Name|T], Definitions) ->
     case Name of
