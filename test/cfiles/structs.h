@@ -30,6 +30,9 @@ struct s5 {
   unsigned long long bla;
 };
 
+struct s6 {
+  struct s5* alot[10];
+};
 
 /* No functions */
 
