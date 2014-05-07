@@ -66,7 +66,41 @@ recover([H|T], Defs) ->
 	    recover(T, Defs)
     end.
 
-build_type([Type|T], {Functions, TypeDefs, Structs} = Defs) ->
+recover_fine_all([], Defs, Tk) ->
+    {[], Defs, Tk};
+recover_fine_all([H|T], Defs, Tk) ->
+    case H of
+	"FUNCTION" ->
+	    {[H|T], Defs, Tk};
+	"STRUCT" ->
+	    {[H|T], Defs, Tk};
+	"TYPEDEF" ->
+	    {[H|T], Defs, Tk};
+	"FIELD" ->
+	    {[H|T], Defs, Tk};
+	"PARAMETER" ->
+	    {[H|T], Defs, Tk};
+	_ ->
+	    recover_fine_all(T, Defs, Tk)
+    end.
+
+recover_fine_field([]) ->
+    [];
+recover_fine_field([H|T] = Token) ->
+    case H of
+	"FUNCTION" ->
+	    Token;
+	"STRUCT" ->
+	    Token;
+	"TYPEDEF" ->
+	    Token;
+	"FIELD" ->
+	    Token;
+	_ ->
+	    recover_fine_field(T)
+    end.
+
+build_type([Type|T], Defs) ->
     case (string:str(Type, "<anonymous")>0) of
 	true->
 	    {NT, NDefs} = recover(T,Defs),
@@ -81,10 +115,10 @@ build_type([Type|T], {Functions, TypeDefs, Structs} = Defs) ->
 	    case string:str(Type, "(*)") of
 		0 ->
 		    %% normal type
-		    {T, {Functions, TypeDefs, Structs}, Type};
+		    recover_fine_all(T, Defs, Type);
 		_ ->
 		    %% function pointers default to void *
-		    {T, {Functions, TypeDefs, Structs}, "void *"}
+		    recover_fine_all(T, Defs, "void *")
 	    end
     end.
 
@@ -173,7 +207,8 @@ build_params(T, Definitions, Params) ->
 
 build_field([Name|T], Definitions) ->
     {NT, Defs, Type} = build_type(T, Definitions),
-    {NT, Defs, {Name, Type}}.
+    Save_Token = recover_fine_field(NT),
+    {Save_Token, Defs, {Name, Type}}.
 
 build_field_save([], Definitions, _) ->
     {[], Definitions, stop};
@@ -223,7 +258,8 @@ build_struct([Name|T], Definitions) ->
 
 build_typedef([Name| T], Definitions) ->
     {NT, {Functions, TypeDefs, Structs}, Type} = build_type(T, Definitions),
-    {NT, {Functions, dict:store(Name, Type, TypeDefs), Structs}}.
+    %% check for valid stream (thi means that we skip parameters of function types)
+    recover(NT, {Functions, dict:store(Name, Type, TypeDefs), Structs}).
 
 strip_type_name(Name) ->
     Index = string:str(Name, "::"),

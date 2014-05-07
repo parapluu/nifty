@@ -92,6 +92,9 @@ check_type2(Type, Types) ->
 			false ->
 			    check_type(T, Types)
 		    end;
+		{userdef, [T, "const"]} ->
+		    %% discard const and check again
+		    check_type(T,Types);
 		{userdef, [H|T]} ->
 		    string:right(H, 1) =/= ")" andalso lists:last(T) =/= "union";  %% function pointer or union
 		{struct, Fields} ->
@@ -214,7 +217,7 @@ fill_type_table(Types, [Type|TypeNames]) ->
 	    case (H=:="*") orelse string:str(H, "[")>0 of
 		true ->
 		    [P|Token] = lists:reverse(string:tokens(Type, " ")),
-		    NewP = string:sub_string(P, length(H)+1),
+		    NewP = string:substr(P, 1, length(P) - length(H)),
 		    NType = string:strip(string:join(lists:reverse(Token)++[NewP], " ")),
 		    case dict:is_key(NType, Types) of 
 			true -> fill_type_table(Types, TypeNames);
