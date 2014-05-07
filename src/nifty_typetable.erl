@@ -96,7 +96,9 @@ check_type2(Type, Types) ->
 		    %% discard const and check again
 		    check_type(T,Types);
 		{userdef, [H|T]} ->
-		    string:right(H, 1) =/= ")" andalso lists:last(T) =/= "union";  %% function pointer or union
+		    string:right(H, 1) =/= ")"            %% function pointer
+			andalso lists:last(T) =/= "union" %% union
+			andalso lists:last(T) =/= "enum"; %% enum
 		{struct, Fields} ->
 		    check_fields(Fields, Types);
 		{base, _} ->
@@ -352,18 +354,24 @@ type_extend([H|T], Acc) ->
 	C -> type_extend(T, Acc++C)
     end.
 
+norm_type(Type) ->
+    case string:str(Type, "[]") of
+	0 -> Type;
+	P -> string:substr(Type, 1, P-1)
+    end.
 
 build_type_entry(TypeTable, Type) ->
-    case dict:is_key(Type, TypeTable) of
+    NType = norm_type(Type),
+    case dict:is_key(NType, TypeTable) of
 	true -> TypeTable;
 	false->
-	    case parse_type(string:tokens(type_extend(Type), " ")) of
+	    case parse_type(string:tokens(type_extend(NType), " ")) of
 		%%case parse_type(string:tokens(Type, " "), Dicts) of
 		{Def, base} ->
 		    %% io:format("~p -> ~p base~n", [Type, Def]),
-		    dict:store(Type, {base, Def}, TypeTable);
+		    dict:store(NType, {base, Def}, TypeTable);
 		{Def, userdef} ->
 		    %% io:format("~p -> ~p userdef~n", [Type, Def]),
-		    dict:store(Type, {userdef, Def}, TypeTable)
+		    dict:store(NType, {userdef, Def}, TypeTable)
 	    end
     end.
