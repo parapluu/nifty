@@ -9,14 +9,14 @@
 		{modules, [
 			nifty, 
 			nifty_clangparse,
-			nifty_filters,
-			nifty_tags,
-			nifty_rebar,
 			nifty_compiler,
-			nifty_utils,
-			nifty_typetable,
+			nifty_filters,
+			nifty_rebar,
 			nifty_remote,
-			nifty_remotecall]},
+			nifty_remotecall,
+			nifty_tags,
+			nifty_typetable,
+			nifty_utils]},
 		{applications,[kernel,stdlib,compile]}
 	]
 }.

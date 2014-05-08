@@ -1,5 +1,71 @@
 -module(nifty_utils).
--export([expand/1]).
+-export([expand/1,
+	 new_config/0,
+	 add_sources/2,
+	 add_cflags/2,
+	 add_ldflags/2,
+	 merge_nif_spec/2]).
+
+
+-type env() :: {'env', [{nonempty_string(), string()}]}.
+-type target_options() :: [env()].
+-type arch() :: nonempty_string().
+-type target_name() :: nonempty_string().
+-type source() :: nonempty_string().
+-type target() :: {arch(), target_name(), [source()]} | {arch(), target_name(), [source()], target_options()}.
+-type port_specs() :: {'port_specs', [target()]}.
+-type config() :: [port_specs() | {atom(), term()}].
+
+
+-spec merge_nif_spec(config(), target()) -> config().
+merge_nif_spec(Config, {".*", "$NIF", Sources, [{env, Env}]} = Spec) ->
+    case proplists:get_value(port_specs, Config) of
+	undefined -> 
+	    [{port_specs, [Spec]} | Config];
+	Specs -> NewSpecs = case get_nifspec(Specs) of
+				{".*", "$NIF", OldSources} -> 
+				    store_nifspec({".*", "$NIF", OldSources ++ Sources, [{env, Env}]}, Specs);
+				{".*", "$NIF", OldSources, [{env, OldEnv}]}  -> 
+				    store_nifspec({".*", "$NIF", OldSources ++ Sources, [{env, OldEnv ++ Env}]}, Specs);
+				undefined ->
+				    store_nifspec({".*", "$NIF", Sources, [{env, []}] }, Specs)
+			    end,
+		 [ {port_specs, NewSpecs} | proplists:delete(port_specs, Config)]
+    end.
+
+get_nifspec([]) -> undefined;
+get_nifspec([H|T]) ->
+    case H of
+	{".*", "$NIF", _} -> H;
+	{".*", "$NIF", _, _} -> H;
+	_ -> get_nifspec(T)
+    end.
+
+store_nifspec(NifSpec, Specs) ->
+    store_nifspec(Specs, NifSpec, []).
+
+store_nifspec([], _, Acc) -> Acc;
+store_nifspec([H|T], Spec, Acc) -> 
+    case H of
+	{".*", "$NIF", _} -> store_nifspec(T, Spec, [Spec|Acc]);
+	{".*", "$NIF", _, _} -> store_nifspec(T, Spec, [Spec|Acc]);
+	_ -> store_nifspec(T, Spec, [H|Acc])
+    end.
+
+-spec new_config() -> [].
+new_config() -> [].
+
+-spec add_sources([source()], config()) -> config().
+add_sources(S, C) ->
+    merge_nif_spec(C, {".*", "$NIF", S, [{env, []}]}).
+
+-spec add_cflags(string(), config()) -> config().
+add_cflags(F, C) ->
+    merge_nif_spec(C, {".*", "$NIF", [], [{env, [{"CFLAGS", "$CFLAGS "++ F}]}]}).
+
+-spec add_ldflags(string(), config()) -> config().
+add_ldflags(F, C) ->
+    merge_nif_spec(C, {".*", "$NIF", [], [{env, [{"LDFLAGS", "$LDFLAGS "++ F}]}]}).
 
 %% @doc Returns <code>Path</code> with all environment variables 
 %% expanded
