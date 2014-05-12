@@ -9,6 +9,7 @@
 	]).
 
 -define(TYPES, {{types}}).
+-define(CONS, {{constructors}}).
 
 -on_load(init/0).
 

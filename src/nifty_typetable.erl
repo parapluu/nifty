@@ -87,118 +87,129 @@ check_constructors([H|T], Ref, Old, New) ->
 	    check_constructors(T, Ref, Old, New)
     end.
 
-check_types_once({Functions, Typedefs, Structs}, Types) ->
-    NTypes = check_types_types(Types),
-    {NStructs, NNTypes} = check_types_structs(Structs, NTypes),
-    NFunc = check_types_functions(Functions, NNTypes),
+check_types_once({Functions, Typedefs, Structs} = Dicts, Types) ->
+    NTypes = check_types_types(Dicts, Types),
+    {NStructs, NNTypes} = check_types_structs(Dicts, Structs, NTypes),
+    NFunc = check_types_functions(Dicts, Functions, NNTypes),
     {{NFunc, Typedefs, NStructs}, NNTypes}.
 
 -spec check_type(ctype(), type_table()) -> boolean().
 check_type(Type, Types) ->
-     check_type2(Type, nifty:get_types()) orelse check_type2(Type, Types).
+    check_type(Type, Types, dict:new()).
 
-check_type2(Type, Types) ->
+check_type(Type, Types, Structs) ->
+     check_type2(Type, nifty:get_types(), dict:new()) orelse check_type2(Type, Types, Structs).
+
+check_type2(Type, Types, Structs) ->
     case dict:is_key(Type, Types) of
 	true ->
-	    RType = resolve_type(Type, Types),
-	    case dict:fetch(RType, Types) of
-		{userdef, [RType]} ->
-		    false; %% loop
-		{userdef, [T]} ->
-		    %% constructor or dead end
-		    case T of
-			{_, _} ->
-			    true; %% constructor is in constructor table
-			_->
-			    case T=:=Type of
-				true ->
-				    false; %% loop
-				false ->
-				    check_type(T, Types) %% something else
-			    end
-		    end;
-		{userdef, [T, "const"]} ->
-		    %% discard const and check again
-		    check_type(T,Types);
-		{userdef, [H|T]} ->
-		    string:right(H, 1) =/= ")"            %% function pointer
-			andalso lists:last(T) =/= "union" %% union
-			andalso lists:last(T) =/= "enum"; %% enum
-		{base, _} ->
-		    true
+	    case resolve_type(Type, Types) of
+		undef -> false;
+		RType ->
+		    case dict:fetch(RType, Types) of
+			{userdef, [RType]} ->
+			    false; %% loop
+			{userdef, [T]} ->
+			    %% constructor or dead end
+			    case T of
+				{_, Name} ->
+				    dict:is_key(Name, Structs);
+				    %% true; %% constructor is in constructor table
+				_->
+				    case T=:=Type of
+					true ->
+					    false; %% loop
+					false ->
+					    check_type(T, Types) %% something else
+				    end
+			    end;
+			{userdef, [T, "const"]} ->
+			    %% discard const and check again
+			    check_type(T,Types);
+			{userdef, [H|T]} ->
+			    string:right(H, 1) =/= ")"            %% function pointer
+				andalso lists:last(T) =/= "union" %% union
+				andalso lists:last(T) =/= "enum"; %% enum
+			{base, _} ->
+			    true
+		    end
 	    end;
 	false ->
 	    false
     end.
 
-check_types_functions(Functions, Types) ->
+check_types_functions(Dicts, Functions, Types) ->
     Names = dict:fetch_keys(Functions),
-    check_types_functions(Names, Functions, dict:new(), Types).
+    check_types_functions(Dicts, Names, Functions, dict:new(), Types).
 
-check_types_functions([], _, NFunc, _) ->
+check_types_functions(_, [], _, NFunc, _) ->
     NFunc;
-check_types_functions([Func|Tail],OldFunc,NewFunc,Types) ->
+check_types_functions({_, _, Structs} = Dicts, [Func|Tail],OldFunc,NewFunc,Types) ->
     {RetType, ArgList} = dict:fetch(Func, OldFunc),
-    case check_type(RetType, Types) andalso check_types_list(ArgList, Types) of
+    case check_type(RetType, Types, Structs) andalso check_types_list(Dicts, ArgList, Types) of
 	true ->
-	    check_types_functions(Tail, 
+	    check_types_functions(Dicts, 
+				  Tail, 
 				  OldFunc, 
 				  dict:store(Func,
 					     dict:fetch(Func, OldFunc),
 					     NewFunc),
 				  Types);
 	false ->
-	    check_types_functions(Tail, OldFunc, NewFunc, Types)
+	    check_types_functions(Dicts, Tail, OldFunc, NewFunc, Types)
     end.
     
-check_types_structs(Structs, Types) ->
+check_types_structs(Dicts, Structs, Types) ->
     Names = dict:fetch_keys(Structs),
-    check_types_structs(Names, Structs, dict:new(), Types).
+    check_types_structs(Dicts, Names, Structs, dict:new(), Types).
 
-check_types_structs([], _, NewStructs, Types) ->
+check_types_structs(_, [], _, NewStructs, Types) ->
     {NewStructs,Types};
-check_types_structs([Struct|Tail], OldStructs, NewStructs, Types) ->
-    case check_types_fields(dict:fetch(Struct, OldStructs), Types) of
+check_types_structs(Dicts, [Struct|Tail], OldStructs, NewStructs, Types) ->
+    case check_types_fields(Dicts, dict:fetch(Struct, OldStructs), Types) of
 	true ->
-	    check_types_structs(Tail, 
+	    check_types_structs(Dicts,
+				Tail, 
 				OldStructs, 
 				dict:store(Struct, 
 					   dict:fetch(Struct, OldStructs), 
 					   NewStructs),
 				Types);
 	false ->
-	    check_types_structs(Tail,
+	    check_types_structs(Dicts, 
+				Tail,
 				OldStructs,
 				NewStructs,
-				dict:erase(Struct, Types))
+				dict:erase("struct "++Struct, Types))
     end.
     
-check_types_fields([], _) ->
+check_types_fields(_, [], _) ->
     false;
-check_types_fields(Fields, Types) ->
-    check_types_list(Fields, Types).
+check_types_fields(Dicts, Fields, Types) ->
+    check_types_list(Dicts, Fields, Types).
 
-check_types_list([], _) ->
+check_types_list(_, [], _) ->
     true;
-check_types_list([{_, Type}|Tail], Types) ->
-    check_type(Type, Types) andalso check_types_list(Tail, Types).
+check_types_list({_, _, Structs} = Dicts, [{_, Type}|Tail], Types) ->
+    check_type(Type, Types, Structs) andalso check_types_list(Dicts, Tail, Types).
     
-check_types_types(Types) ->
+check_types_types(Dicts, Types) ->
     Names = dict:fetch_keys(Types),
-    check_types_types(Names, Types, dict:new()).
+    check_types_types(Dicts, Names, Types, dict:new()).
 
-check_types_types([], _, NewTypes) ->
+check_types_types(_, [], _, NewTypes) ->
     NewTypes;
-check_types_types([Type|Tail], OldTypes, NewTypes) ->
-    case check_type(Type, OldTypes) of
+check_types_types({_, _, Structs} = Dicts, [Type|Tail], OldTypes, NewTypes) ->
+    case check_type(Type, OldTypes, Structs) of
 	true ->
-	    check_types_types(Tail, 
+	    check_types_types(Dicts,
+			      Tail, 
 			      OldTypes, 
 			      dict:store(Type, 
 					 dict:fetch(Type, OldTypes), 
 					 NewTypes));
 	false ->
-	    check_types_types(Tail, OldTypes, NewTypes)
+	    check_types_types(Dicts, Tail, OldTypes, NewTypes)
     end.
 
 %% @doc builds a typetable and symbol table out of type information

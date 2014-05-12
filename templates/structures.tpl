@@ -237,8 +237,7 @@ size_of(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 	{% for type in type_keys %}
 		{% with kind=types|fetch:type|getNth:1 %}
 			{% if kind=="base" or kind=="userdef" or kind=="typedef" %}
-	if ((!(strcmp((const char*)cstr, "{{type}}")))
-		|| (!(strcmp((const char*)cstr, "struct {{type}}"))))
+	if (!(strcmp((const char*)cstr, "{{type}}")))
 	{
 		return enif_make_ulong(env, sizeof({{type}}));
 	}
