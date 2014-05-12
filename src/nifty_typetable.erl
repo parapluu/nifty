@@ -1,8 +1,7 @@
 -module(nifty_typetable).
 -export([build/1,
-	 check_types/2,
 	 check_type/2,
-	 check_symbols/2,
+	 check_tables/2,
 	 resolve_type/2]).
 
 -define(BASE_TYPES, ["char", "int", "float", "double", "void"]).
@@ -12,10 +11,13 @@
 
 -type ctype() :: string().
 -type field() :: {field, string(), ctype(), integer()}.
--type ctypedef() :: {'base', [string()]} | {'struct', [field()]} | {'typedef', string()}.
+-type ctypedef() :: {'base', [string()]} | {'typedef', string()} | {'userdef' , [string() | {constructor_type(), nonempty_string()}]}.
 -type type_table() :: dict:dict(ctype(), ctypedef()).
 -type argument_index() :: integer().
 -type symbol_table() :: dict:dict(string(), [{'return', ctype()} | {'argument', argument_index(), ctype()}]).
+-type constructor_type() :: 'struct'.
+-type constructor_table() :: dict:dict({constructor_type(), nonempty_string()} , [field()]).
+-type tables() :: {type_table(), symbol_table(), constructor_table()}.
 
 %% @doc takes a type and a type table and returns the resolved type (according to the type table)
 -spec resolve_type(ctype(), type_table()) -> ctype() | undef.
@@ -37,8 +39,13 @@ resolve_type2(Type, Types) ->
 	    undef
     end.
 
-%% @doc makes the symbol table consistent with the checked function types
--spec check_symbols(nifty_clangparse:defs(), symbol_table()) -> {symbol_table(), [nonempty_string()]}.
+-spec check_tables(nifty_clangparse:defs(), tables()) -> {tables(), [nonempty_string()]}.
+check_tables(Defs, {Types, Symbols, Constructors}) ->
+    {NDefs, NTypes} = check_types(Defs, Types),
+    NConstructors = check_constructors(NDefs, Constructors),
+    {NSymbols, Lost} = check_symbols(NDefs, Symbols),
+    {{NTypes, NSymbols, NConstructors}, Lost}.
+
 check_symbols({Functions, _, _}, Symbols) ->
     AllSymbols = dict:fetch_keys(Symbols),
     check_symbols(AllSymbols, Functions, Symbols, dict:new(), []).
@@ -54,9 +61,6 @@ check_symbols([H|T], Ref, Old, New, L) ->
 	    check_symbols(T, Ref, Old, New, [H|L])
     end.
 
-%% @doc removes all non-resolvable types from the type table and
-%% structs or functions that depend on them and returns the filtered
-%% type information
 -spec check_types(nifty_clangparse:defs(), type_table()) -> {nifty_clangparse:defs(), type_table()}.
 check_types(Defs, Types) ->
     {NDefs, NTypes} = check_types_once(Defs, Types),
@@ -65,6 +69,22 @@ check_types(Defs, Types) ->
 	    {NDefs, NTypes};
 	false ->
 	    check_types(NDefs, NTypes)
+    end.
+
+-spec check_constructors(nifty_clangparse:defs(), constructor_table()) -> constructor_table().
+check_constructors({_, _, Structs}, Constructors) ->
+    Keys = dict:fetch_keys(Structs),
+    check_constructors(Keys, Structs, Constructors, dict:new()).
+    
+check_constructors([], _, _, Acc) ->
+    Acc;
+check_constructors([H|T], Ref, Old, New) ->
+    case dict:is_key(H, Ref) of
+	true ->
+	    Data = dict:fetch({struct, H}, Old),
+	    check_constructors(T, Ref, Old, dict:store({struct, H}, Data, New));
+	false ->
+	    check_constructors(T, Ref, Old, New)
     end.
 
 check_types_once({Functions, Typedefs, Structs}, Types) ->
@@ -86,11 +106,16 @@ check_type2(Type, Types) ->
 		    false; %% loop
 		{userdef, [T]} ->
 		    %% constructor or dead end
-		    case Type =:= T of
-			true ->
-			    false; %% loop - typedef with same name as constructor/no constructor available
-			false ->
-			    check_type(T, Types)
+		    case T of
+			{_, _} ->
+			    true; %% constructor is in constructor table
+			_->
+			    case T=:=Type of
+				true ->
+				    false; %% loop
+				false ->
+				    check_type(T, Types) %% something else
+			    end
 		    end;
 		{userdef, [T, "const"]} ->
 		    %% discard const and check again
@@ -99,19 +124,12 @@ check_type2(Type, Types) ->
 		    string:right(H, 1) =/= ")"            %% function pointer
 			andalso lists:last(T) =/= "union" %% union
 			andalso lists:last(T) =/= "enum"; %% enum
-		{struct, Fields} ->
-		    check_fields(Fields, Types);
 		{base, _} ->
 		    true
 	    end;
 	false ->
 	    false
     end.
-
-check_fields([], _) -> 
-    true;
-check_fields([{field, _, Type, _}|T], Types) ->
-    check_type(Type, Types) andalso check_fields(T, Types).
 
 check_types_functions(Functions, Types) ->
     Names = dict:fetch_keys(Functions),
@@ -184,9 +202,9 @@ check_types_types([Type|Tail], OldTypes, NewTypes) ->
     end.
 
 %% @doc builds a typetable and symbol table out of type information
--spec build(nifty_clangparse:defs()) -> {type_table(), symbol_table()}.
+-spec build(nifty_clangparse:defs()) -> {{type_table(), symbol_table(), constructor_table()}, [nonempty_string()]}.
 build({Functions, Typedefs, Structs} = Dicts) ->
-    Empty_Tables = {dict:new(), dict:new()}, % { Types, Symbols }
+    Empty_Tables = {dict:new(), dict:new(), dict:new()}, % { Types, Symbols, Constructors }
     Tables_With_Functions = build_entries(Empty_Tables,
 					  fun build_function_entries/4,
 					  Functions,
@@ -197,12 +215,12 @@ build({Functions, Typedefs, Structs} = Dicts) ->
 					 Typedefs,
 					 dict:fetch_keys(Typedefs),
 					 Dicts),
-    {Types, Symbols} = build_entries(Tables_With_TypeDefs,
+    {Types, Symbols, Constructors} = build_entries(Tables_With_TypeDefs,
 				     fun build_struct_entries/4,
 				     Structs,
 				     dict:fetch_keys(Structs),
 				     Dicts),
-    {fill_type_table(Types), Symbols}.
+    check_tables(Dicts, {fill_type_table(Types), Symbols, Constructors}).
 
 fill_type_table(Types) ->
     fill_type_table(Types, dict:fetch_keys(Types)).
@@ -212,20 +230,24 @@ fill_type_table(Types, [Type|TypeNames]) ->
     {Kind, L} = dict:fetch(Type, Types),
     case Kind of
 	base -> fill_type_table(Types, TypeNames);
-	struct -> fill_type_table(Types, TypeNames);
 	typedef -> fill_type_table(Types, TypeNames);
-	_ ->
+	userdef ->
 	    [H|T] = L,
-	    case (H=:="*") orelse string:str(H, "[")>0 of
-		true ->
-		    [P|Token] = lists:reverse(string:tokens(Type, " ")),
-		    NewP = string:substr(P, 1, length(P) - length(H)),
-		    NType = string:strip(string:join(lists:reverse(Token)++[NewP], " ")),
-		    case dict:is_key(NType, Types) of 
-			true -> fill_type_table(Types, TypeNames);
-			false -> fill_type_table(dict:store(NType, {Kind, T}, Types), [NType|TypeNames])
-		    end;
-		false -> fill_type_table(Types, TypeNames)
+	    case H of
+		{_,_} ->
+		    fill_type_table(Types, TypeNames);
+		_ ->
+		    case (H=:="*") orelse string:str(H, "[")>0 of
+			true ->
+			    [P|Token] = lists:reverse(string:tokens(Type, " ")),
+			    NewP = string:substr(P, 1, length(P) - length(H)),
+			    NType = string:strip(string:join(lists:reverse(Token)++[NewP], " ")),
+			    case dict:is_key(NType, Types) of 
+				true -> fill_type_table(Types, TypeNames);
+				false -> fill_type_table(dict:store(NType, {Kind, T}, Types), [NType|TypeNames])
+			    end;
+			false -> fill_type_table(Types, TypeNames)
+		    end
 	    end
     end.
 
@@ -236,21 +258,21 @@ build_entries(Tables, Builder, Dict, [H|T], Dicts) ->
     Tables_With_New_Entry = Builder(Tables, H, Data, Dict),
     build_entries(Tables_With_New_Entry, Builder, Dict, T, Dicts).
 
-build_function_entries({Types, Symbols}, Name, Data, Dicts) ->
+build_function_entries({Types, Symbols, Constructors}, Name, Data, Dicts) ->
     {ReturnType, ArgumentList} = Data,
     Types_With_Return = build_type_entry(Types, ReturnType),
     Symbol_With_Return = dict:append(Name, {return, ReturnType}, Symbols),
-    Tables = {Types_With_Return, Symbol_With_Return},
+    Tables = {Types_With_Return, Symbol_With_Return, Constructors},
     build_arguments(Tables, Dicts, Name, 0, ArgumentList).
 
 build_arguments(Tables, _, _, _, []) -> Tables;
-build_arguments({Types, Symbols}, Dicts, FunctionName, Pos, [Arg|T]) ->
+build_arguments({Types, Symbols, Constructors}, Dicts, FunctionName, Pos, [Arg|T]) ->
     {_, ArgType} = Arg,
     Types_With_Arg = build_type_entry(Types, ArgType),
     Symbol_With_Arg = dict:append(FunctionName, {argument, integer_to_list(Pos), ArgType}, Symbols),
-    build_arguments({Types_With_Arg, Symbol_With_Arg}, Dicts, FunctionName, Pos+1, T).
+    build_arguments({Types_With_Arg, Symbol_With_Arg, Constructors}, Dicts, FunctionName, Pos+1, T).
 
-build_typedef_entries({Types, Symbols}, Alias, Type, _) ->
+build_typedef_entries({Types, Symbols, Constructors}, Alias, Type, _) ->
     case lists:member(Alias, ?CLANG_BUILTINS) of
 	true -> {Types, Symbols};
 	false ->
@@ -260,22 +282,22 @@ build_typedef_entries({Types, Symbols}, Alias, Type, _) ->
 		    case dict:fetch(Alias, NTypes) of
 			{struct, _} ->
 			    %% oh my, we store a constructor for a user-defined type here, no typedef
-			    {NTypes, Symbols};
+			    {NTypes, Symbols, Constructors};
 			_ ->
 			    %% everything is ok (typedef of already stored type)
-			    {dict:store(Alias, {typedef, Type}, NTypes), Symbols}
+			    {dict:store(Alias, {typedef, Type}, NTypes), Symbols, Constructors}
 		    end;
 		false ->
 		    %% everything is ok 
-		    {dict:store(Alias, {typedef, Type}, NTypes), Symbols}
+		    {dict:store(Alias, {typedef, Type}, NTypes), Symbols, Constructors}
 	    end
     end.
 
-build_struct_entries({Types, Symbols}, Alias, _, Dict) ->
-    STypes = dict:store("struct "++Alias++" *", {userdef,["*", Alias]}, Types),
+build_struct_entries({Types, Symbols, Constructors}, Alias, _, Dict) ->
+    STypes = dict:store("struct "++Alias++" *", {userdef,["*", {struct, Alias}]}, Types),
     Members =  dict:fetch(Alias, Dict),
     {NTypes, Fields} = build_fields(lists:reverse(Members),[],0, STypes),
-    {dict:store(Alias, {struct, Fields}, NTypes), Symbols}.
+    {NTypes, Symbols, dict:store({struct, Alias}, Fields, Constructors)}.
 
 build_fields([], Fields, _, Types) -> {Types, lists:reverse(Fields)};
 build_fields([{Name, Type}|T], Fields, I, Types) ->
@@ -318,7 +340,7 @@ parse_type([E|T], TypeDef, Kind) ->
 	%% special cases
 	"struct" ->
 	    [StructName|TT] = T,
-	    parse_type(TT, [StructName|TypeDef], userdef);
+	    parse_type(TT, [{struct, StructName}|TypeDef], userdef);
 	%% "union" ->
 	%%     io:format("TODO Parse Union ~n");
 	_ ->

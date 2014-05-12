@@ -1,21 +1,19 @@
 {% if prototypes==1 %}
-{% with type_keys=types|fetch_keys %}{% for type in type_keys %}{% with kind=types|fetch:type|getNth:1 %}{% if kind=="struct" %}
-static ERL_NIF_TERM ptr_to_record_{{type}}(ErlNifEnv* env, uint64_t ptr);
-static ERL_NIF_TERM record_to_erlptr_{{type}}(ErlNifEnv* env, ERL_NIF_TERM record);
+{% with keys = constructors|fetch_keys %}{% for constr in keys %}{% with kind=constr|getNth:1 name=constr|getNth:2 %}{% if kind=="struct" %}
+static ERL_NIF_TERM ptr_to_record_{{name}}(ErlNifEnv* env, uint64_t ptr);
+static ERL_NIF_TERM record_to_erlptr_{{name}}(ErlNifEnv* env, ERL_NIF_TERM record);
 {% endif %}{% endwith%}{% endfor %}{% endwith %}
-
 {% else %}
 
-
-{% with type_keys=types|fetch_keys %}{% for type in type_keys %}{% with kind=types|fetch:type|getNth:1 %}{% if kind=="struct" %}
+{% with keys = constructors|fetch_keys %}{% for constr in keys %}{% with kind=constr|getNth:1 name=constr|getNth:2 %}{% if kind=="struct" %}
 static ERL_NIF_TERM
-ptr_to_record_{{type}}(ErlNifEnv* env, uint64_t ptr)
+ptr_to_record_{{name}}(ErlNifEnv* env, uint64_t ptr)
 {
-	{% if types|fetch:type|getNth:2|length > 0 %}
-	struct {{type}}* cstruct=(struct {{type}}*)ptr;
+	{% if constructors|fetch:constr|length > 0 %}
+	struct {{name}}* cstruct=(struct {{name}}*)ptr;
 	{% endif %}
 	ERL_NIF_TERM retval;
-	{% with fields=types|fetch:type|getNth:2 %}
+	{% with fields=constructors|fetch:constr %}
 		{% for argument in fields %}
 				{% with raw_type=argument|getNth:3 phase="prepare" %}
 					{% with type=raw_type|resolved:types %}
@@ -31,7 +29,7 @@ ptr_to_record_{{type}}(ErlNifEnv* env, uint64_t ptr)
 
 
 
-	{% with fields=types|fetch:type|getNth:2 %}
+	{% with fields=constructors|fetch:constr %}
 		{% for argument in fields %}
 				{% with raw_type=argument|getNth:3 phase="to_erl" %}
 					{% with type=raw_type|resolved:types %}
@@ -45,13 +43,13 @@ ptr_to_record_{{type}}(ErlNifEnv* env, uint64_t ptr)
 		{% endfor %}
 	{% endwith %}
 
-{% with fields=types|fetch:type|getNth:2 %}{% with tpl_length=fields|length|add:1 %}{% if tpl_length>9 %}
+{% with fields=constructors|fetch:constr %}{% with tpl_length=fields|length|add:1 %}{% if tpl_length>9 %}
 	retval = enif_make_tuple(env, {{tpl_length}}, enif_make_atom(
 {% else %}
 	retval = enif_make_tuple{{tpl_length}}(env, enif_make_atom(
 {% endif %}{% endwith %}{% endwith %}
-		env, "{{type|resolved:types}}")
-	{% with fields=types|fetch:type|getNth:2 %}
+		env, "{{name}}")
+	{% with fields=constructors|fetch:constr %}
 		{% for argument in fields %}
 						{% with N=argument|getNth:2 %}
 							,{{"erlarg_"|add:N}}
@@ -63,13 +61,13 @@ ptr_to_record_{{type}}(ErlNifEnv* env, uint64_t ptr)
 }
 
 static ERL_NIF_TERM
-record_to_erlptr_{{type}}(ErlNifEnv* env, ERL_NIF_TERM record)
+record_to_erlptr_{{name}}(ErlNifEnv* env, ERL_NIF_TERM record)
 {
-	struct {{type}}* cstruct;
+	struct {{name}}* cstruct;
 	int ar, err;
 	ERL_NIF_TERM *tpl;
 
-	{% with fields=types|fetch:type|getNth:2 %}
+	{% with fields=constructors|fetch:constr %}
 		{% for argument in fields %}
 				{% with raw_type=argument|getNth:3 phase="prepare" %}
 					{% with type=raw_type|resolved:types %}
@@ -83,14 +81,14 @@ record_to_erlptr_{{type}}(ErlNifEnv* env, ERL_NIF_TERM record)
 		{% endfor %}
 	{% endwith %}
 
-	cstruct = (struct {{type}}*)enif_alloc(sizeof(struct {{type}}));
+	cstruct = (struct {{name}}*)enif_alloc(sizeof(struct {{name}}));
 
 	err = enif_get_tuple(env, record, &ar, (const ERL_NIF_TERM**)(&tpl));
 	if (!err) {
 		goto error;
 	}
 
-	{% with fields=types|fetch:type|getNth:2 %}
+	{% with fields=constructors|fetch:constr %}
 		{% for argument in fields %}
 				{% with raw_type=argument|getNth:3 phase="to_c" %}
 					{% with type=raw_type|resolved:types %}
@@ -110,7 +108,7 @@ record_to_erlptr_{{type}}(ErlNifEnv* env, ERL_NIF_TERM record)
 	return enif_make_tuple2(
 		env,
 		enif_make_uint64(env, (uint64_t)cstruct),
-		enif_make_string(env, "{{module}}.struct {{type}} *", ERL_NIF_LATIN1));
+		enif_make_string(env, "{{module}}.struct {{name}} *", ERL_NIF_LATIN1));
 
 error:
 	return enif_make_badarg(env);
@@ -150,8 +148,8 @@ record_to_erlptr(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 		}
 		written += tmp;
 	}
-{% with type_keys=types|fetch_keys %}{% for type in type_keys %}{% with kind=types|fetch:type|getNth:1 %}{% if kind=="struct" %}
-	if (!(strcmp((const char*)cstr, "{{type}}"))) { return  record_to_erlptr_{{type}}(env, argv[0]); }
+{% with keys = constructors|fetch_keys %}{% for constr in keys %}{% with kind=constr|getNth:1 name=constr|getNth:2 %}{% if kind=="struct" %}
+	if (!(strcmp((const char*)cstr, "{{name}}"))) { return  record_to_erlptr_{{name}}(env, argv[0]); }
 {% endif %}{% endwith%}{% endfor %}{% endwith %}
 
 error:
@@ -200,8 +198,8 @@ erlptr_to_record(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
 
 
-{% with type_keys=types|fetch_keys %}{% for type in type_keys %}{% with kind=types|fetch:type|getNth:1 %}{% if kind=="struct" %}
-	if (!(strcmp((const char*)cstr, "{{type}}"))) { return  ptr_to_record_{{type}}(env, ptr); }
+{% with keys = constructors|fetch_keys %}{% for constr in keys %}{% with kind=constr|getNth:1 name=constr|getNth:2 %}{% if kind=="struct" %}
+	if (!(strcmp((const char*)cstr, "{{name}}"))) { return  ptr_to_record_{{name}}(env, ptr); }
 {% endif %}{% endwith%}{% endfor %}{% endwith %}
 
 error:
@@ -284,24 +282,16 @@ new_type_object(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 		written += tmp;
 	}
 /* structs */
-{% with type_keys=types|fetch_keys %}
-	{% for type in type_keys %}
-		{% with kind=types|fetch:type|getNth:1 %}
-			{% if kind=="struct" %}{% if types|fetch:type|getNth:2|length > 0 %}
-	if ((!(strcmp((const char*)cstr, "{{type}}")))
-		|| (!(strcmp((const char*)cstr, "struct {{type}}"))))
+{% with keys = constructors|fetch_keys %}{% for constr in keys %}{% with kind=constr|getNth:1 name=constr|getNth:2 %}{% if kind=="struct" %}
+	if ((!(strcmp((const char*)cstr, "{{name}}")))
+		|| (!(strcmp((const char*)cstr, "struct {{name}}"))))
 	{
-		type_holder = (uint64_t)enif_alloc(sizeof(struct {{type}}));
-		retval=ptr_to_record_{{type}}(env, type_holder);
+		type_holder = (uint64_t)enif_alloc(sizeof(struct {{name}}));
+		retval=ptr_to_record_{{name}}(env, type_holder);
 		enif_free((void*)type_holder);
 		return retval;
 	}
-			{% endif %}{% endif %}
-			{% if kind=="userdef" %}
-			{% endif %}
-		{% endwith%}
-	{% endfor %}
-{% endwith %}
+{% endif %}{% endwith%}{% endfor %}{% endwith %}
 	return enif_make_atom(env, "undef");
 error:
 	return enif_make_badarg(env);
@@ -309,4 +299,4 @@ error:
 	type_holder++;
 	retval++;
 }
-{% endif %}
+{% endif %} 

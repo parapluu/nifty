@@ -69,7 +69,7 @@ load_dependency(Module) ->
 %% <code>InterfaceFile</code> specifies the header file. <code>Module</code> specifies 
 %% the module name of the translated NIF. <code>Options</code> specifies the compile
 %% options. These options are equivalent to rebar's config options.
--spec compile(string(), module(), options()) -> 'ok' | 'fail'.
+-spec compile(string(), module(), options()) -> 'ok' | {'error', reason()} | {'warning' , {'not_complete' , [nonempty_string()]}}.
 compile(InterfaceFile, Module, Options) ->
     nifty_compiler:compile(InterfaceFile, Module, Options).
 
@@ -129,9 +129,12 @@ get_derefed_type(Type, Module) ->
 		true ->
 		    {_, DTypeDef} = dict:fetch(ResNType, Types),
 		    [DH|_] = DTypeDef,
-		    case (DH=:="*") orelse (string:str(DH, "[")>0) of
-			true -> {pointer, ResNType};
-			false -> {final, ResNType}
+		    case DH of 
+			{_, _} -> {final, ResNType};
+			_ -> case (DH=:="*") orelse (string:str(DH, "[")>0) of
+				 true -> {pointer, ResNType};
+				 false -> {final, ResNType}
+			     end
 		    end;
 		false ->
 		    undef
@@ -157,7 +160,7 @@ dereference(Pointer) ->
 		{final, DType} ->
 		    build_type(Module, DType, Address);
 		undef ->
-		    {error, undef}
+		    {error, undef1}
 	    end
     end.
 
@@ -175,13 +178,11 @@ build_type(Module, Type, Address) ->
 	    {Kind, Def} =  dict:fetch(Type, Types),
 	    case Kind of
 		userdef ->
-		    [Name] = Def,
-		    RR = dict:fetch(Name, Types),
-		    case  RR of
-			{struct, _} -> 
+		    case Def of 
+			[{struct, Name}] ->
 			    Module:erlptr_to_record({Address, Name});
-			_ -> 
-			    {error, undef}
+			_ ->
+			    {error, undef2}
 		    end;
 		base ->
 		    case Def of
