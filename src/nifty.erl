@@ -339,44 +339,9 @@ pointer() ->
 %% @doc Returns a pointer to the specified <code>Type</code>. This function allocates memory of <b>sizeof(</b><code>Type</code><b>)</b>
 -spec pointer(nonempty_string()) -> ptr() | undef.
 pointer(Type) ->
-    Types = get_types(),
-    case dict:is_key(Type, Types) of
-	true ->
-	    Size = size_of(Type),
-	    as_type(mem_alloc(Size), "nifty."++Type++" *");
-	false ->
-	    case string:tokens(Type, ".") of
-		["nifty", TypeName] ->
-		    %% builtin type
-		    pointer(TypeName);
-		[ModuleName, TypeName] ->
-		    Mod = list_to_atom(ModuleName),
-		    case code:ensure_loaded(Mod) of
-			{module, Mod} ->
-			    case proplists:is_defined(get_types, Mod:module_info(exports)) of
-				true ->
-				    %% resolve and build
-				    RType = nifty_typetable:resolve_type(TypeName, Mod:get_types()),
-				    case pointer(RType) of
-					undef ->
-					    case Mod:new(RType) of
-						undef ->
-						    undef;
-						Value ->
-						    pointer_of(Value, Type)
-					    end;
-					Ptr ->
-					    Ptr
-				    end;
-				_ ->
-				    undef
-			    end;
-			_ -> 
-			    undef
-		    end;
-		_ ->
-		    undef
-	    end
+    case size_of(Type) of
+	undef -> undef;
+	S -> as_type(mem_alloc(S), Type)
     end.
 
 %% @doc Returns a pointer to the given pointer
