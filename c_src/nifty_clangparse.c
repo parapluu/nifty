@@ -6,6 +6,8 @@
 
 static ERL_NIF_TERM walk_cursor(ErlNifEnv* env, CXTranslationUnit t, CXCursor c);
 static enum CXChildVisitResult visitor_cb(CXCursor Cursor, CXCursor Parent, CXClientData ClientData);
+static enum CXChildVisitResult visitor_function_cb(CXCursor cursor, CXCursor parent, CXClientData client_data);
+static enum CXChildVisitResult visitor_struct_cb(CXCursor cursor, CXCursor parent, CXClientData client_data);
 static void print_fails(CXTranslationUnit t);
 static ERL_NIF_TERM cparse(ErlNifEnv* env, int argc, char *argv[]);
 static char* term2string(ErlNifEnv* env, ERL_NIF_TERM s);
@@ -29,22 +31,34 @@ cparse(ErlNifEnv* env, int argc, char *argv[]) {
 
 typedef struct _clientd {
   ErlNifEnv* env;
-  ERL_NIF_TERM payload;
   ERL_NIF_TERM func_file;
+  ERL_NIF_TERM types;
+  ERL_NIF_TERM symbol_table;
+  ERL_NIF_TERM constr_table;
 } Data;
+
+typedef struct _subdata {
+  ErlNifEnv* env;
+  ERL_NIF_TERM types;
+  ERL_NIF_TERM data;
+} SubData;
 
 
 static ERL_NIF_TERM
 walk_cursor(ErlNifEnv* env, CXTranslationUnit t, CXCursor c) {
   Data* data = enif_alloc(sizeof(Data));
-  ERL_NIF_TERM retval;
   data->env = env;
-  data->payload = enif_make_list(env, 0);
   data->func_file = enif_make_list(env, 0);
+  data->types = enif_make_list(env, 0);
+  data->symbol_table = enif_make_list(env, 0);
+  data->constr_table = enif_make_list(env, 0);
   CXCursorVisitor visitor = visitor_cb;
   clang_visitChildren(c, visitor, (CXClientData)data);
-  enif_make_reverse_list(env, data->payload, &retval);
-  return enif_make_tuple2(env, retval, data->func_file);
+  return enif_make_tuple4(env, 
+			  data->func_file,
+			  data->types,
+			  data->symbol_table,
+			  data->constr_table);
 }
 
 static enum CXChildVisitResult
@@ -60,118 +74,117 @@ visitor_cb(CXCursor cursor, CXCursor parent, CXClientData client_data)
   unsigned offset;
   CXSourceLocation loc;
 
-  ERL_NIF_TERM data = ((Data*)client_data)->payload;
-  ERL_NIF_TERM ff_l = ((Data*)client_data)->func_file;
+  Data* data = (Data*)client_data;
+
+  ERL_NIF_TERM ff_l = data->func_file;
   ERL_NIF_TERM fn, funcname;
-  ErlNifEnv* env = ((Data*)client_data)->env;
+  ERL_NIF_TERM etmp;
+  ErlNifEnv* env = data->env;
+
+  SubData* subd;
 
   switch (clang_getCursorKind(cursor)) {
   case CXCursor_FunctionDecl: {
+    tmp = clang_getCursorSpelling(cursor);
+    funcname = enif_make_string(env, clang_getCString(tmp), ERL_NIF_LATIN1);
+    clang_disposeString(tmp);
+
     loc = clang_getCursorLocation(cursor);
     clang_getFileLocation(loc,
-			  &file,
-			  &line,
-			  &column,
-			  &offset);
+    			  &file,
+    			  &line,
+    			  &column,
+    			  &offset);
     
     tmp=clang_getFileName(file);
     fn = enif_make_string(env, clang_getCString(tmp), ERL_NIF_LATIN1);
     clang_disposeString(tmp);
-
-    data = enif_make_list_cell(env, enif_make_string(env, "FUNCTION", ERL_NIF_LATIN1), data);
-
-    tmp = clang_getCursorSpelling(cursor);
-    funcname = enif_make_string(env, clang_getCString(tmp), ERL_NIF_LATIN1);
-    data = enif_make_list_cell(env, funcname, data);
-    clang_disposeString(tmp);
-
-    type = clang_getCursorType(cursor);
-    tmp = clang_getTypeSpelling(type);
-    data = enif_make_list_cell(env, enif_make_string(env, clang_getCString(tmp), ERL_NIF_LATIN1), data);
-    clang_disposeString(tmp);
-
     ff_l = enif_make_list_cell(env, enif_make_tuple2(env, funcname, fn), ff_l);
+    data->func_file = ff_l;
 
-    ((Data*)client_data)->payload = data;
-    ((Data*)client_data)->func_file = ff_l;
+    subd = enif_alloc(sizeof(SubData));
+    clang_visitChildren(cursor, visitor_function_cb, (CXClientData)subd);
 
-    return CXChildVisit_Recurse;
+    return CXChildVisit_Continue;
   }
   case CXCursor_StructDecl: {
-    if ((clang_getCursorKind(parent)==CXCursor_FieldDecl) ||
-	(clang_getCursorKind(parent)==CXCursor_TypedefDecl) ||
-	(clang_getCursorKind(parent)==CXCursor_TranslationUnit) ||
-	(clang_getCursorKind(parent)==CXCursor_FunctionDecl) ||
-	(clang_getCursorKind(parent)==CXCursor_ParmDecl)) 
-      {
-	data = enif_make_list_cell(env, enif_make_string(env, "STRUCT", ERL_NIF_LATIN1), data);
-	tmp = clang_getCursorSpelling(cursor);
-	ctmp = (char*)clang_getCString(tmp);
-	if ((clang_getCursorKind(parent)==CXCursor_TranslationUnit) && (!strlen(ctmp))) {
-	  clang_disposeString(tmp);
-	  return CXChildVisit_Continue;
-	}
-	data = enif_make_list_cell(env, enif_make_string(env, ctmp, ERL_NIF_LATIN1), data);
-	clang_disposeString(tmp);
-
-	((Data*)client_data)->payload = data;
-	return CXChildVisit_Recurse;
-      } else {
+    tmp = clang_getCursorSpelling(cursor);
+    ctmp = (char*)clang_getCString(tmp);
+    if ((clang_getCursorKind(parent) == CXCursor_TranslationUnit) && (!strlen(ctmp))) {
+      clang_disposeString(tmp);
+      return CXChildVisit_Continue;
+    } else {
+      subd = enif_alloc(sizeof(SubData));
+      subd->types = data->types;
+      subd->data = enif_make_list(env, 0);
+      subd->env = env;
+      clang_visitChildren(cursor, visitor_struct_cb, (CXClientData)subd);
+      etmp = enif_make_tuple2(env, enif_make_atom(env, "struct"), 
+			      enif_make_string(env, ctmp, ERL_NIF_LATIN1));
+      clang_disposeString(tmp);
+      etmp = enif_make_tuple2(env, etmp, subd->data);
+      data->constr_table =
+	enif_make_list_cell(env, etmp, data->constr_table);
+      data->types = subd->types;
       return CXChildVisit_Continue;
     }
   }
-  case CXCursor_FieldDecl: {
-    data = enif_make_list_cell(env, enif_make_string(env, "FIELD", ERL_NIF_LATIN1), data);
-
-    type = clang_getCursorType(parent);
-    tmp = clang_getTypeSpelling(type);
-    data = enif_make_list_cell(env, enif_make_string(env, clang_getCString(tmp), ERL_NIF_LATIN1), data);
-    clang_disposeString(tmp);
-
-    tmp = clang_getCursorSpelling(cursor);
-    data = enif_make_list_cell(env, enif_make_string(env, clang_getCString(tmp), ERL_NIF_LATIN1), data);
-    clang_disposeString(tmp);
-
-    type = clang_getCursorType(cursor);
-    tmp = clang_getTypeSpelling(type);
-    data = enif_make_list_cell(env, enif_make_string(env, clang_getCString(tmp), ERL_NIF_LATIN1), data);
-    clang_disposeString(tmp);
-
-    ((Data*)client_data)->payload = data;
-    return CXChildVisit_Recurse;
-  }
   case CXCursor_TypedefDecl: {
-    data = enif_make_list_cell(env, enif_make_string(env, "TYPEDEF", ERL_NIF_LATIN1), data);
-    tmp = clang_getCursorSpelling(cursor);
-    data = enif_make_list_cell(env, enif_make_string(env, clang_getCString(tmp), ERL_NIF_LATIN1), data);
-    clang_disposeString(tmp);
-
-    type =  clang_getTypedefDeclUnderlyingType(cursor);
-    tmp = clang_getTypeSpelling(type);
-    data = enif_make_list_cell(env, enif_make_string(env, clang_getCString(tmp), ERL_NIF_LATIN1), data);
-    clang_disposeString(tmp);
-
-    ((Data*)client_data)->payload = data;
-    return CXChildVisit_Recurse;
+    return CXChildVisit_Continue;
   }
+  default: {
+    return CXChildVisit_Continue;
+  }
+  }
+}
+
+
+static enum CXChildVisitResult
+visitor_function_cb(CXCursor cursor, CXCursor parent, CXClientData client_data) {
+  switch (clang_getCursorKind(cursor)) {
   case CXCursor_ParmDecl: {
-    data = enif_make_list_cell(env, enif_make_string(env, "PARAMETER", ERL_NIF_LATIN1), data);
+    printf("Argument\n\r");
+    return CXChildVisit_Continue;
+  }
+  default: {
+    return CXChildVisit_Continue;
+  }
+  }
+}
+
+static enum CXChildVisitResult
+visitor_struct_cb(CXCursor cursor, CXCursor parent, CXClientData client_data) {
+  ERL_NIF_TERM name;
+  ERL_NIF_TERM typename;
+
+  CXString tmp;
+  CXType type;
+  ERL_NIF_TERM etmp;
+  unsigned len;
+  SubData *data = (SubData*)client_data;
+  ErlNifEnv *env = data->env;
+
+  switch (clang_getCursorKind(cursor)) {
+  case CXCursor_FieldDecl: {
+    enif_get_list_length(env, data->data, &len);
+
     tmp = clang_getCursorSpelling(cursor);
-    data = enif_make_list_cell(env, enif_make_string(env, clang_getCString(tmp), ERL_NIF_LATIN1), data);
+    name = enif_make_string(env, clang_getCString(tmp), ERL_NIF_LATIN1);
     clang_disposeString(tmp);
-			
+
     type = clang_getCursorType(cursor);
     tmp = clang_getTypeSpelling(type);
-    data = enif_make_list_cell(env, enif_make_string(env, clang_getCString(tmp), ERL_NIF_LATIN1), data);
-    clang_disposeString(tmp);
+    typename = enif_make_string(env, clang_getCString(tmp), ERL_NIF_LATIN1);
+    data->types = enif_make_list_cell(env, typename, data->types);
+    clang_disposeString(tmp);    
 
-    // 			tmp = clang_getCursorSpelling(parent);
-    // 			data = enif_make_list_cell(env, enif_make_string(env, clang_getCString(tmp), ERL_NIF_LATIN1), data);
-    // 			clang_disposeString(tmp);
-
-    ((Data*)client_data)->payload = data;
+    etmp = enif_make_tuple4(env,
+			    enif_make_atom(env, "field"),
+			    name,
+			    typename,
+			    enif_make_uint(env, len));
+    data->data = enif_make_list_cell(env, etmp, data->data);
     return CXChildVisit_Continue;
-    //    return CXChildVisit_Recurse;
   }
   default: {
     return CXChildVisit_Continue;

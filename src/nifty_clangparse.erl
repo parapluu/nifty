@@ -25,7 +25,9 @@ cparse(_) ->
 %% their file locations
 -spec parse([string()]) -> {{[string()],[{string(), string()}]}, Args} | {'fail', Args} when Args :: [string()].
 parse(Args) ->
-    {cparse(Args), Args}.
+    %% {cparse(Args), Args}.
+    io:format("~p~n", [cparse(Args)]),
+    {fail, Args}.
 
 %% @doc Takes a list of token as produced by <code>parse/1</code> and returns type information about functions, structs
 %% and typedefs
