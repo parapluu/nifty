@@ -89,7 +89,7 @@ discard_restrict(Type) ->
 
 -spec resolved(string(), dict:dict()) -> string().
 resolved(Type, Types) ->
-    nifty_typetable:resolve_type(Type, Types).
+    nifty_types:resolve_type(Type, Types).
 
 %%% dict
 -spec fetch(dict:dict(), string()) -> term().

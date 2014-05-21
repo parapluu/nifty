@@ -17,27 +17,24 @@ render(InterfaceFile, ModuleName, CFlags, Options) ->
     io:format("generating... ~n"),%%, [ModuleName, ModuleName++"_remote", InterfaceFile]),
     %% c parse stuff
     PathToH = InterfaceFile,
-    case nifty_clangparse:parse([PathToH|CFlags]) of
-	{fail, _} -> 
-	    {error, compile};
-	{{[],[]}, _} ->
-	    {error, empty};
-	{{Token, FuncLoc}, _} -> 
-	    case nifty_clangparse:build_vars(Token) of 
-		{error, _} ->
-		    {error, parse};
-		{Raw_Functions, Raw_Typedefs, Raw_Structs} ->
-		    %% io:format("~p~n", [Functions]),
-		    Unsave_Functions = filter_functions(InterfaceFile, Raw_Functions, FuncLoc),
-		    {{Types, Symbols, Constructors}, Lost} = 
-			nifty_typetable:build({Unsave_Functions, Raw_Typedefs, Raw_Structs}),
+    case filelib:is_file(PathToH) andalso (not filelib:is_dir(PathToH)) of
+	false ->
+	    {error, no_file};
+	true ->
+	    case nifty_clangparse:parse([PathToH|CFlags]) of
+		{fail, _} -> 
+		    {error, compile};
+		{FuncLoc, Raw_Symbols, Raw_Types, Constructors} -> 
+		    Types = nifty_clangparse:build_type_table(Raw_Types, Constructors),
+		    Unsave_Symbols = filter_symbols(InterfaceFile, Raw_Symbols, FuncLoc),
+		    {Symbols, Lost} = check_symbols(Unsave_Symbols, Types),
 		    RenderVars = [{"module", ModuleName},
-				  {"header", InterfaceFile},
-				  {"config", Options},
-				  {"types", Types},
-				  {"symbols", Symbols},
-				  {"constructors", Constructors},
-				  {"none", none}],
+		    		  {"header", InterfaceFile},
+		    		  {"config", Options},
+		    		  {"types", Types},
+		    		  {"symbols", Symbols},
+		    		  {"constructors", Constructors},
+		    		  {"none", none}],
 		    {ok, COutput} = nifty_c_template:render(RenderVars),
 		    {ok, ErlOutput} = nifty_erl_template:render(RenderVars),
 		    {ok, SaveErlOutput} = nifty_save_erl_template:render(RenderVars),
@@ -48,24 +45,32 @@ render(InterfaceFile, ModuleName, CFlags, Options) ->
 	    end
     end.
 
-filter_functions(InterfaceFile, Functions, FuncLoc) ->
-    filter_functions(filename:basename(InterfaceFile), dict:new(), Functions, FuncLoc).
+filter_symbols(InterfaceFile, Symbols, FuncLoc) ->
+    BaseName = filename:basename(InterfaceFile),
+    Pred = fun (Key, _) -> filename:basename(dict:fetch(Key, FuncLoc))=:=BaseName end,
+    dict:filter(Pred, Symbols).
 
-filter_functions(_, New, _, []) ->
-    New;
-filter_functions(Ref, New, Old, [{Func, File}|T]) ->
-    Updated_New = case Ref=:=filename:basename(File) of
-		      true ->
-			  case dict:is_key(Func, Old) of
-			      true ->
-				  dict:store(Func, dict:fetch(Func, Old), New);
-			      false ->
-				  New
-			  end;
-		      false ->
-			  New
-		  end,
-    filter_functions(Ref, Updated_New, Old, T).
+check_symbols(Symbols, Types) ->
+    Pred = fun (_, Args) -> check_args(Args, Types) end,
+    Accml = fun(Name, Args, AccIn) -> case check_args(Args, Types) of 
+					  true -> AccIn;
+					  false -> [Name|AccIn] 
+				      end 
+	    end,
+    {dict:filter(Pred, Symbols), dict:fold(Accml, [], Symbols)}.
+
+check_args([], _) -> true;
+check_args([H|T], Types) ->
+    Type = case H of
+	       {return, Tp} -> Tp;
+	       {argument, _, Tp} -> Tp
+	   end,
+    case nifty_types:check_type(Type, Types) of
+	false -> 
+	    io:format("~p~n~p~n", [Type, Types]),
+	    false;
+	true -> check_args(T, Types)
+    end.    
 
 store_files(InterfaceFile, ModuleName, Options, RenderOutput) ->
     {ok, Path} = file:get_cwd(),

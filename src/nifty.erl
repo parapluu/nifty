@@ -117,14 +117,14 @@ get_types() ->
 
 get_derefed_type(Type, Module) ->
     Types = Module:get_types(),
-    ResType = nifty_typetable:resolve_type(Type, Types),
+    ResType = nifty_types:resolve_type(Type, Types),
     {_, TypeDef} = dict:fetch(ResType, Types),
     [H|_] = TypeDef,
     case (H=:="*") orelse (string:str(H, "[")>0) of
 	true -> 
 	    [_|Token] = lists:reverse(string:tokens(ResType, " ")),
 	    NType = string:join(lists:reverse(Token), " "),
-	    ResNType = nifty_typetable:resolve_type(NType, Types),
+	    ResNType = nifty_types:resolve_type(NType, Types),
 	    case dict:is_key(ResNType, Types) of
 		true ->
 		    {_, DTypeDef} = dict:fetch(ResNType, Types),
@@ -380,7 +380,7 @@ pointer_of(Value, Type) ->
 			    %% resolve type and try again
 			    Module = list_to_atom(ModuleName),
 			    Types = Module:get_types(),
-			    case nifty_typetable:resolve_type(T, Types) of
+			    case nifty_types:resolve_type(T, Types) of
 				undef ->
 				    %% can (right now) only be a struct
 				    Module:record_to_erlptr(Value);
@@ -516,9 +516,9 @@ as_type({Address, _} = Ptr, Type) ->
 			    %% casting
 			    [RBUType] = string:tokens(TypeName, "*"),
 			    RBType = string:strip(RBUType),
-			    case nifty_typetable:resolve_type(RBType, Mod:get_types()) of
+			    case nifty_types:resolve_type(RBType, Mod:get_types()) of
 				undef ->
-				    case nifty_typetable:resolve_type(RBType++" *", Mod:get_types()) of 
+				    case nifty_types:resolve_type(RBType++" *", Mod:get_types()) of 
 					undef ->
 					    %% unknown type
 					    undef;

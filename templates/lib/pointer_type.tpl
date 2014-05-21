@@ -36,7 +36,7 @@
 
 {% if phase=="argument" %}
 {% if argument|is_argument %}
-({{raw_type|discard_restrict}}){{carg}}
+({{raw_type|resolved:types|discard_restrict}}){{carg}}
 {% else %}
 (uint64_t)
 {% endif %}

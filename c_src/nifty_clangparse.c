@@ -106,18 +106,23 @@ visitor_cb(CXCursor cursor, CXCursor parent, CXClientData client_data)
     subd->types = data->types;
     subd->data = enif_make_list(env, 0);
     subd->env = env;
+
     clang_visitChildren(cursor, visitor_function_cb, (CXClientData)subd);
 
     type = clang_getResultType(clang_getCursorType(cursor));
     tmp = clang_getTypeSpelling(type);
+    etmp = enif_make_string(env, clang_getCString(tmp), ERL_NIF_LATIN1);
+    data->types = enif_make_list_cell(env, etmp, subd->types);
     etmp = enif_make_tuple2(env,
 			    enif_make_atom(env, "return"),
-			    enif_make_string(env, clang_getCString(tmp), ERL_NIF_LATIN1));
-    etmp = enif_make_list_cell(env, etmp, subd->data);
+			    etmp);
+
+    enif_make_reverse_list(env, subd->data, &etmp2);
+    etmp = enif_make_list_cell(env, etmp, etmp2);
     etmp = enif_make_tuple2(env, funcname, etmp);
     data->symbol_table = 
       enif_make_list_cell(env, etmp, data->symbol_table);
-    data->types = subd->types;
+    enif_free(subd);
     return CXChildVisit_Continue;
   }
   case CXCursor_StructDecl: {
@@ -139,6 +144,7 @@ visitor_cb(CXCursor cursor, CXCursor parent, CXClientData client_data)
       data->constr_table =
 	enif_make_list_cell(env, etmp, data->constr_table);
       data->types = subd->types;
+      enif_free(subd);
       return CXChildVisit_Continue;
     }
   }
@@ -164,6 +170,20 @@ visitor_cb(CXCursor cursor, CXCursor parent, CXClientData client_data)
   }
 }
 
+static int
+is_argument(const char *str) {
+  unsigned count = 0;
+  char* sub=strstr((char *)str, "@");
+  if (!sub) {
+    return 1;
+  }
+  while (sub) {
+    sub++;
+    count++;
+    sub=strstr(sub, "@");
+  }
+  return count==4;
+}
 
 static enum CXChildVisitResult
 visitor_function_cb(CXCursor cursor, CXCursor parent, CXClientData client_data) {
@@ -177,20 +197,33 @@ visitor_function_cb(CXCursor cursor, CXCursor parent, CXClientData client_data) 
   SubData *data = (SubData*)client_data;
   ErlNifEnv *env = data->env;
 
+  const char* ctmp;
+
   switch (clang_getCursorKind(cursor)) {
   case CXCursor_ParmDecl: {
-    enif_get_list_length(env, data->data, &len);
-    type = clang_getCursorType(cursor);
-    tmp = clang_getTypeSpelling(type);
-    typename = enif_make_string(env, clang_getCString(tmp), ERL_NIF_LATIN1);
-    data->types = enif_make_list_cell(env, typename, data->types);
-    clang_disposeString(tmp);
-    etmp = enif_make_tuple3(env,
-			    enif_make_atom(env, "argument"),
-			    enif_make_uint(env, len),
-			    typename);
-    data->data = enif_make_list_cell(env, etmp, data->data);
-    return CXChildVisit_Continue;
+
+    tmp = clang_getCursorUSR(cursor);
+    ctmp = clang_getCString(tmp);
+    printf("URI: %s\n\r", ctmp);
+    if (is_argument(ctmp)) {
+      clang_disposeString(tmp);
+
+      enif_get_list_length(env, data->data, &len);
+      type = clang_getCursorType(cursor);
+      tmp = clang_getTypeSpelling(type);
+      typename = enif_make_string(env, clang_getCString(tmp), ERL_NIF_LATIN1);
+      data->types = enif_make_list_cell(env, typename, data->types);
+      clang_disposeString(tmp);
+      etmp = enif_make_tuple3(env,
+			      enif_make_atom(env, "argument"),
+			      enif_make_uint(env, len),
+			      typename);
+      data->data = enif_make_list_cell(env, etmp, data->data);
+      return CXChildVisit_Continue;
+    } else {
+      clang_disposeString(tmp);
+      return CXChildVisit_Continue;
+    }
   }
   default: {
     return CXChildVisit_Continue;
