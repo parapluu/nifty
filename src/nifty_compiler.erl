@@ -24,8 +24,10 @@ render(InterfaceFile, ModuleName, CFlags, Options) ->
 	    case nifty_clangparse:parse([PathToH|CFlags]) of
 		{error, fail} -> 
 		    {error, compile};
-		{FuncLoc, Raw_Symbols, Raw_Types, Constructors} -> 
-		    Types = nifty_clangparse:build_type_table(Raw_Types, Constructors),
+		{FuncLoc, Raw_Symbols, Raw_Types, Unsave_Constructors} -> 
+		    Constructors = check_constructors(Unsave_Constructors),
+		    Unsave_Types = nifty_clangparse:build_type_table(Raw_Types, Constructors),
+		    Types = check_types(Unsave_Types, Constructors),
 		    Unsave_Symbols = filter_symbols(InterfaceFile, Raw_Symbols, FuncLoc),
 		    {Symbols, Lost} = check_symbols(Unsave_Symbols, Types),
 		    RenderVars = [{"module", ModuleName},
@@ -44,6 +46,22 @@ render(InterfaceFile, ModuleName, CFlags, Options) ->
 		    {{ErlOutput, SaveErlOutput, HrlOutput, COutput, AppOutput, ConfigOutput}, Lost}
 	    end
     end.
+
+check_types(Types, Constr) ->
+    %% somehow we have incomplete types in the type table
+    Pred = fun (_, Value) ->
+		   case Value of
+		       {userdef, [{struct, Name}]} ->
+			   dict:is_key({struct, Name}, Constr);
+		       _ ->
+			   true
+		   end
+	   end,
+    dict:filter(Pred, Types).
+
+check_constructors(Constr) ->
+    Pred = fun (_, Fields) -> length(Fields)>0 end,
+    dict:filter(Pred, Constr).
 
 filter_symbols(InterfaceFile, Symbols, FuncLoc) ->
     BaseName = filename:basename(InterfaceFile),

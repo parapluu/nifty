@@ -62,7 +62,6 @@ build_type_table(Types, Constr) ->
     Used_Types = fill_types(Types, Constr_Types),
     fill_type_table(Used_Types).
 
-
 fill_constructed(Constr, Types) ->
     fill_constructed(dict:fetch_keys(Constr), Constr, Types).
 
@@ -106,12 +105,18 @@ fill_type_table(Types, [Type|TypeNames]) ->
 		_ ->
 		    case (H=:="*") orelse string:str(H, "[")>0 of
 			true ->
-			    [P|Token] = lists:reverse(string:tokens(Type, " ")),
-			    NewP = string:substr(P, 1, length(P) - length(H)),
-			    NType = string:strip(string:join(lists:reverse(Token)++[NewP], " ")),
-			    case dict:is_key(NType, Types) of 
-				true -> fill_type_table(Types, TypeNames);
-				false -> fill_type_table(dict:store(NType, {Kind, T}, Types), [NType|TypeNames])
+			    [N|_] = T,
+			    case N of
+				{_,_} ->
+				    fill_type_table(Types, TypeNames);
+				_ ->
+				    [P|Token] = lists:reverse(string:tokens(Type, " ")),
+				    NewP = string:substr(P, 1, length(P) - length(H)),
+				    NType = string:strip(string:join(lists:reverse(Token)++[NewP], " ")),
+				    case dict:is_key(NType, Types) of 
+					true -> fill_type_table(Types, TypeNames);
+					false -> fill_type_table(dict:store(NType, {Kind, T}, Types), [NType|TypeNames])
+				    end
 			    end;
 			false -> fill_type_table(Types, TypeNames)
 		    end
@@ -150,22 +155,29 @@ parse_type(Token) ->
 parse_type([], TypeDef, none) -> parse_type(["int"], TypeDef, none);
 parse_type([], TypeDef, Kind) -> {Kind, TypeDef};
 parse_type([E|T], TypeDef, Kind) ->
-    %% simple type
-    case lists:member(E, ?BASE_TYPES) of
-	true -> parse_type(T, [E|simplify_specifiers(TypeDef)], base);
-	false -> 
-	    case lists:member(E, ?SPECIFIER) of
-		true -> parse_type(T, [E|TypeDef], none);
+    case E of
+	%% special cases
+	"struct" ->
+	    [StructName|TT] = T,
+	    parse_type(TT, [{struct, StructName}|TypeDef], userdef);
+	_ ->
+	    %% simple type
+	    case lists:member(E, ?BASE_TYPES) of
+		true -> parse_type(T, [E|simplify_specifiers(TypeDef)], base);
 		false -> 
-		    case ((E=:="*") or lists:member($[, E)) of
-			true ->
-			    case Kind of
-				none -> parse_type(["int"|[E|T]], TypeDef, base);
-				_ -> parse_type(T, [E|TypeDef], Kind)
-			    end;
-			false ->
-			    %% user defined type
-			    parse_type(T, [E|TypeDef], userdef)
+		    case lists:member(E, ?SPECIFIER) of
+			true -> parse_type(T, [E|TypeDef], none);
+			false -> 
+			    case ((E=:="*") or lists:member($[, E)) of
+				true ->
+				    case Kind of
+					none -> parse_type(["int"|[E|T]], TypeDef, base);
+					_ -> parse_type(T, [E|TypeDef], Kind)
+				    end;
+				false ->
+				    %% user defined type
+				    parse_type(T, [E|TypeDef], userdef)
+			    end
 		    end
 	    end
     end.

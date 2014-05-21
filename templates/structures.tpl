@@ -239,7 +239,7 @@ size_of(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 			{% if kind=="base" or kind=="userdef" or kind=="typedef" %}
 	if (!(strcmp((const char*)cstr, "{{type}}")))
 	{
-		return enif_make_ulong(env, sizeof({{type}}));
+		return enif_make_ulong(env, sizeof({{type|discard_restrict}}));
 	}
 			{% endif %}
 			{% if kind=="userdef" %}
