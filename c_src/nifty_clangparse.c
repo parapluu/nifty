@@ -56,8 +56,8 @@ walk_cursor(ErlNifEnv* env, CXTranslationUnit t, CXCursor c) {
   clang_visitChildren(c, visitor, (CXClientData)data);
   return enif_make_tuple4(env, 
 			  data->func_file,
-			  data->types,
 			  data->symbol_table,
+			  data->types,
 			  data->constr_table);
 }
 
@@ -78,7 +78,7 @@ visitor_cb(CXCursor cursor, CXCursor parent, CXClientData client_data)
 
   ERL_NIF_TERM ff_l = data->func_file;
   ERL_NIF_TERM fn, funcname;
-  ERL_NIF_TERM etmp;
+  ERL_NIF_TERM etmp, etmp2;
   ErlNifEnv* env = data->env;
 
   SubData* subd;
@@ -143,6 +143,19 @@ visitor_cb(CXCursor cursor, CXCursor parent, CXClientData client_data)
     }
   }
   case CXCursor_TypedefDecl: {
+    tmp = clang_getCursorSpelling(cursor);
+    etmp = enif_make_tuple2(env, enif_make_atom(env, "typedef"),
+			    enif_make_string(env, clang_getCString(tmp), ERL_NIF_LATIN1));
+    clang_disposeString(tmp);
+    
+    type =  clang_getTypedefDeclUnderlyingType(cursor);
+    tmp = clang_getTypeSpelling(type);
+    etmp2 = enif_make_string(env, clang_getCString(tmp), ERL_NIF_LATIN1);
+    etmp =  enif_make_tuple2(env, etmp, etmp2);
+    data->types = enif_make_list_cell(env, etmp2, data->types);
+    data->constr_table = enif_make_list_cell(env, etmp, data->constr_table);
+    clang_disposeString(tmp);
+
     return CXChildVisit_Continue;
   }
   default: {
