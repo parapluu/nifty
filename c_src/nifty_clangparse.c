@@ -204,7 +204,6 @@ visitor_function_cb(CXCursor cursor, CXCursor parent, CXClientData client_data) 
 
     tmp = clang_getCursorUSR(cursor);
     ctmp = clang_getCString(tmp);
-    printf("URI: %s\n\r", ctmp);
     if (is_argument(ctmp)) {
       clang_disposeString(tmp);
 
