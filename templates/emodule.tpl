@@ -9,8 +9,6 @@
 	]).
 
 -define(TYPES, {{types}}).
--define(CONS, {{constructors}}).
--define(SYMBOLS, {{symbols}}).
 
 -on_load(init/0).
 

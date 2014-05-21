@@ -140,7 +140,8 @@ visitor_cb(CXCursor cursor, CXCursor parent, CXClientData client_data)
       etmp = enif_make_tuple2(env, enif_make_atom(env, "struct"), 
 			      enif_make_string(env, ctmp, ERL_NIF_LATIN1));
       clang_disposeString(tmp);
-      etmp = enif_make_tuple2(env, etmp, subd->data);
+      enif_make_reverse_list(env, subd->data, &etmp2);      
+      etmp = enif_make_tuple2(env, etmp, etmp2);
       data->constr_table =
 	enif_make_list_cell(env, etmp, data->constr_table);
       data->types = subd->types;

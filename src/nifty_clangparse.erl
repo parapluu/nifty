@@ -79,7 +79,8 @@ fill_constructed([H|T], Constr, Types) ->
 				    dict:store(Alias, {typedef, Type}, Types)
 			    end;
 			{struct, Name} ->
-			    dict:store("struct "++Name, {userdef, [H]}, Types)
+			    D = dict:store("struct "++Name, {userdef, [H]}, Types),
+			    dict:store("struct "++Name++" *", {userdef, ["*", H]}, D)
 		    end,
     fill_constructed(T, Constr, Updated_Types).
 
