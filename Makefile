@@ -14,7 +14,7 @@ BEAMS = ebin$(SEP)nifty_clangparse.beam \
 	ebin$(SEP)nifty_filters.beam \
 	ebin$(SEP)nifty_rebar.beam \
 	ebin$(SEP)nifty_tags.beam \
-	ebin$(SEP)nifty_typetable.beam \
+	ebin$(SEP)nifty_types.beam \
 	ebin$(SEP)nifty_utils.beam
 
 REBAR := .$(SEP)rebar

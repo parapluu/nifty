@@ -44,7 +44,7 @@ cparse(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
 %% @doc Takes clang compiler arguments, and returns functions locations, symbol table, types and constructor table
--spec parse([string()]) -> parser_output().
+-spec parse([string()]) -> parser_output() | {error, fail}.
 parse(Args) ->
     case cparse(Args) of
 	fail ->

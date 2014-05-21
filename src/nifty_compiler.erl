@@ -22,7 +22,7 @@ render(InterfaceFile, ModuleName, CFlags, Options) ->
 	    {error, no_file};
 	true ->
 	    case nifty_clangparse:parse([PathToH|CFlags]) of
-		{fail, _} -> 
+		{error, fail} -> 
 		    {error, compile};
 		{FuncLoc, Raw_Symbols, Raw_Types, Constructors} -> 
 		    Types = nifty_clangparse:build_type_table(Raw_Types, Constructors),
