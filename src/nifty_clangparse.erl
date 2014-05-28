@@ -4,6 +4,7 @@
 -export_type([parser_output/0,
 	      func_location/0,
 	      symbol_table/0,
+	      ctype/0,
 	      types/0,
 	      type_table/0,
 	      constr_table/0]).
