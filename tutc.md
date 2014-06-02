@@ -26,7 +26,7 @@ CFLAGS += -fPIC
 
 to your Makefile. 
 
-You can now create a NIF with Nifty. Note, that in this example make is invoked as pre-compile hook:
+You can now create a NIF module with Nifty. Note, that in this example make is invoked as pre-compile hook:
 
 {% highlight erlang %}
 1> nifty:compile("list.h", conli, [{port_specs,[{".*","$NIF",[],

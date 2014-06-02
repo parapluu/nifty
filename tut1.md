@@ -58,7 +58,7 @@ The loader reports, that it cannot find the function fib. What happened? When we
 Nifty that it should also compile `fib.c`:
 
 {% highlight erlang %}
-3> nifty:compile("fib.h", fib, [{port_specs, [{".*","$NIF",["fib.c"]}]}]).
+3> nifty:compile("fib.h", fib, nifty_utils:add_sources(["fib.c"], [])).
 generating fib.h -> fib_nif.c fib.erl 
 ==> fib (compile)
 Compiled src/fib_remote.erl
@@ -74,7 +74,9 @@ ok
 
 The third arguments specifies the compile options which are equivalent to the options that you can set in a `rebar.config`. 
 To add a source file or compile options to your NIF module, you have to use the target
-`{".*", "$NIF", [<source files>], <optional options>}` in the port_specs option. 
+`{".*", "$NIF", [<source files>], <optional options>}` in the port_specs option. Fortunatley, Nifty comes with 
+some utility functions, that help creating such a configuration. We want to add a source file to an empty configuration. an empty 
+configuration is `[]` and we can add the source `fib.c` with `nifty_utils:add_sources`.
 
 When you leave the interactive interpreter, you will see that Nifty created a complete Erlang project:
 
@@ -84,6 +86,8 @@ fib
 │   └── fib_nif.c
 ├── ebin
 │   └── fib.app
+├── include
+│   └── fib.hrl
 ├── priv
 ├── rebar.config
 └── src
