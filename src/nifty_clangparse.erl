@@ -1,3 +1,12 @@
+%%% -------------------------------------------------------------------
+%%% Copyright (c) 2014, Andreas Löscher <andreas.loscher@it.uu.se> and
+%%%                     Konstantinos Sagonas <kostis@it.uu.se>
+%%% All rights reserved.
+%%%
+%%% This file is distributed under the Simplified BSD License.
+%%% Details can be found in the LICENSE file.
+%%% -------------------------------------------------------------------
+
 -module(nifty_clangparse).
 -export([parse/1, build_type_table/2]).
 -on_load(init/0).

@@ -1,5 +1,3 @@
-%% -*- erlang-indent-level: 4;indent-tabs-mode: nil -*-
-%% ex: ts=4 sw=4 et
 %% -------------------------------------------------------------------
 %%
 %% rebar: Erlang Build Tools
@@ -24,6 +22,7 @@
 %% OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 %% THE SOFTWARE.
 %% -------------------------------------------------------------------
+
 -module(nifty_rebar).
 
 -export([main/1,
