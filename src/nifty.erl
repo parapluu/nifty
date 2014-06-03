@@ -117,30 +117,47 @@ get_types() ->
 
 get_derefed_type(Type, Module) ->
     Types = Module:get_types(),
-    ResType = nifty_types:resolve_type(Type, Types),
-    {_, TypeDef} = dict:fetch(ResType, Types),
-    [H|_] = TypeDef,
-    case (H=:="*") orelse (string:str(H, "[")>0) of
-	true -> 
-	    [_|Token] = lists:reverse(string:tokens(ResType, " ")),
-	    NType = string:join(lists:reverse(Token), " "),
-	    ResNType = nifty_types:resolve_type(NType, Types),
-	    case dict:is_key(ResNType, Types) of
-		true ->
-		    {_, DTypeDef} = dict:fetch(ResNType, Types),
-		    [DH|_] = DTypeDef,
-		    case DH of 
-			{_, _} -> {final, ResNType};
-			_ -> case (DH=:="*") orelse (string:str(DH, "[")>0) of
-				 true -> {pointer, ResNType};
-				 false -> {final, ResNType}
-			     end
+    case dict:is_key(Type, Types) of
+	true ->
+	    ResType = nifty_types:resolve_type(Type, Types),
+	    {_, TypeDef} = dict:fetch(ResType, Types),
+	    [H|_] = TypeDef,
+	    case (H=:="*") orelse (string:str(H, "[")>0) of
+		true -> 
+		    [_|Token] = lists:reverse(string:tokens(ResType, " ")),
+		    NType = string:join(lists:reverse(Token), " "),
+		    ResNType = nifty_types:resolve_type(NType, Types),
+		    case dict:is_key(ResNType, Types) of
+			true ->
+			    {_, DTypeDef} = dict:fetch(ResNType, Types),
+			    [DH|_] = DTypeDef,
+			    case DH of 
+				{_, _} -> {final, ResNType};
+				_ -> case (DH=:="*") orelse (string:str(DH, "[")>0) of
+					 true -> {pointer, ResNType};
+					 false -> {final, ResNType}
+				     end
+			    end;
+			false ->
+			    undef
 		    end;
 		false ->
-		    undef
+		    {final, ResType}
 	    end;
 	false ->
-	    {final, ResType}
+	    case lists:last(Type) of
+		$* ->
+		    %% pointer
+		    NName = string:strip(string:left(Type, length(Type)-1)),
+		    case lists:last(NName) of
+			$* ->
+			    {pointer, NName};
+			_ ->
+			    {final, NName}
+		    end;
+		_ ->
+		    {error, unknown_type}
+	    end
     end.
 
 %% @doc Dereference a nifty pointer
@@ -149,27 +166,27 @@ dereference(Pointer) ->
     {Address, ModuleType} = Pointer,
     [ModuleName, Type] = string:tokens(ModuleType, "."),
     Module = list_to_atom(ModuleName),
-    case Module of
-	nifty ->
-	    build_builtin_type(Type, Address);
-	_ ->
-	    NType = get_derefed_type(Type, Module),
-	    case NType of
-		{pointer, PType} ->
-		    {raw_deref(Address), ModuleName++"."++PType};
-		{final, DType} ->
-		    build_type(Module, DType, Address);
-		undef ->
-		    {error, undef1}
-	    end
+    %% case Module of
+    %% 	nifty ->
+    %% 	    build_builtin_type(Type, Address);
+    %% 	_ ->
+    NType = get_derefed_type(Type, Module),
+    case NType of
+	{pointer, PType} ->
+	    {raw_deref(Address), ModuleName++"."++PType};
+	{final, DType} ->
+	    build_type(Module, DType, Address);
+	undef ->
+	    {error, undef}
     end.
+    %% end.
 
-build_builtin_type(DType, Address) ->
-    case DType of
-	"void *" -> {raw_deref(Address), "undef"};
-	"char *" -> cstr_to_list({Address, "nifty.char *"});
-	_ -> build_type(nifty, DType, Address)
-    end.
+%% build_builtin_type(DType, Address) ->
+%%     case DType of
+%% 	"void *" -> {raw_deref(Address), "undef"};
+%% 	"char *" -> cstr_to_list({Address, "nifty.char *"});
+%% 	_ -> build_type(nifty, DType, Address)
+%%     end.
 
 build_type(Module, Type, Address) ->
     Types = Module:get_types(),
@@ -186,9 +203,9 @@ build_type(Module, Type, Address) ->
 		    end;
 		base ->
 		    case Def of
-			["*", "char", Sign, _] ->
+			["char", Sign, _] ->
 			    int_deref(Address, 1, Sign);
-			["*", "int", Sign, L] ->
+			["int", Sign, L] ->
 			    {_, {ShI, I, LI, LLI, _, _}} = proplists:lookup("sizes", get_config()),
 			    Size = case L of
 				       "short" ->
@@ -201,33 +218,18 @@ build_type(Module, Type, Address) ->
 					   LLI
 				   end,
 			    int_deref(Address, Size, Sign);
-			["*", "float", _, _] ->
+			["float", _, _] ->
 			    float_deref(Address);
-			["*", "double", _, _] ->
+			["double", _, _] ->
 			    double_deref(Address);
-			[H|_] ->
-			    case H of
-				$* ->
-				    {error, unknown_builtin_type};
-				_ ->
-				    {error, not_a_pointer}
-			    end
+			_ ->
+			    {error, unknown_builtin_type}
 		    end;
 		_ ->
 		    {error, unknown_type}
 	    end;
 	false ->
-	    %% check if the type is a pointer and try
-	    %% to dereference the type "blind"
-	    case string:right(Type, 1) of
-		"*" ->
-		    %% pointer
-		    {_, Size} = proplists:get_value("arch", nifty:get_config()),
-		    NAddr = int_deref(Address, Size, "unsigned"),
-		    {NAddr, atom_to_list(Module)++"."++string:left(Type, length(Type)-1)};
-		_ ->
-		    {error, unknown_type}
-	    end
+	    {error, unknown_type}
     end.
 
 int_deref(Addr, Size, Sign) ->
@@ -336,12 +338,18 @@ pointer() ->
     {_, Size} = proplists:get_value("arch", nifty:get_config()),
     mem_alloc(Size).
 
+referred_type(Type) ->
+    case lists:last(Type) of
+	$* -> Type++"*";
+	_ -> Type++" *"
+    end.
+
 %% @doc Returns a pointer to the specified <code>Type</code>. This function allocates memory of <b>sizeof(</b><code>Type</code><b>)</b>
 -spec pointer(nonempty_string()) -> ptr() | undef.
 pointer(Type) ->
     case size_of(Type) of
 	undef -> undef;
-	S -> as_type(mem_alloc(S), Type)
+	S -> as_type(mem_alloc(S), referred_type(Type))
     end.
 
 %% @doc Returns a pointer to the given pointer

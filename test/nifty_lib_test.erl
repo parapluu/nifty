@@ -14,7 +14,7 @@
 -spec cstr_list_comp(mystring()) -> boolean().
 cstr_list_comp(Str) ->
     CStr = nifty:list_to_cstr(Str),
-    DStr = nifty:dereference(CStr),
+    DStr = nifty:cstr_to_list(CStr),
     ok = nifty:free(CStr),
     DStr =:= Str.
 
