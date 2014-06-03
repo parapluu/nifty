@@ -69,8 +69,12 @@ slave_server(P) ->
 			 RetVal -> 
 			     {return, RetVal}
 		     catch
-			 Error ->
-			     {error, Error}
+			 throw:Error ->
+			     {throw, Error};
+			 error:Error ->
+			     {error, Error};
+			 exit:Error ->
+			     {exit, Error}
 		     end,
 	    P ! RetMsg,
 	    slave_server(P)
@@ -94,13 +98,17 @@ receive_msg(T) ->
     receive
 	{return, RetVal} ->
 	    RetVal;
+	{throw, Error} ->
+	    throw(Error);
 	{error, Error} ->
-	    throw(Error)
+	    erlang:error(Error);
+	{exit, Error} ->
+	    erlang:exit(Error)
     after
 	T ->
 	    case is_slave_alive() of
 		false ->
-		    {error, node_crashed};
+		    erlang:error(node_crashed);
 		true ->
 		    receive_msg(1000)
 	    end
