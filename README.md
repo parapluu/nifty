@@ -1,4 +1,4 @@
-# Nifty - Erlang Native Interface Generator
+# Nifty - Erlang NIF Wrapper Generator
 
 Nifty is an interface generator that allows you to use C modules from Erlang.
 
