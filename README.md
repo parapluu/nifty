@@ -27,16 +27,9 @@ fib(int n) {
 We can generate a NIF interface and use it from from Erlang with the following command:
 
 ```Erlang
-nifty_compiler:compile("mylib.h", mylib, [
-    			   {port_specs,
-    			     [{
-    						".*",
-    						"$NIF",	
-    						["mylib.c"]
-    				}]
-    		}]
-
-5 = mylib:fib(5)
+nifty:compile("mylib.h", mylib,
+              nifty_utils:add_sources(["mylib.c"], [])).
+5 = mylib:fib(5).
 ```
 
 ***compiler/3*** reads as the first argument a header or interface file and tries to generate an interface for all 
