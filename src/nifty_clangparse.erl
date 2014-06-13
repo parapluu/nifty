@@ -37,6 +37,8 @@
 -define(BASE_TYPES, ["char", "int", "float", "double", "void"]).
 -define(SPECIFIER, ["signed", "unsigned", "short", "long"]).
 
+-define(CLANG_BLACKLIST, ["__builtin_va_list", "__va_list_tag"]).
+
 init() -> %% loading code from jiffy
     PrivDir = case code:priv_dir(?MODULE) of
 		  {error, _} ->
@@ -213,16 +215,22 @@ is_fptr(Type) ->
 
 build_type_entry(TypeTable, Type) ->
     NType = norm_type(Type),
-    case dict:is_key(NType, TypeTable) of
-	true -> 
-	    TypeTable;
-	false->
-	    case is_fptr(NType) of
-		true ->
-		    TDef_Table = dict:store(NType, {typedef, "void *"}, TypeTable),
-		    build_type_entry(TDef_Table, "void *");
-		false ->
-		    Def = parse_type(string:tokens(type_extend(NType), " ")),
-		    dict:store(NType, Def, TypeTable)
-	    end
+    case lists:member(Type, ?CLANG_BLACKLIST) of
+	false ->
+	    case dict:is_key(NType, TypeTable) of
+		true -> 
+		    TypeTable;
+		false->
+		    case is_fptr(NType) of
+			true ->
+			    TDef_Table = dict:store(NType, {typedef, "void *"}, TypeTable),
+			    build_type_entry(TDef_Table, "void *");
+			false ->
+			    Def = parse_type(string:tokens(type_extend(NType), " ")),
+			    dict:store(NType, Def, TypeTable)
+		    end
+	    end;
+	true ->
+	    TypeTable
     end.
+

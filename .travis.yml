@@ -8,4 +8,11 @@ before_install:
   - sudo apt-get update
   - sudo apt-get install libclang1-3.4 libclang-3.4-dev
   - dialyzer --build_plt --apps erts kernel stdlib compiler
+after_failure:
+  - sudo apt-get install astyle
+  - astyle -x .eunit/nt_arguments/c_src/nt_arguments_nif.c
+  - cat .eunit/nt_arguments/src/nt_arguments.erl
+  - echo "*******************************************************************"
+  - cat .eunit/nt_arguments/c_src/nt_arguments_nif.c
 script: "make all"
+
