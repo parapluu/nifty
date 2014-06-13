@@ -31,15 +31,16 @@ merge_nif_spec(Config, {".*", "$NIF", Sources, [{env, Env}]} = Spec) ->
     case proplists:get_value(port_specs, Config) of
 	undefined -> 
 	    [{port_specs, [Spec]} | Config];
-	Specs -> NewSpecs = case get_nifspec(Specs) of
-				{".*", "$NIF", OldSources} -> 
-				    store_nifspec({".*", "$NIF", OldSources ++ Sources, [{env, Env}]}, Specs);
-				{".*", "$NIF", OldSources, [{env, OldEnv}]}  -> 
-				    store_nifspec({".*", "$NIF", OldSources ++ Sources, [{env, OldEnv ++ Env}]}, Specs);
-				undefined ->
-				    store_nifspec({".*", "$NIF", Sources, [{env, []}] }, Specs)
-			    end,
-		 [ {port_specs, NewSpecs} | proplists:delete(port_specs, Config)]
+	Specs ->
+	    NewSpecs = case get_nifspec(Specs) of
+			   {".*", "$NIF", OldSources} ->
+			       store_nifspec({".*", "$NIF", OldSources ++ Sources, [{env, Env}]}, Specs);
+			   {".*", "$NIF", OldSources, [{env, OldEnv}]} ->
+			       store_nifspec({".*", "$NIF", OldSources ++ Sources, [{env, OldEnv ++ Env}]}, Specs);
+			   undefined ->
+			       store_nifspec({".*", "$NIF", Sources, [{env, []}] }, Specs)
+		       end,
+	    [{port_specs, NewSpecs} | proplists:delete(port_specs, Config)]
     end.
 
 get_nifspec([]) -> undefined;
@@ -70,18 +71,17 @@ add_sources(S, C) ->
 
 -spec add_cflags(string(), config()) -> config().
 add_cflags(F, C) ->
-    merge_nif_spec(C, {".*", "$NIF", [], [{env, [{"CFLAGS", "$CFLAGS "++ F}]}]}).
+    merge_nif_spec(C, {".*", "$NIF", [], [{env, [{"CFLAGS", "$CFLAGS "++F}]}]}).
 
 -spec add_ldflags(string(), config()) -> config().
 add_ldflags(F, C) ->
-    merge_nif_spec(C, {".*", "$NIF", [], [{env, [{"LDFLAGS", "$LDFLAGS "++ F}]}]}).
+    merge_nif_spec(C, {".*", "$NIF", [], [{env, [{"LDFLAGS", "$LDFLAGS "++F}]}]}).
 
-%% @doc Returns <code>Path</code> with all environment variables 
+%% @doc Returns <code>Path</code> with all environment variables
 %% expanded
 -spec expand(string()) -> string().
 expand(Path) ->
-    string:strip(lists:foldr(fun(A, Acc) ->
-				     A++" "++Acc end,
+    string:strip(lists:foldr(fun(A, Acc) -> A++" "++Acc end,
 			     [],
 			     tokenize(Path))).
 
