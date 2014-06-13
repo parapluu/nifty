@@ -1,4 +1,4 @@
-.PHONY: default fast all get-deps compile dialyzer tests clean
+.PHONY: default fast all get-deps compile dialyzer tests clean mrproper
 
 ERL_INCLUDE = $(PWD):$(ERL_LIBS)
 
@@ -23,7 +23,7 @@ default: fast
 
 fast: get-deps compile
 
-all: default tests
+all: default dialyze tests
 
 get-deps:
 	$(REBAR) get-deps
