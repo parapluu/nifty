@@ -215,22 +215,17 @@ is_fptr(Type) ->
 
 build_type_entry(TypeTable, Type) ->
     NType = norm_type(Type),
-    case lists:member(Type, ?CLANG_BLACKLIST) of
-	false ->
-	    case dict:is_key(NType, TypeTable) of
-		true -> 
-		    TypeTable;
-		false->
-		    case is_fptr(NType) of
-			true ->
-			    TDef_Table = dict:store(NType, {typedef, "void *"}, TypeTable),
-			    build_type_entry(TDef_Table, "void *");
-			false ->
-			    Def = parse_type(string:tokens(type_extend(NType), " ")),
-			    dict:store(NType, Def, TypeTable)
-		    end
-	    end;
-	true ->
-	    TypeTable
+    case dict:is_key(NType, TypeTable) of
+	true -> 
+	    TypeTable;
+	false->
+	    case is_fptr(NType) of
+		true ->
+		    TDef_Table = dict:store(NType, {typedef, "void *"}, TypeTable),
+		    build_type_entry(TDef_Table, "void *");
+		false ->
+		    Def = parse_type(string:tokens(type_extend(NType), " ")),
+		    dict:store(NType, Def, TypeTable)
+	    end
     end.
 
