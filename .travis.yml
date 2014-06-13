@@ -1,11 +1,12 @@
 language: erlang
 otp_release:
-   - 17.0
+  - 17.0
 env
-   - export CPATH=/usr/lib/llvm-3.4/include
-   - export LIBRARY_PATH=/usr/lib/llvm-3.4/lib
-   - export LD_LIBRARY_PATH=/usr/lib/llvm-3.4/lib
+  - CPATH=/usr/lib/llvm-3.4/include
+  - LIBRARY_PATH=/usr/lib/llvm-3.4/lib
+  - LD_LIBRARY_PATH=/usr/lib/llvm-3.4/lib
 before_install:
-   - dialyzer --build_plt --apps erts kernel stdlib compiler
-   - sudo apt-get install libclang1-3.4 libclang-3.4-dev
+  - dialyzer --build_plt --apps erts kernel stdlib compiler
+  - sudo apt-get update
+  - sudo apt-get install libclang1-3.4 libclang-3.4-dev
 script: "make all"
