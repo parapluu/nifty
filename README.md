@@ -6,7 +6,7 @@ Nifty is an interface generator that allows you to use C modules from Erlang.
 
 Webpage: [http://parapluu.github.io/nifty/]
 
-## A simple Example
+## A Simple Example
 
 Let's say we have two C files **mylib.h** and **mylib.c** which we want to use in our Erlang application:
 
