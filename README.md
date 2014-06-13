@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/parapluu/nifty.svg?branch=master)](https://travis-ci.org/parapluu/nifty)
+
 # Nifty - Erlang NIF Wrapper Generator
 
 Nifty is an interface generator that allows you to use C modules from Erlang.
