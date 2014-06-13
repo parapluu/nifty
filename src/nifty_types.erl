@@ -11,6 +11,9 @@
 -export([check_type/2,
 	 resolve_type/2]).
 
+-define(CLANG_BUILTINS, ["__int128_t", "__builtin_va_list", "__uint128_t"]).
+-define(CLANG_BLACKLIST, ["__builtin_va_list", "__va_list_tag"]).
+
 %% @doc takes a type and a type table and returns the resolved type (according to the type table)
 -spec resolve_type(nifty_clangparse:ctype(), nifty_clangparse:type_table()) -> nifty_clangparse:ctype() | undef.
 resolve_type(Type, Types) ->
@@ -33,7 +36,8 @@ resolve_type2(Type, Types) ->
 
 -spec check_type(nifty_clangparse:ctype(), nifty_clangparse:type_table()) -> boolean().
 check_type(Type, Types) ->
-    check_type(Type, Types, dict:new()).
+    (not lists:member(Type, ?CLANG_BLACKLIST)) andalso
+	check_type(Type, Types, dict:new()).
 
 check_type(Type, Types, Structs) ->
      check_type2(Type, nifty:get_types(), dict:new()) orelse check_type2(Type, Types, Structs).
