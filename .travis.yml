@@ -1,0 +1,5 @@
+language: erlang
+script: "make all"
+before_install: dialyzer --build_plt --apps erts kernel stdlib compiler
+otp_release:
+   - 17.0
