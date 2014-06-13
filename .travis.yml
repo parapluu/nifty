@@ -6,6 +6,6 @@ env:
 before_install:
   - sudo add-apt-repository -y ppa:h-rayflood/llvm
   - sudo apt-get update
-  - sudo apt-get install libclang1-3.4 libclang-3.4-dev
+  - sudo apt-get install llvm-toolchain-3.4
   - dialyzer --build_plt --apps erts kernel stdlib compiler
 script: "make all"
