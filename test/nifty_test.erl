@@ -10,35 +10,33 @@
 
 -spec compile_builtin() -> ok.
 compile_builtin() ->
-    ok = nifty_compiler:compile("../test/cfiles/builtin_types.h", 
-				nt_builtin, 
-				?OPTS("../test/cfiles/builtin_types.c")).
+    ?_assertEqual(ok, nifty_compiler:compile("../test/cfiles/builtin_types.h", 
+					 nt_builtin, 
+					 ?OPTS("../test/cfiles/builtin_types.c"))).
 
--spec call_functions_builtin() -> ok.
+-spec call_functions_builtin() -> term().
 call_functions_builtin() ->
-    1 = nt_builtin:f1(1),
-    1 = nt_builtin:f2(1),
-    1 = nt_builtin:f3(1),
-    1 = nt_builtin:f4(1),
-    1 = nt_builtin:f5(1),
-    1 = nt_builtin:f6(1),
-    1 = nt_builtin:f7(1),
-    1 = nt_builtin:f8(1),
-    1.0 = nt_builtin:f9(1.0),
-    1.0 = nt_builtin:f10(1.0),
-    P = nifty:pointer(),
-    nt_builtin:f11(P),
-    nifty:free(P),
-    P2 = nifty:mem_alloc(10),
-    nt_builtin:f11(P2),
-    nifty:free(P2),
-    ok.
+    [?_assertEqual(1, nt_builtin:f1(1)),
+     ?_assertEqual(1, nt_builtin:f2(1)),
+     ?_assertEqual(1, nt_builtin:f3(1)),
+     ?_assertEqual(1, nt_builtin:f4(1)),
+     ?_assertEqual(1, nt_builtin:f5(1)),
+     ?_assertEqual(1, nt_builtin:f6(1)),
+     ?_assertEqual(1, nt_builtin:f7(1)),
+     ?_assertEqual(1, nt_builtin:f8(1)),
+     ?_assertEqual(1.0, nt_builtin:f9(1.0)),
+     ?_assertEqual(1.0, nt_builtin:f10(1.0)),
+     ?_assertEqual({0, "nt_builtin.void *"}, nt_builtin:f11({0, "void *"})),
+     ?_assertEqual(ok, fun () ->
+				 P = nifty:mem_alloc(10),
+				 {_, _} = nt_builtin:f12(P),
+				 nifty:free(P)
+			 end())].
 
--spec builtin_test() -> ok.
-builtin_test() ->
-    ok = compile_builtin(),
-    ok = call_functions_builtin().
-
+-spec builtin_test_() -> term().
+builtin_test_() ->
+    {timeout, 60, [compile_builtin(),
+     call_functions_builtin()]}.
 
 %% -spec call_functions_builtin_remote() -> ok.
 %% call_functions_builtin_remote() ->
