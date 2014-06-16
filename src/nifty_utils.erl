@@ -25,7 +25,7 @@
 -type port_specs() :: {'port_specs', [target()]}.
 -type config() :: [port_specs() | {atom(), term()}].
 
-
+%% @doc Merges two configurations
 -spec merge_nif_spec(config(), target()) -> config().
 merge_nif_spec(Config, {".*", "$NIF", Sources, [{env, Env}]} = Spec) ->
     case proplists:get_value(port_specs, Config) of
@@ -62,17 +62,21 @@ store_nifspec([H|T], Spec, Acc) ->
 	_ -> store_nifspec(T, Spec, [H|Acc])
     end.
 
+%% @doc Returns an empty configuration
 -spec new_config() -> [].
 new_config() -> [].
 
+%% @doc Adds the sources <code>S</code> to the NIF module
 -spec add_sources([source()], config()) -> config().
 add_sources(S, C) ->
     merge_nif_spec(C, {".*", "$NIF", S, [{env, []}]}).
 
+%% @doc Adds the compile flags <code>F</code> to the NIF module
 -spec add_cflags(string(), config()) -> config().
 add_cflags(F, C) ->
     merge_nif_spec(C, {".*", "$NIF", [], [{env, [{"CFLAGS", "$CFLAGS "++F}]}]}).
 
+%% @doc Adds link flags <code>F</code> to the NIF module
 -spec add_ldflags(string(), config()) -> config().
 add_ldflags(F, C) ->
     merge_nif_spec(C, {".*", "$NIF", [], [{env, [{"LDFLAGS", "$LDFLAGS "++F}]}]}).

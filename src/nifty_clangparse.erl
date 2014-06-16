@@ -64,6 +64,7 @@ parse(Args) ->
 	     dict:from_list(CT)}
     end.
 
+%% @doc building the type table from the raw parser output
 -spec build_type_table(types(), constr_table()) -> type_table().
 build_type_table(Types, Constr) ->
     Constr_Types = fill_constructed(Constr, dict:new()),

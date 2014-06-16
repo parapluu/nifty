@@ -36,6 +36,7 @@ resolve_type2(Type, Types) ->
 	    undef
     end.
 
+%% @doc Checks if <code>Type</code> is a valid type
 -spec check_type(nifty_clangparse:ctype(), nifty_clangparse:type_table()) -> boolean().
 check_type(Type, Types) ->
     (not lists:member(Type, ?CLANG_BLACKLIST)) andalso
