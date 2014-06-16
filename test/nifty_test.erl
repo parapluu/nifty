@@ -36,7 +36,7 @@ call_functions_builtin() ->
 -spec builtin_test_() -> term().
 builtin_test_() ->
     {timeout, 60, [compile_builtin(),
-     call_functions_builtin()]}.
+		   call_functions_builtin()]}.
 
 %% -spec call_functions_builtin_remote() -> ok.
 %% call_functions_builtin_remote() ->
@@ -64,124 +64,104 @@ builtin_test_() ->
 %%     ok = call_functions_builtin_remote(),
 %%     ok = nt_builtin_remote:stop().
 
--spec compile_arguments() -> ok.
+-spec compile_arguments() -> term().
 compile_arguments() ->
-    ok = nifty_compiler:compile("../test/cfiles/arguments.h", 
-				nt_arguments, 
-				?OPTS("../test/cfiles/arguments.c")).
+    ?_assertEqual(ok, nifty_compiler:compile("../test/cfiles/arguments.h", 
+					     nt_arguments, 
+					     ?OPTS("../test/cfiles/arguments.c"))).
 
--spec call_functions_arguments() -> ok.
+-spec call_functions_arguments() -> term().
 call_functions_arguments() ->
-    ok = nt_arguments:f1(),
-    0 = nt_arguments:f3(0,0,0,0),
-    ok = nt_arguments:f2(),
-    1 = nt_arguments:f3(0,0,0,0),
-    10 = nt_arguments:f4(1,2,3,4),
-    ok.
+    [?_assertEqual(ok, nt_arguments:f1()),
+     ?_assertEqual(0, nt_arguments:f3(0,0,0,0)),
+     ?_assertEqual(ok, nt_arguments:f2()),
+     ?_assertEqual(1, nt_arguments:f3(0,0,0,0)),
+     ?_assertEqual(10, nt_arguments:f4(1,2,3,4))].
 
--spec arguments_test() -> ok.
-arguments_test()->
-    ok = compile_arguments(),
-    ok = call_functions_arguments().
+-spec arguments_test_() -> term().
+arguments_test_()->
+    {timeout, 60, [compile_arguments(),
+		   call_functions_arguments()]}.
 
--spec compile_structs() -> ok.
+-spec compile_structs() -> term().
 compile_structs() ->
-    ok = nifty_compiler:compile("../test/cfiles/structs.h", nt_structs, []).
+    ?_assertEqual(ok, nifty_compiler:compile("../test/cfiles/structs.h", nt_structs, [])).
 
 -spec  call_functions_structs() -> ok.
 call_functions_structs() ->
-    {_,_,_,_,_} =  nifty:dereference(nt_structs:record_to_erlptr(nt_structs:new("struct s1"))),
-    {_,_,_} = nifty:dereference(nt_structs:record_to_erlptr(nt_structs:new("struct s2"))),
-    {_,_,_} = nifty:dereference(nt_structs:record_to_erlptr(nt_structs:new("struct s3"))),
-    {_,_,_} = nifty:dereference(nt_structs:record_to_erlptr(nt_structs:new("struct s4"))),
-    S4 = {s4, 0.5, 10},
-    S4 = nifty:dereference(nifty:pointer_of(S4, "nt_structs.struct s4")),
-    ok.
+    [?_assertMatch({_,_,_,_,_}, nifty:dereference(nt_structs:record_to_erlptr(nt_structs:new("struct s1")))),
+     ?_assertMatch({_,_,_}, nifty:dereference(nt_structs:record_to_erlptr(nt_structs:new("struct s2")))),
+     ?_assertMatch({_,_,_}, nifty:dereference(nt_structs:record_to_erlptr(nt_structs:new("struct s3")))),
+     ?_assertMatch({_,_,_}, nifty:dereference(nt_structs:record_to_erlptr(nt_structs:new("struct s4")))),
+     ?_assertEqual({s4, 0.5, 10}, nifty:dereference(nifty:pointer_of({s4, 0.5, 10}, "nt_structs.struct s4")))].
 
--spec structs_test() -> ok.
-structs_test() ->
-    ok = compile_structs(),
-    ok = call_functions_structs().
+-spec structs_test_() -> term().
+structs_test_() ->
+    {timeout, 60, [compile_structs(),
+		   call_functions_structs()]}.
 
--spec compile_proxy() -> ok.
+-spec compile_proxy() -> term().
 compile_proxy() ->
-    ok = nifty_compiler:compile("../test/cfiles/proxy_header.h", 
+    ?_assertEqual(ok, nifty_compiler:compile("../test/cfiles/proxy_header.h", 
 				nt_proxy, 
-				[{port_specs,
-				  [{".*",
-				    "$NIF",	
-				    ["../test/cfiles/proxy_header.c"],
-				    [{env, [{"CFLAGS", "$CFLAGS -I../test/cfiles"}]}]
-				   }]
-				 }]).
+				nifty_utils:add_sources(
+				  ["../test/cfiles/proxy_header.c"],
+				  nifty_utils:add_cflags("-I../test/cfiles", [])))).
 
--spec call_functions_proxy() -> ok.
+-spec call_functions_proxy() -> term().
 call_functions_proxy() ->
-    F = {0, "nifty.void*"},
-    {0, _} = nt_proxy:fproxy(F),
-    none = proplists:lookup(strcmp, nt_proxy:module_info(exports)),
-    ok.
+    [?_assertMatch({0, _}, nt_proxy:fproxy({0, "void *"})),
+     ?_assertEqual('none', proplists:lookup(strcmp, nt_proxy:module_info(exports)))].
 
 
--spec proxy_test() -> ok.
-proxy_test()->
-    ok = compile_proxy(),
-    ok = call_functions_proxy().
+-spec proxy_test_() -> term().
+proxy_test_()->
+    {timeout, 60, [compile_proxy(),
+		   call_functions_proxy()]}.
 
--spec fptr_test() -> ok.
-fptr_test() ->
-    ok = nifty_compiler:compile("../test/cfiles/fptr.h", nt_fptr, []).
+-spec fptr_test_() -> term().
+fptr_test_() ->
+    {timeout, 60, 
+     ?_assertEqual(ok, nifty_compiler:compile("../test/cfiles/fptr.h", nt_fptr, []))}.
 
--spec compile_array() -> ok.
+-spec compile_array() -> term().
 compile_array() ->
-    ok = nifty_compiler:compile("../test/cfiles/array.h", 
-				nt_array, 
-				?OPTS("../test/cfiles/array.c")).
+    ?_assertEqual(ok, nifty_compiler:compile(
+			"../test/cfiles/array.h", nt_array, 
+			nifty_utils:add_sources(["../test/cfiles/array.c"], []))).
+
 -spec call_functions_array() -> ok.
 call_functions_array() ->
-    A = [1,0,0,0,
-	 1,0,0,0,
-	 1,0,0,0,
-	 1,0,0,0,
-	 1,0,0,0,
-	 1,0,0,0,
-	 1,0,0,0,
-	 1,0,0,0,
-	 1,0,0,0,
-	 1,0,0,0],
-    10=nt_array:sumarray(nifty:mem_write(A)),
-    %% struct
-    B = [1,1,1,1,1,1,1,1,1,1],
-    Rec = {array_st, nifty:mem_write(B), 0, nifty:mem_write(B)},
-    Ptr = nifty:pointer_of(Rec, "nt_array.struct array_st"),
-    20 = nt_array:sumstruct_array(Ptr),
-    ok.
+    [?_assertEqual(10, nt_array:sumarray(nifty:mem_write([1,0,0,0,1,0,0,0,1,0,0,0,
+							 1,0,0,0,1,0,0,0,1,0,0,0,
+							 1,0,0,0,1,0,0,0,1,0,0,0,
+							 1,0,0,0]))),
+     ?_assertEqual(20, fun () ->
+			       B = [1,1,1,1,1,1,1,1,1,1],
+			       Rec = {array_st, nifty:mem_write(B), 0, nifty:mem_write(B)},
+			       Ptr = nifty:pointer_of(Rec, "nt_array.struct array_st"),
+			       nt_array:sumstruct_array(Ptr)
+		       end())].
 
--spec array_test() -> ok.
-array_test() ->
-    ok = compile_array(),
-    ok = call_functions_array().
+-spec array_test_() -> term().
+array_test_() ->
+    {timeout, 60, [compile_array(),
+		   call_functions_array()]}.
 
-
--spec compile_tut2() -> ok.
+-spec compile_tut2() -> term().
 compile_tut2() ->
-    ok = nifty_compiler:compile("../test/cfiles/answer.h", 
-				nt_tut2, 
-				[{port_specs,
-				  [{".*",
-				    "$NIF",	
-				    ["../test/cfiles/answer.c"],
-				    [{env, [{"CFLAGS", "$CFLAGS -I../test/cfiles"}]}]
-				   }]
-				 }]).
+    ?_assertEqual(ok, nifty_compiler:compile("../test/cfiles/answer.h", 
+					     nt_tut2, 
+					     nifty_utils:add_sources(
+					       ["../test/cfiles/answer.c"],
+					       nifty_utils:add_cflags(
+						 "-I../test/cfiles", [])))).
 
--spec call_tut2() -> ok.
+-spec call_tut2() -> term().
 call_tut2() ->
-    42=nt_tut2:life_universe_and_everything(),
-    ok.
+    ?_assertEqual(42, nt_tut2:life_universe_and_everything()).
 
-
--spec tut2_test() -> ok.
-tut2_test()->
-    ok = compile_tut2(),
-    ok = call_tut2().
+-spec tut2_test_() -> term().
+tut2_test_()->
+    {timeout, 60, [compile_tut2(),
+		   call_tut2()]}.
