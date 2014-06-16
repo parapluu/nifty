@@ -37,8 +37,6 @@
 -define(BASE_TYPES, ["char", "int", "float", "double", "void"]).
 -define(SPECIFIER, ["signed", "unsigned", "short", "long"]).
 
--define(CLANG_BLACKLIST, ["__builtin_va_list", "__va_list_tag"]).
-
 init() -> %% loading code from jiffy
     PrivDir = case code:priv_dir(?MODULE) of
 		  {error, _} ->

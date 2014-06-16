@@ -12,7 +12,9 @@
 	 resolve_type/2]).
 
 -define(CLANG_BUILTINS, ["__int128_t", "__builtin_va_list", "__uint128_t"]).
--define(CLANG_BLACKLIST, ["__builtin_va_list", "__va_list_tag"]).
+-define(CLANG_BLACKLIST, ["__builtin_va_list",
+			  "__va_list_tag",
+			  "__va_list_tag [1]"]).
 
 %% @doc takes a type and a type table and returns the resolved type (according to the type table)
 -spec resolve_type(nifty_clangparse:ctype(), nifty_clangparse:type_table()) -> nifty_clangparse:ctype() | undef.

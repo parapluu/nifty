@@ -58,12 +58,12 @@ render(InterfaceFile, ModuleName, CFlags, Options) ->
 
 check_types(Types, Constr) ->
     %% somehow we have incomplete types in the type table
-    Pred = fun (_, Value) ->
+    Pred = fun (Key, Value) ->
 		   case Value of
 		       {userdef, [{struct, Name}]} ->
 			   dict:is_key({struct, Name}, Constr);
 		       _ ->
-			   true
+			   nifty_types:check_type(Key, Types)
 		   end
 	   end,
     dict:filter(Pred, Types).
@@ -94,7 +94,6 @@ check_args([H|T], Types) ->
 	   end,
     case nifty_types:check_type(Type, Types) of
 	false -> 
-	    io:format("~p~n~p~n", [Type, Types]),
 	    false;
 	true -> check_args(T, Types)
     end.    
