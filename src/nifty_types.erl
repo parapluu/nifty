@@ -44,7 +44,7 @@ check_type(Type, Types) ->
 	check_type(Type, Types, undef).
 
 %% @doc Checks if <code>Type</code> is a valid type
--spec check_type(nifty_clangparse:ctype(), nifty_clangparse:type_table(), nifty_clangparse:constr_table()) -> boolean().
+-spec check_type(nifty_clangparse:ctype(), nifty_clangparse:type_table(), nifty_clangparse:constr_table() | undef) -> boolean().
 check_type(Type, Types, Constructors) ->
     (not lists:member(Type, ?CLANG_BLACKLIST)) andalso
 						 (check_type2(Type, nifty:get_types(), dict:new()) orelse 
