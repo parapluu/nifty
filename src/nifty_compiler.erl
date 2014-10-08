@@ -46,15 +46,28 @@ render(InterfaceFile, ModuleName, CFlags, Options) ->
 		    		  {"symbols", Symbols},
 		    		  {"constructors", Constructors},
 		    		  {"none", none}],
-		    {ok, COutput} = nifty_c_template:render(RenderVars),
-		    {ok, ErlOutput} = nifty_erl_template:render(RenderVars),
-		    {ok, SaveErlOutput} = nifty_save_erl_template:render(RenderVars),
-		    {ok, HrlOutput} = nifty_hrl_template:render(RenderVars),
-		    {ok, AppOutput} = nifty_app_template:render(RenderVars),
-		    {ok, ConfigOutput} = nifty_config_template:render(RenderVars),
+		    COutput = render_with_errors(nifty_c_template, RenderVars),
+		    ErlOutput = render_with_errors(nifty_erl_template, RenderVars),
+		    SaveErlOutput = render_with_errors(nifty_save_erl_template, RenderVars),
+		    HrlOutput = render_with_errors( nifty_hrl_template, RenderVars),
+		    AppOutput = render_with_errors(nifty_app_template, RenderVars),
+		    ConfigOutput = render_with_errors(nifty_config_template, RenderVars),
 		    {{ErlOutput, SaveErlOutput, HrlOutput, COutput, AppOutput, ConfigOutput}, Lost}
 	    end
     end.
+
+render_with_errors(Template, Vars) ->
+    try Template:render(Vars) of
+	{ok, Output} -> Output;
+	{error, Err} -> 
+	    io:format("Error during rendering of template ~p:~n~p~nPlease report the error~n", [Template, Err]),
+	    throw(nifty_render_error)
+    catch
+	ET:E ->
+	    io:format("~p:~p during rendering of temlate ~p:~nVars: ~n~p~nPlease report the error~n", [ET, E, Template, Vars]),
+	    throw(nifty_render_error)
+    end.
+
 
 check_types(Types, Constr) ->
     %% somehow we have incomplete types in the type table
@@ -63,7 +76,7 @@ check_types(Types, Constr) ->
 		       {userdef, [{struct, Name}]} ->
 			   dict:is_key({struct, Name}, Constr);
 		       _ ->
-			   nifty_types:check_type(Key, Types)
+			   nifty_types:check_type(Key, Types, Constr)
 		   end
 	   end,
     dict:filter(Pred, Types).

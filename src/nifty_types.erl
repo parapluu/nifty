@@ -9,6 +9,7 @@
 
 -module(nifty_types).
 -export([check_type/2,
+	 check_type/3,
 	 resolve_type/2]).
 
 -define(CLANG_BUILTINS, ["__int128_t", "__builtin_va_list", "__uint128_t"]).
@@ -40,16 +41,21 @@ resolve_type2(Type, Types) ->
 -spec check_type(nifty_clangparse:ctype(), nifty_clangparse:type_table()) -> boolean().
 check_type(Type, Types) ->
     (not lists:member(Type, ?CLANG_BLACKLIST)) andalso
-	check_type(Type, Types, dict:new()).
+	check_type(Type, Types, undef).
 
-check_type(Type, Types, Structs) ->
-     check_type2(Type, nifty:get_types(), dict:new()) orelse check_type2(Type, Types, Structs).
+%% @doc Checks if <code>Type</code> is a valid type
+-spec check_type(nifty_clangparse:ctype(), nifty_clangparse:type_table(), nifty_clangparse:constr_table()) -> boolean().
+check_type(Type, Types, Constructors) ->
+    (not lists:member(Type, ?CLANG_BLACKLIST)) andalso
+						 (check_type2(Type, nifty:get_types(), dict:new()) orelse 
+						  check_type2(Type, Types, Constructors)).
 
-check_type2(Type, Types, Structs) ->
+check_type2(Type, Types, Constructors) ->
     case dict:is_key(Type, Types) of
 	true ->
 	    case resolve_type(Type, Types) of
-		undef -> false;
+		undef -> 
+		    false;
 		RType ->
 		    case dict:fetch(RType, Types) of
 			{userdef, [RType]} ->
@@ -57,9 +63,11 @@ check_type2(Type, Types, Structs) ->
 			{userdef, [T]} ->
 			    %% constructor or dead end
 			    case T of
-				{_, Name} ->
-				    dict:is_key(Name, Structs);
-				    %% true; %% constructor is in constructor table
+				{struct, Name} ->
+				    case Constructors of
+					undef -> true;
+					C -> dict:is_key({struct, Name}, C)
+				    end;
 				_->
 				    case T=:=Type of
 					true ->
@@ -82,4 +90,3 @@ check_type2(Type, Types, Structs) ->
 	false ->
 	    false
     end.
-
