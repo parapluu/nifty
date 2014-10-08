@@ -40,7 +40,7 @@ typedef struct s7 {
 
 struct s8 {
   s7_t f1;
-}
+};
 
 /* No functions */
 
