@@ -34,6 +34,17 @@ struct s6 {
   struct s5* alot[10];
 };
 
+typedef struct s7 {
+  int f1;
+} s7_t;
+
+struct s8 {
+  s7_t f1;
+}
+
 /* No functions */
+
+
+
 
 #endif /* NIFTY_STRUCTS_TEST */
