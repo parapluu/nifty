@@ -201,7 +201,8 @@ build_type(Module, Type, Address) ->
     Types = Module:get_types(),
     case dict:is_key(Type, Types) of
 	true -> 
-	    {Kind, Def} =  dict:fetch(Type, Types),
+	    RType = nifty_types:resolve_type(Type, Types),
+	    {Kind, Def} =  dict:fetch(RType, Types),
 	    case Kind of
 		userdef ->
 		    case Def of 
