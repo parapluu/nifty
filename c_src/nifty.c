@@ -12,28 +12,39 @@
 #include <string.h>
 
 #if _WIN32 || _WIN64
-#if _WIN64
+	#if _WIN64
 typedef unsigned __int64 uint64_t;
 #define ENV64BIT
-#else
+	#else
 typedef unsigned __int32 uint32_t;
 #define ENV32BIT
-#endif
+	#endif
 #else // clang gcc
 #include <stdint.h>
-#if __x86_64__
-#define ENV64BIT
-#else
-#define ENV32BIT
-#endif
+	#if __x86_64__
+		#define ENV64BIT
+	#else
+		#define ENV32BIT
+	#endif
 #endif 
+
+#ifdef ENV32BIT
+typedef uint32_t ptr_t;
+#define nifty_get_ptr(env, term, ip) enif_get_ulong((env), (term), (ip))
+#define nifty_make_ptr(env, i) enif_make_ulong((env), (i))
+#else /* ENV64BIT */
+typedef uint64_t ptr_t;
+#define nifty_get_ptr(env, term, ip) enif_get_uint64((env), (term), (ip))
+#define nifty_make_ptr(env, i) enif_make_uint64((env), (i))
+#endif
+
 
 static ERL_NIF_TERM
 raw_free(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
   int err;
-  uint64_t ptr;
-  err = enif_get_uint64(env, argv[0], &ptr);
+  ptr_t ptr;
+  err = nifty_get_ptr(env, argv[0], &ptr);
   if (!err) {
     goto error;
   }
@@ -48,12 +59,12 @@ static ERL_NIF_TERM
 raw_deref(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
   int err;
-  uint64_t ptr;
-  err = enif_get_uint64(env, argv[0], &ptr);
+  ptr_t ptr;
+  err = nifty_get_ptr(env, argv[0], &ptr);
   if (!err) {
     goto error;
   }
-  return enif_make_int64(env, (*(uint64_t*)ptr));
+  return enif_make_int64(env, (*(ptr_t*)ptr));
  error:
   return enif_make_badarg(env);
 }
@@ -62,8 +73,8 @@ static ERL_NIF_TERM
 float_deref(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
   int err;
-  uint64_t ptr;
-  err = enif_get_uint64(env, argv[0], &ptr);
+  ptr_t ptr;
+  err = nifty_get_ptr(env, argv[0], &ptr);
   if (!err) {
     goto error;
   }
@@ -93,7 +104,7 @@ float_ref(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
   *value = (float)helper;
   
   return enif_make_tuple2(env, 
-			  enif_make_uint64(env, (uint64_t)value),
+			  nifty_make_ptr(env, (ptr_t)value),
 			  enif_make_string(env, "nifty.float *", ERL_NIF_LATIN1));
 
  error:
@@ -104,8 +115,8 @@ static ERL_NIF_TERM
 double_deref(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
   int err;
-  uint64_t ptr;
-  err = enif_get_uint64(env, argv[0], &ptr);
+  ptr_t ptr;
+  err = nifty_get_ptr(env, argv[0], &ptr);
   if (!err) {
     goto error;
   }
@@ -132,7 +143,7 @@ double_ref(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
   }
 
   return enif_make_tuple2(env, 
-			  enif_make_uint64(env, (uint64_t)value),
+			  nifty_make_ptr(env, (ptr_t)value),
 			  enif_make_string(env, "nifty.double *", ERL_NIF_LATIN1));
 
  error:
@@ -143,12 +154,12 @@ static ERL_NIF_TERM
 cstr_to_list(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
   int err, ar;
-  uint64_t ptr;
+  ptr_t ptr;
   ERL_NIF_TERM *tpl;
 
   err = enif_get_tuple(env, argv[0], &ar, (const ERL_NIF_TERM**)(&tpl));
   if (err) {
-    err = enif_get_uint64(env, tpl[0], &ptr);
+    err = nifty_get_ptr(env, tpl[0], &ptr);
   }
   if (!err) {
     goto error;
@@ -186,7 +197,7 @@ list_to_cstr(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
   }
 
   return enif_make_tuple2(env,
-			  enif_make_int64(env, (uint64_t)cstr),
+			  enif_make_int64(env, (ptr_t)cstr),
 			  enif_make_string(env, "nifty.char *", ERL_NIF_LATIN1));
 
  error:
@@ -209,7 +220,7 @@ mem_write_list(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 	
   err = enif_get_tuple(env, argv[1], &ar, (const ERL_NIF_TERM**)(&tpl));
   if (err) {
-    err = enif_get_uint64(env, tpl[0], (uint64_t*)&ptr);
+    err = nifty_get_ptr(env, tpl[0], (ptr_t*)&ptr);
   }
   if (!err) {
     goto error;
@@ -252,7 +263,7 @@ mem_write_binary(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
   err = enif_get_tuple(env, argv[1], &ar, (const ERL_NIF_TERM**)(&tpl));
   if (err) {
-    err = enif_get_uint64(env, tpl[0], (uint64_t*)&ptr);
+    err = nifty_get_ptr(env, tpl[0], (ptr_t*)&ptr);
   }
   if (!err) {
     goto error;
@@ -278,7 +289,7 @@ mem_read(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
   err = enif_get_tuple(env, argv[0], &ar, (const ERL_NIF_TERM**)(&tpl));
   if (err) {
-    err = enif_get_uint64(env, tpl[0], (uint64_t*)&ptr);
+    err = nifty_get_ptr(env, tpl[0], (ptr_t*)&ptr);
   }
   if (!err) {
     goto error;
@@ -305,20 +316,20 @@ mem_read(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 static ERL_NIF_TERM
 mem_alloc(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-  uint64_t ptr, size, err;
+  ptr_t ptr, size, err;
 
-  err = enif_get_uint64(env, argv[0], &size);
+  err = nifty_get_ptr(env, argv[0], &size);
   if (!err) {
     goto error;
   }
 
-  ptr = (uint64_t)enif_alloc(size);
+  ptr = (ptr_t)enif_alloc(size);
   if (!ptr) {
     goto error;
   }
 
   return enif_make_tuple2(env,
-			  enif_make_uint64(env, (uint64_t)ptr),
+			  nifty_make_ptr(env, (ptr_t)ptr),
 			  enif_make_string(env, "nifty.void *", ERL_NIF_LATIN1));
 
  error:
@@ -354,7 +365,7 @@ static ERL_NIF_TERM
 get_env(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
   return enif_make_tuple2(env, 
-			  enif_make_uint64(env, (uint64_t)env),
+			  nifty_make_ptr(env, (ptr_t)env),
 			  enif_make_string(env, "nifty.void *", ERL_NIF_LATIN1));
 }
 

@@ -26,13 +26,13 @@
 	{{N}}_ptr  = record_to_erlptr_{{types|fetch:type|getNth:2|getNth:1|getNth:2}}(env, {{erlarg}});
 	err = enif_get_tuple(env, {{N}}_ptr, &{{N}}_ar, (const ERL_NIF_TERM**)(&{{N}}_tpl));
 	if (err) {
-		err = enif_get_uint64(env, {{N}}_tpl[0], (uint64_t*)(&{{carg}}));
+		err = nifty_get_ptr(env, {{N}}_tpl[0], (ptr_t*)(&{{carg}}));
 	}
 	{% else %}
 	{{carg}}_ptr  = record_to_erlptr_{{types|fetch:type|getNth:2|getNth:1|getNth:2}}(env, {{erlarg}});
 	err = enif_get_tuple(env, {{carg}}_ptr, &{{carg}}_ar, (const ERL_NIF_TERM**)(&{{carg}}_tpl));
 	if (err) {
-		err = enif_get_uint64(env, {{carg}}_tpl[0], (uint64_t*)(&{{carg}}));
+		err = nifty_get_ptr(env, {{carg}}_tpl[0], (ptr_t*)(&{{carg}}));
 	}
 	{% endif %}
 {% endif %}
@@ -44,7 +44,7 @@
 {% endif %}
 
 {% if phase=="to_erl"%}
-{{erlarg}} = ptr_to_record_{{types|fetch:type|getNth:2|getNth:1|getNth:2}}(env, (uint64_t)(&{{carg}}));
+{{erlarg}} = ptr_to_record_{{types|fetch:type|getNth:2|getNth:1|getNth:2}}(env, (ptr_t)(&{{carg}}));
 {% endif %}
 
 {% if phase=="cleanup"%}

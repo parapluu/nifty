@@ -9,10 +9,10 @@
 #if _WIN32 || _WIN64
 	#if _WIN64
 typedef unsigned __int64 uint64_t;
-		#define ENV64BIT
+#define ENV64BIT
 	#else
 typedef unsigned __int32 uint32_t;
-		#define ENV32BIT
+#define ENV32BIT
 	#endif
 #else // clang gcc
 #include <stdint.h>
@@ -22,6 +22,16 @@ typedef unsigned __int32 uint32_t;
 		#define ENV32BIT
 	#endif
 #endif 
+
+#ifdef ENV32BIT
+typedef uint32_t ptr_t;
+#define nifty_get_ptr(env, term, ip) enif_get_ulong((env), (term), (ip))
+#define nifty_make_ptr(env, i) enif_make_ulong((env), (i))
+#else /* ENV64BIT */
+typedef uint64_t ptr_t;
+#define nifty_get_ptr(env, term, ip) enif_get_uint64((env), (term), (ip))
+#define nifty_make_ptr(env, i) enif_make_uint64((env), (i))
+#endif
 
 /*
  * forward declarations

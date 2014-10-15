@@ -1,13 +1,13 @@
 {% if prototypes==1 %}
 {% with keys = constructors|fetch_keys %}{% for constr in keys %}{% with kind=constr|getNth:1 name=constr|getNth:2 %}{% if kind=="struct" %}
-static ERL_NIF_TERM ptr_to_record_{{name}}(ErlNifEnv* env, uint64_t ptr);
+static ERL_NIF_TERM ptr_to_record_{{name}}(ErlNifEnv* env, ptr_t ptr);
 static ERL_NIF_TERM record_to_erlptr_{{name}}(ErlNifEnv* env, ERL_NIF_TERM record);
 {% endif %}{% endwith%}{% endfor %}{% endwith %}
 {% else %}
 
 {% with keys = constructors|fetch_keys %}{% for constr in keys %}{% with kind=constr|getNth:1 name=constr|getNth:2 %}{% if kind=="struct" %}
 static ERL_NIF_TERM
-ptr_to_record_{{name}}(ErlNifEnv* env, uint64_t ptr)
+ptr_to_record_{{name}}(ErlNifEnv* env, ptr_t ptr)
 {
 	{% if constructors|fetch:constr|length > 0 %}
 	struct {{name}}* cstruct=(struct {{name}}*)ptr;
@@ -107,7 +107,7 @@ record_to_erlptr_{{name}}(ErlNifEnv* env, ERL_NIF_TERM record)
 
 	return enif_make_tuple2(
 		env,
-		enif_make_uint64(env, (uint64_t)cstruct),
+		nifty_make_ptr(env, (ptr_t)cstruct),
 		enif_make_string(env, "{{module}}.struct {{name}} *", ERL_NIF_LATIN1));
 
 error:
@@ -161,7 +161,7 @@ erlptr_to_record(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
 	int err, written, tmp;
 	unsigned int l;
-	uint64_t ptr;
+	ptr_t ptr;
 	char* cstr;
 
 	ERL_NIF_TERM *tpl;
@@ -191,7 +191,7 @@ erlptr_to_record(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 		written += tmp;
 	}
 
-	err = enif_get_uint64(env, tpl[0], &ptr);
+	err = nifty_get_ptr(env, tpl[0], &ptr);
 	if (!err) {
 		goto error;
 	}
@@ -258,7 +258,7 @@ new_type_object(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 	int err, written, tmp;
 	unsigned int l;
 	char* cstr;
-	uint64_t type_holder;
+	ptr_t type_holder;
 	ERL_NIF_TERM retval;
 
 	err = enif_get_list_length(env, argv[0], &l);
@@ -285,7 +285,7 @@ new_type_object(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 	if ((!(strcmp((const char*)cstr, "{{name}}")))
 		|| (!(strcmp((const char*)cstr, "struct {{name}}"))))
 	{
-		type_holder = (uint64_t)enif_alloc(sizeof(struct {{name}}));
+		type_holder = (ptr_t)enif_alloc(sizeof(struct {{name}}));
 		retval=ptr_to_record_{{name}}(env, type_holder);
 		enif_free((void*)type_holder);
 		return retval;
