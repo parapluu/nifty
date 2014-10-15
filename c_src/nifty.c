@@ -16,7 +16,6 @@
 typedef unsigned __int64 uint64_t;
 #define ENV64BIT
 	#else
-typedef unsigned __int32 uint32_t;
 #define ENV32BIT
 	#endif
 #else // clang gcc
@@ -29,7 +28,7 @@ typedef unsigned __int32 uint32_t;
 #endif 
 
 #ifdef ENV32BIT
-typedef uint32_t ptr_t;
+typedef unsigned long ptr_t;
 #define nifty_get_ptr(env, term, ip) enif_get_ulong((env), (term), (ip))
 #define nifty_make_ptr(env, i) enif_make_ulong((env), (i))
 #else /* ENV64BIT */
