@@ -107,7 +107,7 @@ This translation happens according to the type of the pointer:
 {% highlight Erlang %}
 1> Ptr = nifty:pointer_of(1000, "unsigned int").
 {140313231101928,"nifty.unsigned int *"}
-2> Ptr_Char = nifty:as_type(Ptr, nifty, "unsigned char *").
+2> Ptr_Char = nifty:as_type(Ptr, "nifty.unsigned char *").
 {140313231101928,"nifty.unsigned char *"}
 3> nifty:dereference(Ptr).
 1000
@@ -116,8 +116,8 @@ This translation happens according to the type of the pointer:
 {% endhighlight %}
 
 ### Casting A Pointer To A Different Type
-As shown in the previous section, it is possible to cast a pointer to a different type. `nifty:as_type/3`
-takes a pointer, a module and a type and returns that pointer casted to the type. `as_type/3` also checks
+As shown in the previous section, it is possible to cast a pointer to a different type. `nifty:as_type/2`
+takes a pointer and a type and returns that pointer casted to the type. `as_type/2` also checks
 if the type is known:
 
 {% highlight Erlang %}

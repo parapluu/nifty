@@ -82,5 +82,5 @@ restart it with `restart\0`. Otherwise every function call will return `{error, 
 Restarting the or stopping is a hard reset of the NIF module. Static C variables and allocated memory will behave as you freshly
 loaded the NIF module. This means, that all pointers that you still have are invalid. 
 
-| <a  href="{{ site.url }}/tutorial4">Previous Tutorial</a> | <a  href="{{ site.url }}/files/tut5.tar.gz">Tutorial Files</a> | <a  href="{{ site.url }}/tutorialc">Next Tutorial</a> |
-|-----------------------------------------------------------|----------------------------------------------------------------|-------------------------------------------------------|
+| <a  href="{{ site.url }}/tutorial4">Previous Tutorial</a> | <a  href="{{ site.url }}/files/tut5.tar.gz">Tutorial Files</a> | <a  href="{{ site.url }}/tutorial_trouble">Next Tutorial</a> |
+|-----------------------------------------------------------|----------------------------------------------------------------|--------------------------------------------------------------|
