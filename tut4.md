@@ -123,9 +123,9 @@ if the type is known:
 {% highlight Erlang %}
 1> Ptr = nifty:pointer("int").
 {139715240792040,"nifty.int *"}
-3> nifty:as_type(Ptr, nifty, "char").
+3> nifty:as_type(Ptr, "nifty.char").
 {139715240792040,"nifty.char"}
-4> nifty:as_type(Ptr, nifty, "unknown").
+4> nifty:as_type(Ptr, "nifty.unknown").
 undef %% type is unknown in the scope of nifty
 {% endhighlight %}
 
