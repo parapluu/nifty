@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Module nifty_utils</title>
 <link rel="stylesheet" type="text/css" href="stylesheet.css" title="EDoc">
 </head>
@@ -10,24 +10,88 @@
 <hr>
 
 <h1>Module nifty_utils</h1>
-<ul class="index"><li><a href="#index">Function Index</a></li><li><a href="#functions">Function Details</a></li></ul>
+<ul class="index"><li><a href="#types">Data Types</a></li><li><a href="#index">Function Index</a></li><li><a href="#functions">Function Details</a></li></ul>
+
+
+<h2><a name="types">Data Types</a></h2>
+
+<h3 class="typedecl"><a name="type-arch">arch()</a></h3>
+<p><tt>arch() = nonempty_string()</tt></p>
+
+
+<h3 class="typedecl"><a name="type-config">config()</a></h3>
+<p><tt>config() = [<a href="#type-port_specs">port_specs()</a> | {atom(), term()}]</tt></p>
+
+
+<h3 class="typedecl"><a name="type-env">env()</a></h3>
+<p><tt>env() = {env, [{nonempty_string(), string()}]}</tt></p>
+
+
+<h3 class="typedecl"><a name="type-port_specs">port_specs()</a></h3>
+<p><tt>port_specs() = {port_specs, [<a href="#type-target">target()</a>]}</tt></p>
+
+
+<h3 class="typedecl"><a name="type-source">source()</a></h3>
+<p><tt>source() = nonempty_string()</tt></p>
+
+
+<h3 class="typedecl"><a name="type-target">target()</a></h3>
+<p><tt>target() = {<a href="#type-arch">arch()</a>, <a href="#type-target_name">target_name()</a>, [<a href="#type-source">source()</a>]} | {<a href="#type-arch">arch()</a>, <a href="#type-target_name">target_name()</a>, [<a href="#type-source">source()</a>], <a href="#type-target_options">target_options()</a>}</tt></p>
+
+
+<h3 class="typedecl"><a name="type-target_name">target_name()</a></h3>
+<p><tt>target_name() = nonempty_string()</tt></p>
+
+
+<h3 class="typedecl"><a name="type-target_options">target_options()</a></h3>
+<p><tt>target_options() = [<a href="#type-env">env()</a>]</tt></p>
 
 
 <h2><a name="index">Function Index</a></h2>
-<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#expand-1">expand/1</a></td><td>Returns <code>Path</code> with all environment variables
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#add_cflags-2">add_cflags/2</a></td><td>Adds the compile flags <code>F</code> to the NIF module.</td></tr>
+<tr><td valign="top"><a href="#add_ldflags-2">add_ldflags/2</a></td><td>Adds link flags <code>F</code> to the NIF module.</td></tr>
+<tr><td valign="top"><a href="#add_sources-2">add_sources/2</a></td><td>Adds the sources <code>S</code> to the NIF module.</td></tr>
+<tr><td valign="top"><a href="#expand-1">expand/1</a></td><td>Returns <code>Path</code> with all environment variables
   expanded.</td></tr>
+<tr><td valign="top"><a href="#merge_nif_spec-2">merge_nif_spec/2</a></td><td>Merges two configurations.</td></tr>
+<tr><td valign="top"><a href="#new_config-0">new_config/0</a></td><td>Returns an empty configuration.</td></tr>
 </table>
 
 <h2><a name="functions">Function Details</a></h2>
+
+<h3 class="function"><a name="add_cflags-2">add_cflags/2</a></h3>
+<div class="spec">
+<p><tt>add_cflags(F::string(), C::<a href="#type-config">config()</a>) -&gt; <a href="#type-config">config()</a></tt><br></p>
+</div><p>Adds the compile flags <code>F</code> to the NIF module</p>
+
+<h3 class="function"><a name="add_ldflags-2">add_ldflags/2</a></h3>
+<div class="spec">
+<p><tt>add_ldflags(F::string(), C::<a href="#type-config">config()</a>) -&gt; <a href="#type-config">config()</a></tt><br></p>
+</div><p>Adds link flags <code>F</code> to the NIF module</p>
+
+<h3 class="function"><a name="add_sources-2">add_sources/2</a></h3>
+<div class="spec">
+<p><tt>add_sources(S::[<a href="#type-source">source()</a>], C::<a href="#type-config">config()</a>) -&gt; <a href="#type-config">config()</a></tt><br></p>
+</div><p>Adds the sources <code>S</code> to the NIF module</p>
 
 <h3 class="function"><a name="expand-1">expand/1</a></h3>
 <div class="spec">
 <p><tt>expand(Path::string()) -&gt; string()</tt><br></p>
 </div><p>Returns <code>Path</code> with all environment variables
   expanded</p>
+
+<h3 class="function"><a name="merge_nif_spec-2">merge_nif_spec/2</a></h3>
+<div class="spec">
+<p><tt>merge_nif_spec(Config::<a href="#type-config">config()</a>, Spec::<a href="#type-target">target()</a>) -&gt; <a href="#type-config">config()</a></tt><br></p>
+</div><p>Merges two configurations</p>
+
+<h3 class="function"><a name="new_config-0">new_config/0</a></h3>
+<div class="spec">
+<p><tt>new_config() -&gt; []</tt><br></p>
+</div><p>Returns an empty configuration</p>
 <hr>
 
 <div class="navbar"><a name="#navbar_bottom"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
-<p><i>Generated by EDoc, Apr 10 2014, 11:17:11.</i></p>
+<p><i>Generated by EDoc, Oct 27 2014, 15:27:27.</i></p>
 </body>
 </html>
