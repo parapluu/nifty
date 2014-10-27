@@ -34,7 +34,7 @@ typedef uint64_t ptr_t;
 
 {% if config|config_schedule_dirty %}
 #ifndef ERL_NIF_DIRTY_SCHEDULER_SUPPORT
-#warning "Dirty Schedulers are not supported, deactivating support"
+#warning "Dirty Schedulers are not supported, compiling without..."
 #endif
 {% endif %}
 
