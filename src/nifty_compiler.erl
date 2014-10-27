@@ -16,6 +16,8 @@
 -type renderout() :: {iolist(), iolist(), iolist(), iolist(), iolist(), iolist()}.
 -type modulename() :: string().
 
+-export_type([options/0]).
+
 %% @doc Renders an <code>InterfaceFile</code> into a Erlang module containing of <code>ModuleName</code>.erl
 %% <code>ModuleName</code>.c, <code>ModuleName</code>.app and  <code>rebar</code>.config and returns the 
 %% contents of these files as tuple of iolists (in this order). It uses <code>CFlags</code> to parse the
@@ -173,7 +175,13 @@ rebar_commands(RawArgs) ->
 %% generating wrapper functions for all functions present in the header file. 
 %% <code>InterfaceFile</code> specifies the header file. <code>Module</code> specifies 
 %% the module name of the translated NIF. <code>Options</code> specifies the compile
-%% options. These options are equivalent to rebar's config options.
+%% options. These options are a superset rebar's config options and include 
+%% additional Nifty options: \br
+%%     <code>{nifty, NiftyOptions}</code> \br
+%% where NiftyOptions is a list of options, which can be : \br
+%% <table>
+%% <tr><td>schedule_dirty</td><td>use dirty schedulers</td></tr>
+%% </table>
 -spec compile(string(), module(), options()) -> 'ok' | {'error', reason()} | {'warning' , {'not_complete' , [nonempty_string()]}}.
 compile(InterfaceFile, Module, Options) ->
     ModuleName = atom_to_list(Module),

@@ -31,7 +31,9 @@
 	 dereference_type/1,
 	 discard_const/1,
 	 discard_restrict/1,
-	 loopcounter/2]).
+	 loopcounter/2,
+
+	 config_schedule_dirty/1]).
 
 -spec norm_type(string()) -> string().
 norm_type(Type) ->
@@ -164,4 +166,20 @@ array_size([H|T], Acc) ->
 	    array_size(T, Acc*Size);
 	false ->
 	    Acc
+    end.
+
+-spec config_schedule_dirty(nifty_compiler:options()) -> boolean().
+config_schedule_dirty(Options) ->
+    case proplists:get_value(nifty, Options) of
+	undefined ->
+	    false;
+	NiftyOptions -> 
+	    case proplists:get_value(schedule_dirty, NiftyOptions) of
+		undefined ->
+		    false;
+		false ->
+		    false;
+		_ ->
+		    true
+	    end
     end.

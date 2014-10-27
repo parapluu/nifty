@@ -32,6 +32,12 @@ typedef uint64_t ptr_t;
 #define nifty_make_ptr(env, i) enif_make_uint64((env), (i))
 #endif
 
+{% if config|config_schedule_dirty %}
+#ifndef ERL_NIF_DIRTY_SCHEDULER_SUPPORT
+#warning "Dirty Schedulers are not supported, deactivating support"
+#endif
+{% endif %}
+
 /*
  * forward declarations
  */
