@@ -3,9 +3,11 @@
 
 {% if config|config_schedule_dirty %}
 #ifdef ERL_NIF_DIRTY_SCHEDULER_SUPPORT
+static ERL_NIF_TERM _nifty_impl_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]);
+
 static ERL_NIF_TERM
 _nifty_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
-  return enif_schedule_dirty_nif(env, 0, _nifty_impl_{{name}}, argc, argv);
+  return enif_schedule_nif(env, "{{name}}", 0, &_nifty_impl_{{name}}, argc, argv);
 }
 
 static ERL_NIF_TERM
@@ -158,31 +160,9 @@ _nifty_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 		{% endfor %}
 	{% endwith %}
 
-{% if not config|config_schedule_dirty %}
    	return retval;
-{% endif %}
-{% if config|config_schedule_dirty %}
-#ifdef ERL_NIF_DIRTY_SCHEDULER_SUPPORT
-        return enif_schedule_dirty_nif_finalizer(env, 
-						 retval, 
-						 enif_dirty_nif_finalizer);
-#else
-   	return retval;
-#endif
-{% endif %}
 error:
-{% if not config|config_schedule_dirty %}
 	return enif_make_badarg(env);
-{% endif %}
-{% if config|config_schedule_dirty %}
-#ifdef ERL_NIF_DIRTY_SCHEDULER_SUPPORT
-        return enif_schedule_dirty_nif_finalizer(env, 
-						 enif_make_badarg(env), 
-						 enif_dirty_nif_finalizer);
-#else
-	return enif_make_badarg(env);
-#endif
-{% endif %}
 
 goto error;
 	err++;
