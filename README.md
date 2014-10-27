@@ -76,11 +76,10 @@ Make sure, that you have included <a href="http://proper.softlab.ntua.gr/">PropE
 | ```<type> *```                           | ```{integer(), string()}```  | ```<module>.<type> *```
 
 ## Limitations
-+ unions, enums and function pointers are not supported and Nifty will not be able to translate them correctly.
-+ So far there is no support for anonymous struct. However, Nifty tries to recover from types that it cannot translate and prints an warning (r) during compilation. 
++ unions, enums and function pointers are not supported.
++ So far there is no support for anonymous struct.
++ Functions using unsupported types will not be translated and a warning is returned. 
 + Variable arguments of functions (**va_list** or **...**) is not supported. If **va_list** as type is used, Nifty will print a warning. If **...** is used, then the function is translated **without** the variable arguments: **int printf(const char *format, ...)** will be translated into **printf/1**
 + The header files must be self contained which limits the usage of incomplete types. 
 + There is currently no nice way of using arrays although **nifty:mem_alloc/1** and **nifty:mem_read/1** allow basic usage.
-+ Nifty has not been tested under Windows or 32 bit.
-+ The C-Code Nifty creates contains many empty lines. If you want to inspect the Code or modify it, you should use a tool like astyle (with option -xe) to format the generated code. 
-
++ Nifty has not been tested under Windows.
