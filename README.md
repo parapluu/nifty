@@ -4,7 +4,7 @@
 
 Nifty is an interface generator that allows you to use C modules from Erlang.
 
-Webpage: [http://parapluu.github.io/nifty/]
+Web page: [http://parapluu.github.io/nifty/]
 
 ## A Simple Example
 
