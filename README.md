@@ -39,7 +39,7 @@ specified functions. The second argument specifies the Erlang module the interfa
 In fact, Nifty uses rebar to compile the generated interface.
 
 ## Installation
-After succesfully cloning enter the following commands
+After successfully cloning enter the following commands
 
 ```
 make
