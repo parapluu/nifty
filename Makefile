@@ -41,7 +41,7 @@ fdialyze: compile .nifty_plt
 	dialyzer -n -nn --plt .nifty_plt $(DIALYZER_FLAGS) $(BEAMS)
 
 .nifty_plt:
-	dialyzer --build_plt --output_plt $@ --apps $(DIALYZER_APPS) deps/*/ebin
+	-dialyzer --build_plt --output_plt $@ --apps $(DIALYZER_APPS) deps/*/ebin
 
 tests: compile
 	ERL_LIBS=$(ERL_INCLUDE) $(REBAR) clean compile eunit skip_deps=true
