@@ -176,11 +176,11 @@ rebar_commands(RawArgs) ->
 %% <code>InterfaceFile</code> specifies the header file. <code>Module</code> specifies 
 %% the module name of the translated NIF. <code>Options</code> specifies the compile
 %% options. These options are a superset rebar's config options and include 
-%% additional Nifty options: \br
-%%     <code>{nifty, NiftyOptions}</code> \br
-%% where NiftyOptions is a list of options, which can be : \br
-%% <table>
-%% <tr><td>schedule_dirty</td><td>use dirty schedulers</td></tr>
+%% additional Nifty options: <br/>
+%%     <code>{nifty, NiftyOptions}</code> <br/>
+%% where NiftyOptions is a list of options, which can be : <br/>
+%% <table border="1">
+%% <tr><td><code>schedule_dirty</code></td><td>use dirty schedulers</td></tr>
 %% </table>
 -spec compile(string(), module(), options()) -> 'ok' | {'error', reason()} | {'warning' , {'not_complete' , [nonempty_string()]}}.
 compile(InterfaceFile, Module, Options) ->

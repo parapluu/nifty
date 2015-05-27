@@ -10,6 +10,7 @@
 -module(nifty).
 -export([%% create modules
 	 compile/3,
+	 compile/2,
 	 %% strings
 	 list_to_cstr/1,
 	 cstr_to_list/1,
@@ -81,6 +82,11 @@ load_dependency(Module) ->
 -spec compile(string(), module(), options()) -> 'ok' | {'error', reason()} | {'warning' , {'not_complete' , [nonempty_string()]}}.
 compile(InterfaceFile, Module, Options) ->
     nifty_compiler:compile(InterfaceFile, Module, Options).
+
+%% @doc same as compile(InterfaceFile, Module, []).
+-spec compile(string(), module()) -> 'ok' | {'error', reason()} | {'warning' , {'not_complete' , [nonempty_string()]}}.
+compile(InterfaceFile, Module) ->
+    nifty_compiler:compile(InterfaceFile, Module, []).
 
 %% @doc Returns nifty's base types as a dict
 -spec get_types() -> dict:dict().
