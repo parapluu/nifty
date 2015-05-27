@@ -398,7 +398,7 @@ clean                                Clean
                                                    ">>,
     io:put_chars(S).
 
--spec get_jobs(term()) -> term().
+-spec get_jobs(rebar_config:config()) -> term().
 get_jobs(Config) ->
     rebar_config:get_global(Config, jobs, ?DEFAULT_JOBS).
 

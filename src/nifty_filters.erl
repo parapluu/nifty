@@ -39,10 +39,11 @@
 norm_type(Type) ->
     case string:str(Type, "[") of
 	0 -> Type;
-	S -> case string:str(Type, "]") of
-		 0 -> Type; % error;
-		 E -> norm_type(string:substr(Type, 1, S-1) ++ "*" ++ string:substr(Type, E+1))
-	     end
+	S ->
+	    case string:str(Type, "]") of
+		0 -> Type; % error;
+		E -> norm_type(string:substr(Type, 1, S-1) ++ "*" ++ string:substr(Type, E+1))
+	    end
     end.
 
 -spec dereference_type(string()) -> string().
@@ -78,7 +79,7 @@ absname(Path) ->
     filename:absname(Path).
 
 %%% general
--spec getNth(list() | tuple(), integer()) -> term().
+-spec getNth(nonempty_list() | tuple(), pos_integer()) -> term().
 getNth(I, N) when is_list(I) ->
     lists:nth(N, I);
 getNth(I, N) when is_tuple(I) ->
@@ -95,7 +96,7 @@ discard_restrict(Type) ->
     	0 ->
     	    Type;
     	P ->
-    	    string:strip(string:substr(Type, 1,P-1) ++ string:substr(Type, P+length("restrict")))
+	    string:strip(string:substr(Type, 1, P-1) ++ string:substr(Type, P+length("restrict")))
     end.
 
 -spec resolved(string(), dict:dict()) -> string().
@@ -118,28 +119,27 @@ has_key(Dict, Key) ->
 %%% symbol table entries
 -spec is_argument(string()) -> boolean().
 is_argument(Arg) ->
-    getNth(Arg, 1)=:=argument.
+    getNth(Arg, 1) =:= argument.
 
 -spec is_return(string()) -> boolean().
 is_return(Arg) ->
-    getNth(Arg, 1)=:=return.
+    getNth(Arg, 1) =:= return.
 
 -spec is_field(string()) -> boolean().
 is_field(Arg) ->
-    getNth(Arg, 1)=:=field.
+    getNth(Arg, 1) =:= field.
 
 -spec is_input(string()) -> boolean().
 is_input(Arg) ->
-    (getNth(Arg, 4)=:=input) orelse (getNth(Arg, 4)=:=inoutput).
+    (getNth(Arg, 4) =:= input) orelse (getNth(Arg, 4) =:= inoutput).
 
 -spec is_output(string()) -> boolean().
 is_output(Arg) ->
-    (getNth(Arg, 4)=:=output) orelse (getNth(Arg, 4)=:=inoutput).
+    (getNth(Arg, 4) =:= output) orelse (getNth(Arg, 4) =:= inoutput).
 
 -spec is_array(string()) -> boolean().
 is_array(Arg) -> 
-    (is_list(Arg) andalso (string:str(Arg, "[")=:=1 andalso length(Arg)>2)).
-
+    (is_list(Arg) andalso (string:str(Arg, "[") =:= 1 andalso length(Arg) > 2)).
 
 -spec array_type(string()) -> string().
 array_type(Type) ->
@@ -153,7 +153,6 @@ array_type_build([H|T], Acc) ->
 	false ->
 	    array_type_build(T, Acc++" "++H)
     end.
-       
 
 -spec array_size({base | userdef , [string()]}) -> integer().
 array_size({_, Typedef}) ->

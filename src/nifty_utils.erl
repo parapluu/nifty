@@ -15,15 +15,15 @@
 	 add_ldflags/2,
 	 merge_nif_spec/2]).
 
-
 -type env() :: {'env', [{nonempty_string(), string()}]}.
 -type target_options() :: [env()].
 -type arch() :: nonempty_string().
 -type target_name() :: nonempty_string().
 -type source() :: nonempty_string().
--type target() :: {arch(), target_name(), [source()]} | {arch(), target_name(), [source()], target_options()}.
--type port_specs() :: {'port_specs', [target()]}.
--type config() :: [port_specs() | {atom(), term()}].
+-type target() :: {arch(), target_name(), [source()]}
+		| {arch(), target_name(), [source()], target_options()}.
+%%-type port_specs() :: {'port_specs', [target()]}.
+-type config() :: proplists:proplist(). % port_specs() is an element here...
 
 %% @doc Merges two configurations
 -spec merge_nif_spec(config(), target()) -> config().
@@ -85,9 +85,8 @@ add_ldflags(F, C) ->
 %% expanded
 -spec expand(string()) -> string().
 expand(Path) ->
-    string:strip(lists:foldr(fun(A, Acc) -> A++" "++Acc end,
-			     [],
-			     tokenize(Path))).
+    S = lists:foldr(fun(A, Acc) -> A ++ " " ++ Acc end, [], tokenize(Path)),
+    string:strip(S).
 
 %% copied from getopts 
 -define(IS_WHITESPACE(Char), ((Char) =:= $\s orelse (Char) =:= $\t orelse (Char) =:= $\n orelse (Char) =:= $\r)).
@@ -160,7 +159,6 @@ expand_env_var(Prefix, EndMark, [EndMark | Tail], Acc) ->
 expand_env_var(Prefix, _EndMark, CmdLine, Acc) ->
     {CmdLine, Prefix ++ lists:reverse(Acc)}.
 
-
 -spec expand_env_var(Prefix :: string(), CmdLine :: string(), Acc :: string()) -> {string(), string()}.
 expand_env_var(Prefix, [Char | Tail], Acc)
   when (Char >= $A andalso Char =< $Z) orelse (Char >= $a andalso Char =< $z) orelse
@@ -168,7 +166,6 @@ expand_env_var(Prefix, [Char | Tail], Acc)
     expand_env_var(Prefix, Tail, [Char | Acc]);
 expand_env_var(Prefix, CmdLine, Acc) ->
     {CmdLine, get_env_var(Prefix, "", Acc)}.
-
 
 -spec get_env_var(Prefix :: string(), Suffix :: string(), Acc :: string()) -> string().
 get_env_var(Prefix, Suffix, [_ | _] = Acc) ->
