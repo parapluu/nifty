@@ -1,5 +1,6 @@
 language: erlang
 otp_release:
+  - 17.4
   - 17.0
 env:
   - CPATH=/usr/lib/llvm-3.4/include LIBRARY_PATH=/usr/lib/llvm-3.4/lib LD_LIBRARY_PATH=/usr/lib/llvm-3.4/lib

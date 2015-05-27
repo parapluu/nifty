@@ -1,8 +1,8 @@
 .eunit
+.nifty_plt
 deps
 *.o
 *.beam
 *.plt
-erl_crash.dump
 *.so
 
