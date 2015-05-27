@@ -20,7 +20,7 @@ BEAMS = ebin$(SEP)nifty_clangparse.beam \
 REBAR := .$(SEP)rebar
 
 DIALYZER_APPS = erts kernel stdlib compiler crypto tools
-DIALYZER_FLAGS = -Wunmatched_returns#-Wunderspecs
+DIALYZER_FLAGS = -Wunmatched_returns -Wunderspecs
 
 default: fast
 
