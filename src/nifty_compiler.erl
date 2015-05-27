@@ -219,7 +219,8 @@ build_env(ModuleName, Options) ->
 		 SpecList ->
 		     lists:concat([Env, get_spec_env(ModuleName, SpecList)])
 	     end,
-    rebar_port_compiler:setup_env({config, undefined, [{port_env, EnvAll}], undefined, undefined, undefined, dict:new()}).
+    Config = rebar_config:set(rebar_config:new(), port_env, EnvAll),
+    rebar_port_compiler:setup_env(Config).
 
 get_spec_env(_, []) -> [];
 get_spec_env(ModuleName, [S|T]) ->
