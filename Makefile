@@ -19,6 +19,9 @@ BEAMS = ebin$(SEP)nifty_clangparse.beam \
 
 REBAR := .$(SEP)rebar
 
+DIALYZER_APPS = erts kernel stdlib compiler crypto tools
+DIALYZER_FLAGS = -Wunmatched_returns#-Wunderspecs
+
 default: fast
 
 fast: get-deps compile
@@ -31,11 +34,14 @@ get-deps:
 compile:
 	$(REBAR) compile
 
-dialyze: compile
-	dialyzer -n -nn -Wunmatched_returns ebin $(find .  -path 'deps/*/ebin/*.beam')
+dialyze: compile .nifty_plt
+	dialyzer --plt .nifty_plt $(DIALYZER_FLAGS) ebin
 
-fdialyze: compile
-	dialyzer -n -nn -Wunmatched_returns $(BEAMS)
+fdialyze: compile .nifty_plt
+	dialyzer -n -nn --plt .nifty_plt $(DIALYZER_FLAGS) $(BEAMS)
+
+.nifty_plt:
+	dialyzer --build_plt --output_plt $@ --apps $(DIALYZER_APPS) deps/*/ebin
 
 tests: compile
 	ERL_LIBS=$(ERL_INCLUDE) $(REBAR) clean compile eunit skip_deps=true
