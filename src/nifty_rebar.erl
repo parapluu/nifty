@@ -60,14 +60,6 @@
 
 -define(DEFAULT_JOBS, 3).
 
--type config() :: {config,
-              nonempty_string(),
-              [{atom(), term()} | atom()],
-              dict:dict(),
-              dict:dict(),
-              dict:dict(),
-              dict:dict() }.
-
 %% ====================================================================
 %% Public API
 %% ====================================================================
@@ -88,7 +80,7 @@ main(Args) ->
     end.
 
 %% Erlang-API entry point
--spec run(proplists:proplist(), [string()]) -> ok.
+-spec run(rebar_config:config(), [string()]) -> ok.
 run(BaseConfig, Commands) ->
     _ = application:load(rebar),
     run_aux(BaseConfig, Commands).
@@ -139,7 +131,7 @@ load_rebar_app() ->
     %% Pre-load the rebar app so that we get default configuration
     ok = application:load(rebar).
 
--spec init_config({proplists:proplist(), proplists:proplist()}) -> config().
+-spec init_config({proplists:proplist(), proplists:proplist()}) -> rebar_config:config().
 init_config({Options, _NonOptArgs}) ->
     %% If $HOME/.rebar/config exists load and use as global config
     GlobalConfigFile = filename:join([os:getenv("HOME"), ".rebar", "config"]),
