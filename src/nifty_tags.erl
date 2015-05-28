@@ -43,12 +43,12 @@ struct_reference([{name, Type}]) ->
 	    "*"
     end.
 
--spec debug(proplists:proplist()) -> ok.
+-spec debug(proplists:proplist()) -> [].
 debug(DBM) ->
     io:format("DEBUG: ~n"),
     print_dbg(DBM).
 
-print_dbg([]) -> ok;
+print_dbg([]) -> "";
 print_dbg([{Key, Value}|T]) ->
     io:format("~p -> ~p~n", [Key, Value]),
     print_dbg(T).
