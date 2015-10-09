@@ -8,14 +8,23 @@ env:
   - CPATH=/usr/lib/llvm-3.4/include LIBRARY_PATH=/usr/lib/llvm-3.4/lib LD_LIBRARY_PATH=/usr/lib/llvm-3.4/lib
   - CPATH=/usr/lib/llvm-3.6/include LIBRARY_PATH=/usr/lib/llvm-3.6/lib LD_LIBRARY_PATH=/usr/lib/llvm-3.6/lib
   - CPATH=/usr/lib/llvm-3.7/include LIBRARY_PATH=/usr/lib/llvm-3.7/lib LD_LIBRARY_PATH=/usr/lib/llvm-3.7/lib
-before_install:
-  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-  - sudo apt-add-repository 'deb http://llvm.org/apt/precise/ llvm-toolchain-precise main'
-  - sudo apt-add-repository 'deb http://llvm.org/apt/precise/ llvm-toolchain-precise-3.6 main'
-  - sudo apt-add-repository 'deb http://llvm.org/apt/precise/ llvm-toolchain-precise-3.7 main'
-  - wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key|sudo apt-key add -
-  - sudo apt-get update
-  - sudo apt-get install libclang1-3.4 libclang-3.4-dev
-  - sudo apt-get install libclang1-3.6 libclang-3.6-dev
-  - sudo apt-get install libclang1-3.7 libclang-3.7-dev
+  - CPATH=/usr/lib/llvm-3.8/include LIBRARY_PATH=/usr/lib/llvm-3.8/lib LD_LIBRARY_PATH=/usr/lib/llvm-3.8/lib
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+      - llvm-toolchain-precise
+      - llvm-toolchain-precise-3.6
+      - llvm-toolchain-precise-3.7
+    packages:
+      - libclang1-3.4
+      - libclang1-3.6
+      - libclang1-3.7
+      - libclang1-3.8
+      - libclang-3.4-dev
+      - libclang-3.6-dev
+      - libclang-3.7-dev
+      - libclang-3.8-dev
 script: "make all"
+cache: apt
+sudo: false
