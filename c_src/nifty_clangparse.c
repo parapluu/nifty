@@ -2,7 +2,7 @@
  * Copyright (c) 2014, Andreas Löscher <andreas.loscher@it.uu.se> and
  *                     Konstantinos Sagonas <kostis@it.uu.se>
  * All rights reserved.
- * 
+ *
  * This file is distributed under the Simplified BSD License.
  * Details can be found in the LICENSE file.
  */
@@ -15,6 +15,7 @@
 
 static ERL_NIF_TERM walk_cursor(ErlNifEnv* env, CXTranslationUnit t, CXCursor c);
 static enum CXChildVisitResult visitor_cb(CXCursor Cursor, CXCursor Parent, CXClientData ClientData);
+static enum CXChildVisitResult visitor_enum_cb(CXCursor cursor, CXCursor parent, CXClientData client_data);
 static enum CXChildVisitResult visitor_function_cb(CXCursor cursor, CXCursor parent, CXClientData client_data);
 static enum CXChildVisitResult visitor_struct_cb(CXCursor cursor, CXCursor parent, CXClientData client_data);
 static void print_fails(CXTranslationUnit t);
@@ -52,6 +53,11 @@ typedef struct _subdata {
   ERL_NIF_TERM data;
 } SubData;
 
+typedef struct _enumdata {
+        ErlNifEnv* env;
+        ERL_NIF_TERM enum_values;
+} EnumData;
+
 
 static ERL_NIF_TERM
 walk_cursor(ErlNifEnv* env, CXTranslationUnit t, CXCursor c) {
@@ -63,7 +69,7 @@ walk_cursor(ErlNifEnv* env, CXTranslationUnit t, CXCursor c) {
   data->constr_table = enif_make_list(env, 0);
   CXCursorVisitor visitor = visitor_cb;
   clang_visitChildren(c, visitor, (CXClientData)data);
-  return enif_make_tuple4(env, 
+  return enif_make_tuple4(env,
 			  data->func_file,
 			  data->symbol_table,
 			  data->types,
@@ -87,10 +93,11 @@ visitor_cb(CXCursor cursor, CXCursor parent, CXClientData client_data)
 
   ERL_NIF_TERM ff_l = data->func_file;
   ERL_NIF_TERM fn, funcname;
-  ERL_NIF_TERM etmp, etmp2;
+  ERL_NIF_TERM etmp, etmp2, etmp3;
   ErlNifEnv* env = data->env;
 
   SubData* subd;
+  EnumData* enumd;
 
   switch (clang_getCursorKind(cursor)) {
   case CXCursor_FunctionDecl: {
@@ -104,7 +111,7 @@ visitor_cb(CXCursor cursor, CXCursor parent, CXClientData client_data)
     			  &line,
     			  &column,
     			  &offset);
-    
+
     tmp=clang_getFileName(file);
     fn = enif_make_string(env, clang_getCString(tmp), ERL_NIF_LATIN1);
     clang_disposeString(tmp);
@@ -129,7 +136,7 @@ visitor_cb(CXCursor cursor, CXCursor parent, CXClientData client_data)
     enif_make_reverse_list(env, subd->data, &etmp2);
     etmp = enif_make_list_cell(env, etmp, etmp2);
     etmp = enif_make_tuple2(env, funcname, etmp);
-    data->symbol_table = 
+    data->symbol_table =
       enif_make_list_cell(env, etmp, data->symbol_table);
     enif_free(subd);
     return CXChildVisit_Continue;
@@ -146,10 +153,10 @@ visitor_cb(CXCursor cursor, CXCursor parent, CXClientData client_data)
       subd->data = enif_make_list(env, 0);
       subd->env = env;
       clang_visitChildren(cursor, visitor_struct_cb, (CXClientData)subd);
-      etmp = enif_make_tuple2(env, enif_make_atom(env, "struct"), 
+      etmp = enif_make_tuple2(env, enif_make_atom(env, "struct"),
 			      enif_make_string(env, ctmp, ERL_NIF_LATIN1));
       clang_disposeString(tmp);
-      enif_make_reverse_list(env, subd->data, &etmp2);      
+      enif_make_reverse_list(env, subd->data, &etmp2);
       etmp = enif_make_tuple2(env, etmp, etmp2);
       data->constr_table =
 	enif_make_list_cell(env, etmp, data->constr_table);
@@ -161,9 +168,9 @@ visitor_cb(CXCursor cursor, CXCursor parent, CXClientData client_data)
   case CXCursor_TypedefDecl: {
     tmp = clang_getCursorSpelling(cursor);
     etmp = enif_make_tuple2(env, enif_make_atom(env, "typedef"),
-			    enif_make_string(env, clang_getCString(tmp), ERL_NIF_LATIN1));
+                            enif_make_string(env, clang_getCString(tmp), ERL_NIF_LATIN1));
     clang_disposeString(tmp);
-    
+
     type =  clang_getTypedefDeclUnderlyingType(cursor);
     tmp = clang_getTypeSpelling(type);
     etmp2 = enif_make_string(env, clang_getCString(tmp), ERL_NIF_LATIN1);
@@ -172,6 +179,29 @@ visitor_cb(CXCursor cursor, CXCursor parent, CXClientData client_data)
     data->constr_table = enif_make_list_cell(env, etmp, data->constr_table);
     clang_disposeString(tmp);
 
+    return CXChildVisit_Continue;
+  }
+  case CXCursor_EnumDecl: {
+    tmp = clang_getCursorSpelling(cursor);
+    ctmp = (char*)clang_getCString(tmp);
+    if ((clang_getCursorKind(parent) == CXCursor_TranslationUnit) && (!strlen(ctmp))) {
+      clang_disposeString(tmp);
+    } else {
+      enumd = enif_alloc(sizeof(EnumData));
+      enumd->env = env;
+      enumd->enum_values = enif_make_list(env, 0);
+      clang_visitChildren(cursor, visitor_enum_cb, (CXClientData)enumd);
+      etmp = enif_make_tuple2(env, enif_make_atom(env, "enum"),
+                              enif_make_string(env, ctmp, ERL_NIF_LATIN1));
+      clang_disposeString(tmp);
+      enif_make_reverse_list(env, enumd->enum_values, &etmp2);
+      etmp = enif_make_tuple2(env, etmp, etmp2);
+      data->constr_table = enif_make_list_cell(env, etmp, data->constr_table);
+      // defaults to long long
+      etmp3 = enif_make_string(env, "long long", ERL_NIF_LATIN1);
+      data->types = enif_make_list_cell(env, etmp3, data->types);
+      enif_free(enumd);
+    }
     return CXChildVisit_Continue;
   }
   default: {
@@ -196,6 +226,34 @@ is_argument(const char *str) {
 }
 
 static enum CXChildVisitResult
+visitor_enum_cb(CXCursor cursor, CXCursor parent, CXClientData client_data) {
+  EnumData* data = (EnumData*)client_data;
+  ErlNifEnv *env = data->env;
+  ERL_NIF_TERM name;
+  ERL_NIF_TERM value;
+  long long cvalue;
+
+  CXString tmp;
+  char* cstr;
+
+  switch (clang_getCursorKind(cursor)) {
+    case CXCursor_EnumConstantDecl: {
+      tmp = clang_getCursorSpelling(cursor);
+      cstr = (char*)clang_getCString(tmp);
+      cvalue = clang_getEnumConstantDeclValue(cursor);
+      name = enif_make_string(env, cstr, ERL_NIF_LATIN1);
+      value = enif_make_int64(env, cvalue);
+      data->enum_values = enif_make_list_cell(env,
+                                              enif_make_tuple2(env, name, value),
+                                              data->enum_values);
+    }
+    default: {
+      return CXChildVisit_Continue;
+    }
+  }
+}
+
+static enum CXChildVisitResult
 visitor_function_cb(CXCursor cursor, CXCursor parent, CXClientData client_data) {
   ERL_NIF_TERM typename;
   ERL_NIF_TERM etmp;
@@ -211,7 +269,6 @@ visitor_function_cb(CXCursor cursor, CXCursor parent, CXClientData client_data) 
 
   switch (clang_getCursorKind(cursor)) {
   case CXCursor_ParmDecl: {
-
     tmp = clang_getCursorUSR(cursor);
     ctmp = clang_getCString(tmp);
     if (is_argument(ctmp)) {
@@ -264,7 +321,7 @@ visitor_struct_cb(CXCursor cursor, CXCursor parent, CXClientData client_data) {
     tmp = clang_getTypeSpelling(type);
     typename = enif_make_string(env, clang_getCString(tmp), ERL_NIF_LATIN1);
     data->types = enif_make_list_cell(env, typename, data->types);
-    clang_disposeString(tmp);    
+    clang_disposeString(tmp);
 
     etmp = enif_make_tuple4(env,
 			    enif_make_atom(env, "field"),

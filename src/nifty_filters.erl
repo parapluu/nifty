@@ -33,7 +33,8 @@
 	 discard_restrict/1,
 	 loopcounter/2,
 
-	 config_schedule_dirty/1]).
+	 config_schedule_dirty/1,
+	 enum_aliases/1]).
 
 -spec norm_type(string()) -> string().
 norm_type(Type) ->
@@ -138,7 +139,7 @@ is_output(Arg) ->
     (getNth(Arg, 4) =:= output) orelse (getNth(Arg, 4) =:= inoutput).
 
 -spec is_array(string()) -> boolean().
-is_array(Arg) -> 
+is_array(Arg) ->
     (is_list(Arg) andalso (string:str(Arg, "[") =:= 1 andalso length(Arg) > 2)).
 
 -spec array_type(string()) -> string().
@@ -172,7 +173,7 @@ config_schedule_dirty(Options) ->
     case proplists:get_value(nifty, Options) of
 	undefined ->
 	    false;
-	NiftyOptions -> 
+	NiftyOptions ->
 	    case proplists:get_value(schedule_dirty, NiftyOptions) of
 		undefined ->
 		    false;
@@ -181,4 +182,19 @@ config_schedule_dirty(Options) ->
 		_ ->
 		    true
 	    end
+    end.
+
+-spec enum_aliases(dict:dict()) -> nonempty_string().
+enum_aliases(Constructors) ->
+    enum_aliases(dict:fetch_keys(Constructors), Constructors, []).
+
+enum_aliases([], _, Acc) ->
+    io_lib:format("~p", [Acc]);
+enum_aliases([H|T], Constructors, Acc) ->
+    case H of
+	{enum, _} ->
+	    Aliases = dict:fetch(H, Constructors),
+	    enum_aliases(T, Constructors, Acc ++ Aliases);
+	_ ->
+	    enum_aliases(T, Constructors, Acc)
     end.
