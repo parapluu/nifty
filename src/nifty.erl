@@ -351,7 +351,7 @@ size_of(Type) ->
     end.
 
 %% @doc Returns the integer value associated with an enum alias
--spec enum_value(nonempty_string(), nonempty_string() | atom()) -> integer() | undef.
+-spec enum_value(atom(), nonempty_string() | atom()) -> integer() | undef.
 enum_value(Module, Value) when is_atom(Value) ->
     enum_value(Module, atom_to_list(Value));
 enum_value(Module, Value) ->
