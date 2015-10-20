@@ -1,5 +1,5 @@
 %%% -------------------------------------------------------------------
-%%% Copyright (c) 2014, Andreas Löscher <andreas.loscher@it.uu.se> and
+%%% Copyright (c) 2015, Andreas Löscher <andreas.loscher@it.uu.se> and
 %%%                     Konstantinos Sagonas <kostis@it.uu.se>
 %%% All rights reserved.
 %%%
@@ -23,6 +23,7 @@
 -type ctype() :: nonempty_string().
 -type index() :: integer().
 -type field() :: {'field', cname(), ctype(), index()}.
+-type enum_decl() :: {cname(), integer()}.
 -type types() :: [ctype()].
 -type constructor_type() :: 'struct'.
 -type ctypedef() :: {'base', [string()]} |
@@ -31,7 +32,7 @@
 -type func_location() :: dict:dict(path(), cname()).
 -type symbol_table() :: dict:dict(cname(), {'return', ctype()} | {'argument', index(), ctype()}).
 -type type_table() :: dict:dict(ctype(), ctypedef()).
--type constr_table() :: dict:dict({'struct' | 'typedef', cname()}, ctype() | [field()]).
+-type constr_table() :: dict:dict({'struct' | 'typedef' | 'enum', cname()}, ctype() | [field()] | [enum_decl()]).
 -type parser_output() :: {func_location(), symbol_table(), types(), constr_table()}.
 
 -define(BASE_TYPES, ["char", "int", "float", "double", "void"]).
@@ -80,7 +81,7 @@ fill_constructed([H|T], Constr, Types) ->
     Updated_Types = case H of
 			{typedef, Alias} ->
 			    Type = dict:fetch(H, Constr),
-			    case is_fptr(Type) of 
+			    case is_fptr(Type) of
 				true ->
 				    dict:store(Alias, {typedef, "void *"}, Types);
 				false ->
@@ -88,7 +89,9 @@ fill_constructed([H|T], Constr, Types) ->
 			    end;
 			{struct, Name} ->
 			    D = dict:store("struct "++Name, {userdef, [H]}, Types),
-			    dict:store("struct "++Name++" *", {userdef, ["*", H]}, D)
+			    dict:store("struct "++Name++" *", {userdef, ["*", H]}, D);
+			{enum, Name} ->
+			    dict:store("enum " ++ Name, {typedef, "long long"}, Types)
 		    end,
     fill_constructed(T, Constr, Updated_Types).
 
@@ -122,7 +125,7 @@ fill_type_table(Types, [Type|TypeNames]) ->
 				    [P|Token] = lists:reverse(string:tokens(Type, " ")),
 				    NewP = string:substr(P, 1, length(P) - length(H)),
 				    NType = string:strip(string:join(lists:reverse(Token)++[NewP], " ")),
-				    case dict:is_key(NType, Types) of 
+				    case dict:is_key(NType, Types) of
 					true -> fill_type_table(Types, TypeNames);
 					false -> fill_type_table(dict:store(NType, {Kind, T}, Types), [NType|TypeNames])
 				    end
@@ -173,10 +176,10 @@ parse_type([E|T], TypeDef, Kind) ->
 	    %% simple type
 	    case lists:member(E, ?BASE_TYPES) of
 		true -> parse_type(T, [E|simplify_specifiers(TypeDef)], base);
-		false -> 
+		false ->
 		    case lists:member(E, ?SPECIFIER) of
 			true -> parse_type(T, [E|TypeDef], none);
-			false -> 
+			false ->
 			    case ((E=:="*") or lists:member($[, E)) of
 				true ->
 				    case Kind of
@@ -215,7 +218,7 @@ is_fptr(Type) ->
 build_type_entry(TypeTable, Type) ->
     NType = norm_type(Type),
     case dict:is_key(NType, TypeTable) of
-	true -> 
+	true ->
 	    TypeTable;
 	false->
 	    case is_fptr(NType) of
@@ -227,4 +230,3 @@ build_type_entry(TypeTable, Type) ->
 		    dict:store(NType, Def, TypeTable)
 	    end
     end.
-

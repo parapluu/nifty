@@ -2,6 +2,7 @@
 -export([{% with fn=symbols|fetch_keys %}{% for name in fn %}
 	'{{name}}'/{{ symbols|fetch:name|length|add:-1 }},{% endfor %}{% endwith %}
 	get_types/0,
+	get_enum_aliases/0,
 	erlptr_to_record/1,
 	record_to_erlptr/1,
 	new/1,
@@ -9,6 +10,8 @@
 	]).
 
 -define(TYPES, {{types}}).
+
+-define(ENUM_ALIASES, {{constructors|enum_aliases}}).
 
 -on_load(init/0).
 
@@ -43,6 +46,9 @@ record_to_erlptr(_) ->
 
 -spec get_types() -> dict:dict().
 get_types() -> ?TYPES.
+
+-spec get_enum_aliases() -> proplist:proplist().
+get_enum_aliases() -> ?ENUM_ALIASES.
 
 -spec new(typename()) -> term().
 new(_) ->

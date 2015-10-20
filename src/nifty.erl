@@ -1,5 +1,5 @@
 %%% -------------------------------------------------------------------
-%%% Copyright (c) 2014, Andreas Löscher <andreas.loscher@it.uu.se> and
+%%% Copyright (c) 2015, Andreas Löscher <andreas.loscher@it.uu.se> and
 %%%                     Konstantinos Sagonas <kostis@it.uu.se>
 %%% All rights reserved.
 %%%
@@ -20,6 +20,8 @@
 	 pointer/1,
 	 pointer_of/2,
 	 pointer_of/1,
+	 %% enums
+	 enum_value/2,
 	 %% types
 	 as_type/2,
 	 size_of/1,
@@ -59,7 +61,7 @@ load_dependencies() ->
     ok = load_dependency(rebar),
     ok = load_dependency(erlydtl).
 
-load_dependency(Module) ->		    
+load_dependency(Module) ->
     case code:ensure_loaded(Module) of
 	{error, nofile} ->
 	    %% module not found
@@ -72,11 +74,11 @@ load_dependency(Module) ->
 	    end;
 	{module, Module} ->
 	    ok
-    end.    
+    end.
 
-%% @doc Generates a NIF module out of a C header file and compiles it, 
-%% generating wrapper functions for all functions present in the header file. 
-%% <code>InterfaceFile</code> specifies the header file. <code>Module</code> specifies 
+%% @doc Generates a NIF module out of a C header file and compiles it,
+%% generating wrapper functions for all functions present in the header file.
+%% <code>InterfaceFile</code> specifies the header file. <code>Module</code> specifies
 %% the module name of the translated NIF. <code>Options</code> specifies the compile
 %% options. These options are equivalent to rebar's config options.
 -spec compile(string(), module(), options()) -> 'ok' | {'error', reason()} | {'warning' , {'not_complete' , [nonempty_string()]}}.
@@ -138,7 +140,7 @@ get_derefed_type(Type, Module) ->
 	    {_, TypeDef} = dict:fetch(ResType, Types),
 	    [H|_] = TypeDef,
 	    case (H=:="*") orelse (string:str(H, "[")>0) of
-		true -> 
+		true ->
 		    [_|Token] = lists:reverse(string:tokens(ResType, " ")),
 		    NType = string:join(lists:reverse(Token), " "),
 		    ResNType = nifty_types:resolve_type(NType, Types),
@@ -146,7 +148,7 @@ get_derefed_type(Type, Module) ->
 			true ->
 			    {_, DTypeDef} = dict:fetch(ResNType, Types),
 			    [DH|_] = DTypeDef,
-			    case DH of 
+			    case DH of
 				{_, _} -> {final, ResNType};
 				_ -> case (DH=:="*") orelse (string:str(DH, "[")>0) of
 					 true -> {pointer, ResNType};
@@ -194,7 +196,7 @@ dereference(Pointer) ->
 	undef ->
 	    {error, undef}
     end.
-    %% end.
+%% end.
 
 %% build_builtin_type(DType, Address) ->
 %%     case DType of
@@ -206,12 +208,12 @@ dereference(Pointer) ->
 build_type(Module, Type, Address) ->
     Types = Module:get_types(),
     case dict:is_key(Type, Types) of
-	true -> 
+	true ->
 	    RType = nifty_types:resolve_type(Type, Types),
 	    {Kind, Def} =  dict:fetch(RType, Types),
 	    case Kind of
 		userdef ->
-		    case Def of 
+		    case Def of
 			[{struct, Name}] ->
 			    Module:erlptr_to_record({Address, Name});
 			_ ->
@@ -253,7 +255,7 @@ int_deref(Addr, Size, Sign) ->
     case Sign of
 	"signed" ->
 	    case I > (trunc(math:pow(2, (Size*8)-1))-1) of
-		true -> 
+		true ->
 		    I - trunc(math:pow(2,(Size*8)));
 		false ->
 		    I
@@ -281,10 +283,10 @@ float_deref(_) ->
 float_ref(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
-double_deref(_) ->    
+double_deref(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
-double_ref(_) ->    
+double_ref(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
 %% @doc Converts an erlang string into a 0 terminated C string and returns a nifty pointer to it
@@ -298,7 +300,7 @@ cstr_to_list(_) ->
 
 %% @doc size of a base type, no error handling
 -spec size_of(nonempty_string()) -> integer() | undef.
-size_of(Type) -> 
+size_of(Type) ->
     Types = get_types(),
     case dict:is_key(Type, Types) of
 	true ->
@@ -331,13 +333,13 @@ size_of(Type) ->
 	false ->
 	    %% full referenced
 	    case string:tokens(Type, ".") of
-		["nifty", TypeName] -> 
+		["nifty", TypeName] ->
 		    %% builtin
 		    size_of(TypeName);
 		[ModuleName, TypeName] ->
 		    Mod = list_to_atom(ModuleName),
-		    case {module, Mod}=:=code:ensure_loaded(Mod) andalso 
-			proplists:is_defined(get_types, Mod:module_info(exports)) of
+		    case {module, Mod}=:=code:ensure_loaded(Mod) andalso
+			proplists:is_defined(size_of, Mod:module_info(exports)) of
 			true ->
 			    Mod:size_of(TypeName);
 			false ->
@@ -347,7 +349,24 @@ size_of(Type) ->
 		    undef
 	    end
     end.
-    
+
+%% @doc Returns the integer value associated with an enum alias
+-spec enum_value(atom(), nonempty_string() | atom()) -> integer() | undef.
+enum_value(Module, Value) when is_atom(Value) ->
+    enum_value(Module, atom_to_list(Value));
+enum_value(Module, Value) ->
+    case {module, Module}=:=code:ensure_loaded(Module) andalso
+	proplists:is_defined(get_enum_aliases, Module:module_info(exports)) of
+	true ->
+	    case proplists:lookup(Value, Module:get_enum_aliases()) of
+		{Value, IntValue} -> IntValue;
+		_ -> undef
+	    end;
+	false ->
+	    undef
+    end.
+
+
 %% @doc Returns a pointer to a memory area that is the size of a pointer
 -spec pointer() -> ptr().
 pointer() ->
@@ -465,11 +484,11 @@ raw_deref(_) ->
 -spec mem_write(ptr(), binary() | list()) -> ptr().
 mem_write({Addr, _} = Ptr, Data) ->
     {Addr, _} = case is_binary(Data) of
-	true ->
-	    mem_write_binary(Data, Ptr);
-	false ->
-	    mem_write_list(Data, Ptr)
-	end,
+		    true ->
+			mem_write_binary(Data, Ptr);
+		    false ->
+			mem_write_list(Data, Ptr)
+		end,
     Ptr.
 
 %% @doc Writes the <code>Data</code> to memory and returns a nifty pointer to it; the list elements are interpreted as byte values
@@ -518,7 +537,7 @@ as_type({Address, _} = Ptr, Type) ->
     BaseType = case string:tokens(Type, "*") of
 		   [T] ->
 		       string:strip(T);
-		   _ -> 
+		   _ ->
 		       []
 	       end,
     Types = get_types(),
@@ -532,7 +551,7 @@ as_type({Address, _} = Ptr, Type) ->
 		    as_type(Ptr, TypeName);
 		[ModuleName, TypeName] ->
 		    Mod = list_to_atom(ModuleName),
-		    case {module, Mod}=:=code:ensure_loaded(Mod) andalso 
+		    case {module, Mod}=:=code:ensure_loaded(Mod) andalso
 			proplists:is_defined(get_types, Mod:module_info(exports)) of
 			true ->
 			    %% resolve and build but we are looking for the basetype
@@ -542,7 +561,7 @@ as_type({Address, _} = Ptr, Type) ->
 			    RBType = string:strip(RBUType),
 			    case nifty_types:resolve_type(RBType, Mod:get_types()) of
 				undef ->
-				    case nifty_types:resolve_type(RBType++" *", Mod:get_types()) of 
+				    case nifty_types:resolve_type(RBType++" *", Mod:get_types()) of
 					undef ->
 					    %% unknown type
 					    undef;

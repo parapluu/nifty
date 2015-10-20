@@ -28,7 +28,7 @@
 {% endif %}
 
 {% if phase=="to_c" %}
-	err = 
+	err =
 	{% if typedef|getNth:2=="unsigned" and (typedef|getNth:3=="short" or typedef|getNth:1=="char") %}enif_get_uint{% endif %}
 	{% if typedef|getNth:2=="signed" and (typedef|getNth:3=="short" or typedef|getNth:1=="char") %}enif_get_int{% endif %}
 	{% if typedef|getNth:2=="unsigned" and (typedef|getNth:3=="none" and typedef|getNth:1=="int") %}enif_get_uint{% endif %}
@@ -37,7 +37,12 @@
 	{% if typedef|getNth:2=="signed" and typedef|getNth:3=="long" %}enif_get_long{% endif %}
 	{% if typedef|getNth:2=="unsigned" and typedef|getNth:3=="longlong" %}enif_get_uint64{% endif %}
 	{% if typedef|getNth:2=="signed" and typedef|getNth:3=="longlong" %}enif_get_int64{% endif %}
-	(env, {{erlarg}}, &{% if typedef|getNth:3=="short" or typedef|getNth:1=="char" %}helper{{N}}{% else %}{{carg}}{% endif %});
+	(env, {{erlarg}},
+	{% if typedef|getNth:3=="short" or typedef|getNth:1=="char" %}&helper{{N}}{% else %}
+	{% if typedef|getNth:2=="unsigned" and typedef|getNth:3=="longlong" %}(unsigned long int*){%endif%}
+	{% if typedef|getNth:2=="signed" and typedef|getNth:3=="longlong" %}(long int*){%endif%}
+	(&{{carg}})
+	{% endif %});
 	{% if typedef|getNth:3=="short" or typedef|getNth:1=="char" %}
 	{{carg}}=({{type}})helper{{N}};
 	{% endif %}
@@ -52,7 +57,7 @@
 {% endif %}
 
 {% if phase=="to_erl"%}
-	{{erlarg}} = 
+	{{erlarg}} =
 	{% if typedef|getNth:2=="unsigned" and (typedef|getNth:3=="short" or typedef|getNth:1=="char") %}enif_make_uint{% endif %}
 	{% if typedef|getNth:2=="signed" and (typedef|getNth:3=="short" or typedef|getNth:1=="char") %}enif_make_int{% endif %}
 	{% if typedef|getNth:2=="unsigned" and (typedef|getNth:3=="none" and typedef|getNth:1=="int") %}enif_make_uint{% endif %}

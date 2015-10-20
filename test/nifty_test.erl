@@ -1,3 +1,12 @@
+%%% -------------------------------------------------------------------
+%%% Copyright (c) 2015, Andreas Löscher <andreas.loscher@it.uu.se> and
+%%%                     Konstantinos Sagonas <kostis@it.uu.se>
+%%% All rights reserved.
+%%%
+%%% This file is distributed under the Simplified BSD License.
+%%% Details can be found in the LICENSE file.
+%%% -------------------------------------------------------------------
+
 -module(nifty_test).
 -compile(export_all).
 
@@ -10,9 +19,9 @@
 
 -spec compile_builtin() -> ok.
 compile_builtin() ->
-    ?_assertEqual(ok, nifty_compiler:compile("../test/cfiles/builtin_types.h", 
-					 nt_builtin, 
-					 ?OPTS("../test/cfiles/builtin_types.c"))).
+    ?_assertEqual(ok, nifty_compiler:compile("../test/cfiles/builtin_types.h",
+					     nt_builtin,
+					     ?OPTS("../test/cfiles/builtin_types.c"))).
 
 -spec call_functions_builtin() -> term().
 call_functions_builtin() ->
@@ -28,10 +37,10 @@ call_functions_builtin() ->
      ?_assertEqual(1.0, nt_builtin:f10(1.0)),
      ?_assertEqual({0, "nt_builtin.void *"}, nt_builtin:f11({0, "void *"})),
      ?_assertEqual(ok, fun () ->
-				 P = nifty:mem_alloc(10),
-				 {_, _} = nt_builtin:f12(P),
-				 nifty:free(P)
-			 end())].
+			       P = nifty:mem_alloc(10),
+			       {_, _} = nt_builtin:f12(P),
+			       nifty:free(P)
+		       end())].
 
 -spec builtin_test_() -> term().
 builtin_test_() ->
@@ -66,8 +75,8 @@ builtin_test_() ->
 
 -spec compile_arguments() -> term().
 compile_arguments() ->
-    ?_assertEqual(ok, nifty_compiler:compile("../test/cfiles/arguments.h", 
-					     nt_arguments, 
+    ?_assertEqual(ok, nifty_compiler:compile("../test/cfiles/arguments.h",
+					     nt_arguments,
 					     ?OPTS("../test/cfiles/arguments.c"))).
 
 -spec call_functions_arguments() -> term().
@@ -102,11 +111,11 @@ structs_test_() ->
 
 -spec compile_proxy() -> term().
 compile_proxy() ->
-    ?_assertEqual(ok, nifty_compiler:compile("../test/cfiles/proxy_header.h", 
-				nt_proxy, 
-				nifty_utils:add_sources(
-				  ["../test/cfiles/proxy_header.c"],
-				  nifty_utils:add_cflags("-I../test/cfiles", [])))).
+    ?_assertEqual(ok, nifty_compiler:compile("../test/cfiles/proxy_header.h",
+					     nt_proxy,
+					     nifty_utils:add_sources(
+					       ["../test/cfiles/proxy_header.c"],
+					       nifty_utils:add_cflags("-I../test/cfiles", [])))).
 
 -spec call_functions_proxy() -> term().
 call_functions_proxy() ->
@@ -121,21 +130,21 @@ proxy_test_()->
 
 -spec fptr_test_() -> term().
 fptr_test_() ->
-    {timeout, 60, 
+    {timeout, 60,
      ?_assertEqual(ok, nifty_compiler:compile("../test/cfiles/fptr.h", nt_fptr, []))}.
 
 -spec compile_array() -> term().
 compile_array() ->
     ?_assertEqual(ok, nifty_compiler:compile(
-			"../test/cfiles/array.h", nt_array, 
+			"../test/cfiles/array.h", nt_array,
 			nifty_utils:add_sources(["../test/cfiles/array.c"], []))).
 
 -spec call_functions_array() -> ok.
 call_functions_array() ->
     [?_assertEqual(10, nt_array:sumarray(nifty:mem_write([1,0,0,0,1,0,0,0,1,0,0,0,
-							 1,0,0,0,1,0,0,0,1,0,0,0,
-							 1,0,0,0,1,0,0,0,1,0,0,0,
-							 1,0,0,0]))),
+							  1,0,0,0,1,0,0,0,1,0,0,0,
+							  1,0,0,0,1,0,0,0,1,0,0,0,
+							  1,0,0,0]))),
      ?_assertEqual(20, fun () ->
 			       B = [1,1,1,1,1,1,1,1,1,1],
 			       Rec = {array_st, nifty:mem_write(B), 0, nifty:mem_write(B)},
@@ -150,8 +159,8 @@ array_test_() ->
 
 -spec compile_tut2() -> term().
 compile_tut2() ->
-    ?_assertEqual(ok, nifty_compiler:compile("../test/cfiles/answer.h", 
-					     nt_tut2, 
+    ?_assertEqual(ok, nifty_compiler:compile("../test/cfiles/answer.h",
+					     nt_tut2,
 					     nifty_utils:add_sources(
 					       ["../test/cfiles/answer.c"],
 					       nifty_utils:add_cflags(
@@ -165,3 +174,19 @@ call_tut2() ->
 tut2_test_()->
     {timeout, 60, [compile_tut2(),
 		   call_tut2()]}.
+
+-spec enum_test_() -> term().
+enum_test_() ->
+    {timeout, 60,
+     [compile_enum(),
+      call_enum(),
+      check_enum()]}.
+
+compile_enum() ->
+    ?_assertEqual(ok, nifty:compile("../test/cfiles/enums.h", nt_enums, [])).
+
+call_enum() ->
+    ?_assertEqual(1, nt_enums:f1(1,2)).
+
+check_enum() ->
+    ?_assertEqual(100, nifty:enum_value(nt_enums, "VALUE6")).
