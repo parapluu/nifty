@@ -30,6 +30,7 @@
 	 mem_write/2,
 	 mem_read/2,
 	 mem_alloc/1,
+	 malloc/1,
 	 free/1,
 	 %% configuration
 	 get_config/0,
@@ -272,6 +273,11 @@ int_deref([E|T], Acc) ->
 -spec free(ptr()) -> 'ok'.
 free({Addr, _}) ->
     raw_free(Addr).
+
+%% @doc Allocates the specified amount of bytes and returns a pointer to the allocated memory
+-spec malloc(non_neg_integer()) -> ptr().
+malloc(Size) ->
+    mem_alloc(Size).
 
 %%% NIF Functions
 raw_free(_) ->
