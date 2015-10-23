@@ -54,8 +54,6 @@ Run the following command to check that everything works correct:
 make tests
 ```
 
-Make sure, that you have included <a href="http://proper.softlab.ntua.gr/">PropEr</a> in your **ERL_LIBS** path.
-
 ## Dependencies
 + **libclang** including the header files
 + **clang** compiler
@@ -76,10 +74,11 @@ Make sure, that you have included <a href="http://proper.softlab.ntua.gr/">PropE
 | ```<type> *```                           | ```{integer(), string()}```  | ```<module>.<type> *```
 
 ## Limitations
-+ unions, enums and function pointers are not supported.
-+ So far there is no support for anonymous struct.
++ Unions are not supported.
++ Function pointers are only partially supported.
++ There is no support for anonymous struct.
 + Functions using unsupported types will not be translated and a warning is returned. 
 + Variable arguments of functions (**va_list** or **...**) is not supported. If **va_list** as type is used, Nifty will print a warning. If **...** is used, then the function is translated **without** the variable arguments: **int printf(const char *format, ...)** will be translated into **printf/1**
-+ The header files must be self contained which limits the usage of incomplete types. 
++ The usage of incomplete types is limited
 + There is currently no nice way of using arrays although **nifty:mem_alloc/1** and **nifty:mem_read/1** allow basic usage.
 + Nifty has not been tested under Windows.
