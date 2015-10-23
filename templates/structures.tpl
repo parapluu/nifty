@@ -123,7 +123,7 @@ record_to_erlptr(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 	unsigned int l;
 	char* cstr;
 	ERL_NIF_TERM *tpl;
-	
+
 	err = enif_get_tuple(env, argv[0], &ar, (const ERL_NIF_TERM**)(&tpl));
 	if (!err) {
 		goto error;
@@ -233,7 +233,7 @@ size_of(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 		written += tmp;
 	}
 /* structs */
-{% with type_keys=types|fetch_keys %}
+{% with type_keys=types|clear_function_pointers|fetch_keys %}
 	{% for type in type_keys %}
 		{% with kind=types|fetch:type|getNth:1 %}
 			{% if kind=="base" or kind=="userdef" or kind=="typedef" %}
@@ -298,4 +298,4 @@ error:
 	type_holder++;
 	retval++;
 }
-{% endif %} 
+{% endif %}

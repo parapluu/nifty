@@ -34,7 +34,8 @@
 	 loopcounter/2,
 
 	 config_schedule_dirty/1,
-	 enum_aliases/1]).
+	 enum_aliases/1,
+	 clear_function_pointers/1]).
 
 -spec norm_type(string()) -> string().
 norm_type(Type) ->
@@ -198,3 +199,10 @@ enum_aliases([H|T], Constructors, Acc) ->
 	_ ->
 	    enum_aliases(T, Constructors, Acc)
     end.
+
+-spec clear_function_pointers(dict:dict()) -> dict:dict().
+clear_function_pointers(Types) ->
+    Pred = fun (Type, _) ->
+		   string:str(Type, "(")==0
+	   end,
+    dict:filter(Pred, Types).
