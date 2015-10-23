@@ -44,7 +44,7 @@ call_functions_builtin() ->
 
 -spec builtin_test_() -> term().
 builtin_test_() ->
-    {timeout, 60, [compile_builtin(),
+    {timeout, 180, [compile_builtin(),
 		   call_functions_builtin()]}.
 
 %% -spec call_functions_builtin_remote() -> ok.
@@ -89,7 +89,7 @@ call_functions_arguments() ->
 
 -spec arguments_test_() -> term().
 arguments_test_()->
-    {timeout, 60, [compile_arguments(),
+    {timeout, 180, [compile_arguments(),
 		   call_functions_arguments()]}.
 
 -spec compile_structs() -> term().
@@ -106,7 +106,7 @@ call_functions_structs() ->
 
 -spec structs_test_() -> term().
 structs_test_() ->
-    {timeout, 60, [compile_structs(),
+    {timeout, 180, [compile_structs(),
 		   call_functions_structs()]}.
 
 -spec compile_proxy() -> term().
@@ -125,12 +125,12 @@ call_functions_proxy() ->
 
 -spec proxy_test_() -> term().
 proxy_test_()->
-    {timeout, 60, [compile_proxy(),
+    {timeout, 180, [compile_proxy(),
 		   call_functions_proxy()]}.
 
 -spec fptr_test_() -> term().
 fptr_test_() ->
-    {timeout, 60,
+    {timeout, 180,
      ?_assertEqual(ok, nifty_compiler:compile("../test/cfiles/fptr.h", nt_fptr, []))}.
 
 -spec compile_array() -> term().
@@ -154,7 +154,7 @@ call_functions_array() ->
 
 -spec array_test_() -> term().
 array_test_() ->
-    {timeout, 60, [compile_array(),
+    {timeout, 180, [compile_array(),
 		   call_functions_array()]}.
 
 -spec compile_tut2() -> term().
@@ -172,12 +172,12 @@ call_tut2() ->
 
 -spec tut2_test_() -> term().
 tut2_test_()->
-    {timeout, 60, [compile_tut2(),
+    {timeout, 180, [compile_tut2(),
 		   call_tut2()]}.
 
 -spec enum_test_() -> term().
 enum_test_() ->
-    {timeout, 60,
+    {timeout, 180,
      [compile_enum(),
       call_enum(),
       check_enum()]}.

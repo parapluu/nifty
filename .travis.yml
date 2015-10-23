@@ -6,9 +6,10 @@ otp_release:
   - 17.0
 env:
   - CPATH=/usr/lib/llvm-3.4/include LIBRARY_PATH=/usr/lib/llvm-3.4/lib LD_LIBRARY_PATH=/usr/lib/llvm-3.4/lib
-  - CPATH=/usr/lib/llvm-3.6/include LIBRARY_PATH=/usr/lib/llvm-3.6/lib LD_LIBRARY_PATH=/usr/lib/llvm-3.6/lib
-  - CPATH=/usr/lib/llvm-3.7/include LIBRARY_PATH=/usr/lib/llvm-3.7/lib LD_LIBRARY_PATH=/usr/lib/llvm-3.7/lib
-  - CPATH=/usr/lib/llvm-3.8/include LIBRARY_PATH=/usr/lib/llvm-3.8/lib LD_LIBRARY_PATH=/usr/lib/llvm-3.8/lib
+  - CPATH=/usr/lib/gcc/x86_64-linux-gnu/4.6/include:/usr/lib/llvm-3.6/include LIBRARY_PATH=/usr/lib/llvm-3.6/lib LD_LIBRARY_PATH=/usr/lib/llvm-3.6/lib
+  - CPATH=/usr/lib/gcc/x86_64-linux-gnu/4.6/include:/usr/lib/llvm-3.7/include LIBRARY_PATH=/usr/lib/llvm-3.7/lib LD_LIBRARY_PATH=/usr/lib/llvm-3.7/lib
+  - CPATH=/usr/lib/gcc/x86_64-linux-gnu/4.6/include:/usr/lib/llvm-3.8/include LIBRARY_PATH=/usr/lib/llvm-3.8/lib LD_LIBRARY_PATH=/usr/lib/llvm-3.8/lib
+
 addons:
   apt:
     sources:

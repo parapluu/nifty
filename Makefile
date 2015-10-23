@@ -26,7 +26,7 @@ default: fast
 
 fast: get-deps compile
 
-all: default dialyze tests
+all: default tests dialyze
 
 get-deps:
 	$(REBAR) get-deps
