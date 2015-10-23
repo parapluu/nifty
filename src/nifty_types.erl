@@ -26,7 +26,7 @@ resolve_type(Type, Types) ->
     end.
 
 resolve_type2(Type, Types) ->
-    case dict:is_key(Type, Types) of 
+    case dict:is_key(Type, Types) of
 	true ->
 	    {Kind, TypeDef} = dict:fetch(Type, Types),
 	    case Kind of
@@ -47,14 +47,14 @@ check_type(Type, Types) ->
 -spec check_type(nifty_clangparse:ctype(), nifty_clangparse:type_table(), nifty_clangparse:constr_table() | undef) -> boolean().
 check_type(Type, Types, Constructors) ->
     (not lists:member(Type, ?CLANG_BLACKLIST)) andalso
-						 (check_type2(Type, nifty:get_types(), dict:new()) orelse 
+						 (check_type2(Type, nifty:get_types(), dict:new()) orelse
 						  check_type2(Type, Types, Constructors)).
 
 check_type2(Type, Types, Constructors) ->
     case dict:is_key(Type, Types) of
 	true ->
 	    case resolve_type(Type, Types) of
-		undef -> 
+		undef ->
 		    false;
 		RType ->
 		    case dict:fetch(RType, Types) of
