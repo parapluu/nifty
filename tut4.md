@@ -50,6 +50,12 @@ record notion.
 Hint: Nifty currently does not supports anonymous structs. They are excluded from the
 internal type database together with all functions that depend on them.
 
+## Enums
+Nifty supports `enum` types. You can either use the numerical value directly or get the
+numerical value associated with a given alias by calling `nifty:enum_value(module, "ALIAS")`.
+
+See <a  href="{{ site.url }}/news/support-for-enums/">this</a> blog post for more information.
+
 ## Pointer
 
 ### Getting A Pointer To A Value
