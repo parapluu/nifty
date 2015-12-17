@@ -26,6 +26,6 @@ addons:
       - libclang-3.6-dev
       - libclang-3.7-dev
       - libclang-3.8-dev
-script: "make all"
+script: "make all rebar_regression"
 cache: apt
 sudo: false
