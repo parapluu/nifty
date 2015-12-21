@@ -175,6 +175,29 @@ tut2_test_()->
     {timeout, 180, [compile_tut2(),
 		   call_tut2()]}.
 
+-spec compile_dereference_regression() -> term().
+compile_dereference_regression() ->
+    ?_assertEqual(ok, nifty_compiler:compile("../test/cfiles/dereference_regression.h",
+					     dereference_regression,
+					     nifty_utils:add_sources(
+					       ["../test/cfiles/dereference_regression.c"],
+					       nifty_utils:add_cflags(
+						 "-I../test/cfiles", [])))).
+
+-spec call_dereference_regression() -> term().
+call_dereference_regression() ->
+    ?_assert(begin
+		 P = nifty:pointer("dereference_regression.struct s"),
+		 PP = nifty:pointer_of(P),
+		 P == nifty:dereference(PP)
+	     end).
+
+-spec dereference_regression_test_() -> term().
+dereference_regression_test_()->
+    {timeout, 180, [compile_dereference_regression(),
+		   call_dereference_regression()]}.
+
+
 -spec enum_test_() -> term().
 enum_test_() ->
     {timeout, 180,
