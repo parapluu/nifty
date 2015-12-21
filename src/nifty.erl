@@ -142,8 +142,11 @@ get_derefed_type(Type, Module) ->
 	    [H|_] = TypeDef,
 	    case (H=:="*") orelse (string:str(H, "[")>0) of
 		true ->
-		    [_|Token] = lists:reverse(string:tokens(ResType, " ")),
-		    NType = string:join(lists:reverse(Token), " "),
+                    [[_|PointerDef]|Token] = lists:reverse(string:tokens(ResType, " ")),
+                    NType = case PointerDef of
+                                [] ->string:join(lists:reverse(Token), " ");
+                                _ -> string:join(lists:reverse([PointerDef|Token]), " ")
+                            end,
 		    ResNType = nifty_types:resolve_type(NType, Types),
 		    case dict:is_key(ResNType, Types) of
 			true ->
