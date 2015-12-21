@@ -46,6 +46,10 @@ fdialyze: compile .nifty_plt
 tests: compile
 	ERL_LIBS=$(ERL_INCLUDE) $(REBAR) clean compile eunit skip_deps=true
 
+rebar_regression: compile
+	erl -noshell -pa `pwd`/ebin -pa `pwd`/deps/*/ebin \
+	-eval 'erlang:halt(try nifty:compile("test/cfiles/types.h",foo,[]),0 catch _:_ -> io:format("~p~n",[erlang:get_stacktrace()]),1 end)'
+
 doc:
 	$(REBAR) doc skip_deps=true
 
