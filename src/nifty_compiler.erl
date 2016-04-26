@@ -184,6 +184,7 @@ rebar_commands(RawArgs) ->
 %% </table>
 -spec compile(string(), module(), options()) -> 'ok' | {'error', reason()} | {'warning' , {'not_complete' , [nonempty_string()]}}.
 compile(InterfaceFile, Module, Options) ->
+    nifty_rebar:init(),
     ModuleName = atom_to_list(Module),
     os:putenv("NIF", libname(ModuleName)),
     {ok, NiftyRoot} = file:get_cwd(),
