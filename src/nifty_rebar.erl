@@ -27,6 +27,7 @@
 
 -export([main/1,
          run/2,
+         init/0,
          help/0,
          parse_args/1,
          init_config/1,
@@ -82,8 +83,16 @@ main(Args) ->
 %% Erlang-API entry point
 -spec run(rebar_config:config(), [string()]) -> ok.
 run(BaseConfig, Commands) ->
-    _ = application:load(rebar),
     run_aux(BaseConfig, Commands).
+
+-spec init() -> ok.
+init() ->
+    _ = application:load(rebar),
+    %% Make sure crypto is running
+    case crypto:start() of
+        ok -> ok;
+        {error,{already_started,crypto}} -> ok
+end.
 
 %% ====================================================================
 %% Internal functions
@@ -174,12 +183,6 @@ init_config1(BaseConfig) ->
     rebar_config:set_xconf(BaseConfig, base_dir, AbsCwd).
 
 run_aux(BaseConfig, Commands) ->
-    %% Make sure crypto is running
-    case crypto:start() of
-        ok -> ok;
-        {error,{already_started,crypto}} -> ok
-    end,
-
     %% Convert command strings to atoms
     CommandAtoms = [list_to_atom(C) || C <- Commands],
 
