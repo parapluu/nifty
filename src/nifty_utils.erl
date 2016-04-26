@@ -9,11 +9,11 @@
 
 -module(nifty_utils).
 -export([expand/1,
-	 new_config/0,
-	 add_sources/2,
-	 add_cflags/2,
-	 add_ldflags/2,
-	 merge_nif_spec/2]).
+         new_config/0,
+         add_sources/2,
+         add_cflags/2,
+         add_ldflags/2,
+         merge_nif_spec/2]).
 
 -type env() :: {'env', [{nonempty_string(), string()}]}.
 -type target_options() :: [env()].
@@ -21,7 +21,7 @@
 -type target_name() :: nonempty_string().
 -type source() :: nonempty_string().
 -type target() :: {arch(), target_name(), [source()]}
-		| {arch(), target_name(), [source()], target_options()}.
+                | {arch(), target_name(), [source()], target_options()}.
 %%-type port_specs() :: {'port_specs', [target()]}.
 -type config() :: proplists:proplist(). % port_specs() is an element here...
 
@@ -29,37 +29,37 @@
 -spec merge_nif_spec(config(), target()) -> config().
 merge_nif_spec(Config, {".*", "$NIF", Sources, [{env, Env}]} = Spec) ->
     case proplists:get_value(port_specs, Config) of
-	undefined -> 
-	    [{port_specs, [Spec]} | Config];
-	Specs ->
-	    NewSpecs = case get_nifspec(Specs) of
-			   {".*", "$NIF", OldSources} ->
-			       store_nifspec({".*", "$NIF", OldSources ++ Sources, [{env, Env}]}, Specs);
-			   {".*", "$NIF", OldSources, [{env, OldEnv}]} ->
-			       store_nifspec({".*", "$NIF", OldSources ++ Sources, [{env, OldEnv ++ Env}]}, Specs);
-			   undefined ->
-			       store_nifspec({".*", "$NIF", Sources, [{env, []}] }, Specs)
-		       end,
-	    [{port_specs, NewSpecs} | proplists:delete(port_specs, Config)]
+        undefined ->
+            [{port_specs, [Spec]} | Config];
+        Specs ->
+            NewSpecs = case get_nifspec(Specs) of
+                           {".*", "$NIF", OldSources} ->
+                               store_nifspec({".*", "$NIF", OldSources ++ Sources, [{env, Env}]}, Specs);
+                           {".*", "$NIF", OldSources, [{env, OldEnv}]} ->
+                               store_nifspec({".*", "$NIF", OldSources ++ Sources, [{env, OldEnv ++ Env}]}, Specs);
+                           undefined ->
+                               store_nifspec({".*", "$NIF", Sources, [{env, []}] }, Specs)
+                       end,
+            [{port_specs, NewSpecs} | proplists:delete(port_specs, Config)]
     end.
 
 get_nifspec([]) -> undefined;
 get_nifspec([H|T]) ->
     case H of
-	{".*", "$NIF", _} -> H;
-	{".*", "$NIF", _, _} -> H;
-	_ -> get_nifspec(T)
+        {".*", "$NIF", _} -> H;
+        {".*", "$NIF", _, _} -> H;
+        _ -> get_nifspec(T)
     end.
 
 store_nifspec(NifSpec, Specs) ->
     store_nifspec(Specs, NifSpec, []).
 
 store_nifspec([], _, Acc) -> Acc;
-store_nifspec([H|T], Spec, Acc) -> 
+store_nifspec([H|T], Spec, Acc) ->
     case H of
-	{".*", "$NIF", _} -> store_nifspec(T, Spec, [Spec|Acc]);
-	{".*", "$NIF", _, _} -> store_nifspec(T, Spec, [Spec|Acc]);
-	_ -> store_nifspec(T, Spec, [H|Acc])
+        {".*", "$NIF", _} -> store_nifspec(T, Spec, [Spec|Acc]);
+        {".*", "$NIF", _, _} -> store_nifspec(T, Spec, [Spec|Acc]);
+        _ -> store_nifspec(T, Spec, [H|Acc])
     end.
 
 %% @doc Returns an empty configuration
@@ -88,7 +88,7 @@ expand(Path) ->
     S = lists:foldr(fun(A, Acc) -> A ++ " " ++ Acc end, [], tokenize(Path)),
     string:strip(S).
 
-%% copied from getopts 
+%% copied from getopts
 -define(IS_WHITESPACE(Char), ((Char) =:= $\s orelse (Char) =:= $\t orelse (Char) =:= $\n orelse (Char) =:= $\r)).
 -spec tokenize(CmdLine :: string()) -> [nonempty_string()].
 tokenize(CmdLine) ->
@@ -146,8 +146,8 @@ expand_env_var(CmdLine) ->
         "$" ++ Tail ->
             expand_env_var("$", Tail, []);
         "%" ++ Tail ->
-            expand_env_var("%", $%, Tail, [])
-    end.
+                                  expand_env_var("%", $%, Tail, [])
+                          end.
 
 -spec expand_env_var(Prefix :: string(), EndMark :: char(), CmdLine :: string(), Acc :: string()) -> {string(), string()}.
 expand_env_var(Prefix, EndMark, [Char | Tail], Acc)
