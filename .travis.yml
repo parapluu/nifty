@@ -17,6 +17,7 @@ addons:
       - llvm-toolchain-precise
       - llvm-toolchain-precise-3.6
       - llvm-toolchain-precise-3.7
+      - llvm-toolchain-precise-3.8
     packages:
       - libclang1-3.4
       - libclang1-3.6
