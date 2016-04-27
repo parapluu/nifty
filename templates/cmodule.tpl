@@ -20,7 +20,7 @@ typedef unsigned __int64 uint64_t;
 	#else
 		#define ENV32BIT
 	#endif
-#endif 
+#endif
 
 #ifdef ENV32BIT
 typedef unsigned long ptr_t;
