@@ -1,0 +1,4 @@
+%% encoding: UTF-8
+{application,nifty}.
+{modules,[nifty,nifty_clangparse,nifty_compiler,nifty_filters,nifty_rebar,
+          nifty_remote,nifty_remotecall,nifty_tags,nifty_types,nifty_utils]}.

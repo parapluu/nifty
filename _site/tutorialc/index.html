@@ -138,7 +138,7 @@ the <code>-fPIC</code> flag. This can be fixed by adding</p>
 </code></pre></div>
 <p>to your Makefile. </p>
 
-<p>You can now create a NIF with Nifty. Note, that in this example make is invoked as pre-compile hook:</p>
+<p>You can now create a NIF module with Nifty. Note, that in this example make is invoked as pre-compile hook:</p>
 
 <div class="highlight"><pre><code class="erlang"><span class="mi">1</span><span class="o">&gt;</span> <span class="nn">nifty</span><span class="p">:</span><span class="nf">compile</span><span class="p">(</span><span class="s">&quot;list.h&quot;</span><span class="p">,</span> <span class="n">conli</span><span class="p">,</span> <span class="p">[{</span><span class="n">port_specs</span><span class="p">,[{</span><span class="s">&quot;.*&quot;</span><span class="p">,</span><span class="s">&quot;$NIF&quot;</span><span class="p">,[],</span>
                      <span class="p">[{</span><span class="n">env</span><span class="p">,[{</span><span class="s">&quot;LDFLAGS&quot;</span><span class="p">,</span><span class="s">&quot;$LDFLAGS contiki-native.a&quot;</span><span class="p">}]}]}]},</span>
@@ -160,7 +160,7 @@ the <code>-fPIC</code> flag. This can be fixed by adding</p>
 
 <div class="footer-wrap">
   <footer>
-    <span>&copy; 2014 Nifty. Powered by <a href="http://jekyllrb.com">Jekyll</a> using the <a href="http://mademistakes.com/minimal-mistakes/">Minimal Mistakes</a> theme.</span>
+    <span>&copy; 2016 Nifty. Powered by <a href="http://jekyllrb.com">Jekyll</a> using the <a href="http://mademistakes.com/minimal-mistakes/">Minimal Mistakes</a> theme.</span>
 
   </footer>
 </div><!-- /.footer-wrap -->

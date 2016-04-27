@@ -5,24 +5,24 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
 <head>
 <meta charset="utf-8">
-<title>Install Nifty &#8211; Nifty - NIF Interface Generator</title>
+<title>Support for enums &#8211; Nifty - NIF Interface Generator</title>
 <meta name="description" content="">
-<meta name="keywords" content="about, tutorial">
+<meta name="keywords" content="news, enum, feature">
 
 
 <!-- Open Graph -->
 <meta property="og:locale" content="en_US">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Install Nifty">
+<meta property="og:title" content="Support for enums">
 <meta property="og:description" content="New, Documentation and Tutorials of Nifty">
-<meta property="og:url" content="http://parapluu.github.io/nifty//install/">
+<meta property="og:url" content="http://parapluu.github.io/nifty//[%22news%22]/support-for-enums/">
 <meta property="og:site_name" content="Nifty - NIF Interface Generator">
 
 
 
 
 
-<link rel="canonical" href="http://parapluu.github.io/nifty//install/">
+<link rel="canonical" href="http://parapluu.github.io/nifty//[%22news%22]/support-for-enums/">
 <link href="http://parapluu.github.io/nifty//feed.xml" type="application/atom+xml" rel="alternate" title="Nifty - NIF Interface Generator Feed">
 
 
@@ -63,7 +63,7 @@
 
 </head>
 
-<body class="page">
+<body class="post">
 
 <!--[if lt IE 9]><div class="browser-upgrade alert alert-info">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div><![endif]-->
 
@@ -114,59 +114,76 @@
 
   </div>
   <article>
-    <h1>Install Nifty</h1>
+    <div class="headline-wrap">
+      
+        <h1><a href="http://parapluu.github.io/nifty//[%22news%22]/support-for-enums/" rel="bookmark" title="Support for enums">Support for enums</a></h1>
+      
+    </div><!--/ .headline-wrap -->
     <div class="article-wrap">
-      <h2 id="toc_0">Dependencies</h2>
+      <p>Nifty has now support for <code>enum</code>s. Lets wrap the following code into the
+module <code>my_module</code>:</p>
 
-<ul>
-<li>Erlang OTP 17.0 (if you are using an older version, you can use an <a href="https://github.com/parapluu/nifty/archive/pre-otp-17.tar.gz">old version of Nifty</a>)</li>
-<li><strong>libclang</strong> including the header files (libclang-dev)</li>
-<li><strong>clang</strong> compiler</li>
-<li><a href="http://proper.softlab.ntua.gr/"><strong>PropEr</strong></a> for the unit tests</li>
-</ul>
+<div class="highlight"><pre><code class="c"><span class="k">enum</span> <span class="n">my_enum</span> <span class="p">{</span>
+        <span class="n">A_VALUE</span><span class="p">,</span>
+        <span class="n">ANOTHER_VALUE</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="p">};</span>
 
-<p>In Ubuntu you can install the dependencies with this command:</p>
-
-<div class="highlight"><pre><code class="bash">sudo apt-get install libclang-dev libclang1 clang
+<span class="kt">void</span> <span class="nf">function_using_an_enum</span><span class="p">(</span><span class="k">enum</span> <span class="n">my_enum</span> <span class="n">parameter</span><span class="p">);</span>
 </code></pre></div>
 
-<p>Unfortunaley Ubuntu installs <code>libclang</code> and <code>libclang-dev</code> in a place that is not
-included in the standart search paths. This however can be easily fixed by setting the
-some environment variables. The path Ubuntu installs those packages it <code>/usr/lib/llvm-&lt;version&gt;</code>.
-If the installed version of the library is 3.4, then we can set the relevant environment variables
-as follows:</p>
+<p>Now we can call the function using <code>enum</code>s as following:</p>
 
-<div class="highlight"><pre><code class="bash"><span class="nb">export </span><span class="nv">CPATH</span><span class="o">=</span>/usr/lib/llvm-3.4/include 
-<span class="nb">export </span><span class="nv">LIBRARY_PATH</span><span class="o">=</span>/usr/lib/llvm-3.4/lib 
-<span class="nb">export </span><span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span>/usr/lib/llvm-3.4/lib
+<div class="highlight"><pre><code class="erlang"><span class="o">&gt;</span> <span class="nn">my_module</span><span class="p">:</span><span class="nf">function_using_an_enum</span><span class="p">(</span><span class="mi">0</span><span class="p">).</span>
+<span class="n">ok</span>
+<span class="o">&gt;</span> <span class="nn">nifty</span><span class="p">:</span><span class="nf">enum_value</span><span class="p">(</span><span class="n">my_module</span><span class="p">,</span> <span class="s">&quot;ANOTHER_VALUE&quot;</span><span class="p">)</span>
+<span class="mi">100</span>
+<span class="o">&gt;</span> <span class="nn">my_module</span><span class="p">:</span><span class="nf">function_using_an_enum</span><span class="p">(</span><span class="nn">nifty</span><span class="p">:</span><span class="nf">enum_value</span><span class="p">(</span><span class="n">my_module</span><span class="p">,</span> <span class="s">&quot;A_VALUE&quot;</span><span class="p">)).</span>
+<span class="n">ok</span>
 </code></pre></div>
 
-<h2 id="toc_1">Installation</h2>
+      <hr />
+      <footer role="contentinfo">
+        <div class="article-author-bottom">
+          
+	<img src="http://parapluu.github.io/nifty//images/avatar.png" class="bio-photo" alt="Nifty bio photo"></a>
 
-<p>Clone Nifty from the official repository, change to the directory and run make:</p>
+<h3>Nifty</h3>
+<p>Nifty - NIF interface generator</p>
 
-<div class="highlight"><pre><code class="bash">git clone https://github.com/parapluu/nifty.git
-<span class="nb">cd </span>nifty/
-make
-</code></pre></div>
 
-<p>Now include Nifty in your ERL_LIBS path and you are ready to go.</p>
 
-<h2 id="toc_2">Unit Tests</h2>
 
-<p>Make sure, that you have included <a href="http://proper.softlab.ntua.gr/">PropEr</a> in your <strong>ERL_LIBS</strong> path.</p>
 
-<p>Run the following command to check that everything works correct:</p>
 
-<div class="highlight"><pre><code class="bash">make tests
-</code></pre></div>
+<a href="http://github.com/parapluu/nifty" class="author-social" target="_blank"><i class="icon-github"></i> Github</a>
 
+
+
+
+
+
+        </div>
+        <p class="byline"><strong>Support for enums</strong> was published on <time datetime="2015-10-21T00:00:00-04:00">October 21, 2015</time> and last modified on <time datetime="2015-10-21">October 21, 2015</time> by <a href="http://parapluu.github.io/nifty//about" title="About Nifty">Nifty</a>.</p>
+      </footer>
     </div><!-- /.article-wrap -->
-    
+  
   </article>
-</div><!-- /#index -->
+</div><!-- /#main -->
 
 <div class="footer-wrap">
+  <div class="related-articles">
+  <h4>&nbsp; <small class="pull-right">(<a href="http://parapluu.github.io/nifty//articles/">All News</a>)</small></h4>
+    <ul>
+    
+      <li><a href="http://parapluu.github.io/nifty//[]/more-dirty-scheduler-support/" title="More Dirty Scheduler Support">More Dirty Scheduler Support</a></li>
+    
+      <li><a href="http://parapluu.github.io/nifty//[%22news%22]/support-for-dirty-schedulers/" title="Support for dirty schedulers">Support for dirty schedulers</a></li>
+    
+      <li><a href="http://parapluu.github.io/nifty//[]/talk-at-the-erlang-user-conference-2014/" title="Talk at the Erlang User Conference 2014">Talk at the Erlang User Conference 2014</a></li>
+    
+    </ul>
+    <hr />
+  </div><!-- /.related-articles -->
   <footer>
     <span>&copy; 2016 Nifty. Powered by <a href="http://jekyllrb.com">Jekyll</a> using the <a href="http://mademistakes.com/minimal-mistakes/">Minimal Mistakes</a> theme.</span>
 
@@ -177,7 +194,7 @@ make
 <script>window.jQuery || document.write('<script src="http://parapluu.github.io/nifty//assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
 <script src="http://parapluu.github.io/nifty//assets/js/scripts.min.js"></script>
 
-          
+	        
 
 </body>
 </html>
