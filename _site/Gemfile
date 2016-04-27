@@ -1,8 +1,7 @@
 source 'https://rubygems.org'
 
-gem 'ffi'
 gem 'jekyll'
-gem 'redcarpet'
+gem 'kramdown'
 gem 'coderay'
 gem 'rake'
 gem 'thor'

@@ -126,31 +126,30 @@
     <h1>Tutorial C: Creating NIFs for Contiki</h1>
     <div class="article-wrap">
       <h2 id="compiling">Compiling</h2>
-
 <p>Nifty is able to create bindings for precompiled static libraries. The only restriction is, that the 
-library must be compiled with the <code>-fpic</code> flag. Contiki&#39;s build system is capable of creating such a 
-static library. </p>
-<figure class="highlight"><pre><code class="language-text" data-lang="text">$ make TARGET=native contiki-native.a
-</code></pre></figure>
+library must be compiled with the <code>-fpic</code> flag. Contiki’s build system is capable of creating such a 
+static library.</p>
+
+<pre><code>$ make TARGET=native contiki-native.a
+</code></pre>
+
 <p>This should work with your standard Contiki Makefile. A library created like this, is created without 
 the <code>-fPIC</code> flag. This can be fixed by adding</p>
-<figure class="highlight"><pre><code class="language-text" data-lang="text">CFLAGS += -fPIC
-</code></pre></figure>
-<p>to your Makefile. </p>
+
+<pre><code>CFLAGS += -fPIC
+</code></pre>
+
+<p>to your Makefile.</p>
 
 <p>You can now create a NIF module with Nifty. Note, that in this example make is invoked as pre-compile hook:</p>
 
 <figure class="highlight"><pre><code class="language-erlang" data-lang="erlang">1&gt; nifty:compile(&quot;list.h&quot;, conli, [{port_specs,[{&quot;.*&quot;,&quot;$NIF&quot;,[],
-                     [{env,[{&quot;LDFLAGS&quot;,&quot;$LDFLAGS contiki-native.a&quot;}]}]}]},
-                   {pre_hooks,[{compile,&quot;sh -c \&quot;make -f $NIFTY_ROOT/Makefile TARGET=native contiki-native.a\&quot;&quot;}]}]).</code></pre></figure>
+					 [{env,[{&quot;LDFLAGS&quot;,&quot;$LDFLAGS contiki-native.a&quot;}]}]}]},
+				   {pre_hooks,[{compile,&quot;sh -c \&quot;make -f $NIFTY_ROOT/Makefile TARGET=native contiki-native.a\&quot;&quot;}]}]).</code></pre></figure>
 
-<table><thead>
-<tr>
-<th><a  href="http://parapluu.github.io/nifty//tutorial3">Previous Tutorial</a></th>
-<th><a  href="http://parapluu.github.io/nifty//tutorial_trouble">Next Tutorial</a></th>
-</tr>
-</thead><tbody>
-</tbody></table>
+<p>| <a href="http://parapluu.github.io/nifty//tutorial3">Previous Tutorial</a> | <a href="http://parapluu.github.io/nifty//tutorial_trouble">Next Tutorial</a> |
+|———————————————————–|————————————————————–|</p>
+
 
     </div><!-- /.article-wrap -->
     

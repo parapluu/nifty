@@ -129,7 +129,7 @@
 Erlang types into C types and vice versa. Nifty provides support for most of
 C datatypes with a few notable exceptions. The type information is stored
 in the module defining the type, with the exception of base types, which are
-stored in Nifty&#39;s library module. Nifty&#39;s type representation is in form of a
+stored in Nifty’s library module. Nifty’s type representation is in form of a
 string:</p>
 
 <figure class="highlight"><pre><code class="language-erlang" data-lang="erlang">&quot;&lt;module&gt;.&lt;type&gt;&quot;
@@ -139,67 +139,68 @@ examples:
 &quot;mymodule.struct mystruct *&quot; %% derived type</code></pre></figure>
 
 <h2 id="base-types">Base Types</h2>
-
 <p>The following table shows, how C types and Erlang types correspond to each other:</p>
 
-<table><thead>
-<tr>
-<th>C Types</th>
-<th>Erlang Types</th>
-<th>Nifty Type Name</th>
-</tr>
-</thead><tbody>
-<tr>
-<td><code>signed int</code> or <code>int</code></td>
-<td><code>integer()</code></td>
-<td><code>nifty.int</code></td>
-</tr>
-<tr>
-<td><code>unsigned int</code></td>
-<td><code>integer()</code></td>
-<td><code>nifty.unsigned int</code></td>
-</tr>
-<tr>
-<td><code>char</code></td>
-<td><code>integer()</code></td>
-<td><code>nifty.char</code></td>
-</tr>
-<tr>
-<td><code>short</code></td>
-<td><code>integer()</code></td>
-<td><code>nifty.short</code></td>
-</tr>
-<tr>
-<td><code>long</code></td>
-<td><code>integer()</code></td>
-<td><code>nifty.long</code></td>
-</tr>
-<tr>
-<td><code>long long</code></td>
-<td><code>integer()</code></td>
-<td><code>nifty.long long</code></td>
-</tr>
-<tr>
-<td><code>float</code></td>
-<td><code>float()</code></td>
-<td><code>nifty.float</code></td>
-</tr>
-<tr>
-<td><code>double</code></td>
-<td><code>float()</code></td>
-<td><code>nifty.double</code></td>
-</tr>
-<tr>
-<td><code>&lt;type&gt; *</code></td>
-<td><code>{integer(), string()}</code></td>
-<td><code>&lt;module&gt;.&lt;type&gt; *</code></td>
-</tr>
-</tbody></table>
+<table>
+  <thead>
+    <tr>
+      <th>C Types</th>
+      <th>Erlang Types</th>
+      <th>Nifty Type Name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>signed int</code> or <code>int</code></td>
+      <td><code>integer()</code></td>
+      <td><code>nifty.int</code></td>
+    </tr>
+    <tr>
+      <td><code>unsigned int</code></td>
+      <td><code>integer()</code></td>
+      <td><code>nifty.unsigned int</code></td>
+    </tr>
+    <tr>
+      <td><code>char</code></td>
+      <td><code>integer()</code></td>
+      <td><code>nifty.char</code></td>
+    </tr>
+    <tr>
+      <td><code>short</code></td>
+      <td><code>integer()</code></td>
+      <td><code>nifty.short</code></td>
+    </tr>
+    <tr>
+      <td><code>long</code></td>
+      <td><code>integer()</code></td>
+      <td><code>nifty.long</code></td>
+    </tr>
+    <tr>
+      <td><code>long long</code></td>
+      <td><code>integer()</code></td>
+      <td><code>nifty.long long</code></td>
+    </tr>
+    <tr>
+      <td><code>float</code></td>
+      <td><code>float()</code></td>
+      <td><code>nifty.float</code></td>
+    </tr>
+    <tr>
+      <td><code>double</code></td>
+      <td><code>float()</code></td>
+      <td><code>nifty.double</code></td>
+    </tr>
+    <tr>
+      <td><code>&lt;type&gt; *</code></td>
+      <td><code>{integer(), string()}</code></td>
+      <td><code>&lt;module&gt;.&lt;type&gt; *</code></td>
+    </tr>
+  </tbody>
+</table>
 
 <p>Nifty performs no check that integer values fit into the datatype. Too large integers will overflow.</p>
 
 <h2 id="records">Records</h2>
-
 <p>C records (structs) are translated into erlang records and every definition of a struct results
 in a record definition. Nifty translates the values of each field according to the type
 of the C record definition. Nested C records are translated into nested Erlang records.
@@ -210,16 +211,14 @@ record notion.</p>
 internal type database together with all functions that depend on them.</p>
 
 <h2 id="enums">Enums</h2>
-
 <p>Nifty supports <code>enum</code> types. You can either use the numerical value directly or get the
-numerical value associated with a given alias by calling <code>nifty:enum_value(module, &quot;ALIAS&quot;)</code>.</p>
+numerical value associated with a given alias by calling <code>nifty:enum_value(module, "ALIAS")</code>.</p>
 
-<p>See <a  href="http://parapluu.github.io/nifty//news/support-for-enums/">this</a> blog post for more information.</p>
+<p>See <a href="http://parapluu.github.io/nifty//news/support-for-enums/">this</a> blog post for more information.</p>
 
 <h2 id="pointer">Pointer</h2>
 
 <h3 id="getting-a-pointer-to-a-value">Getting A Pointer To A Value</h3>
-
 <p>To get a pointer of a value Nifty provides the <code>nifty:pointer_of/2</code> function. The first argument
 is the value and the second argument is the Nifty Type Name of the base type:</p>
 
@@ -254,7 +253,6 @@ the containing value, you can use <code>pointer/1</code>, which works like <code
 <p>This will allocate memory of the size <code>sizeof(type)</code> and return a pointer casted to the specified type.</p>
 
 <h3 id="dereferencing-a-pointer">Dereferencing A Pointer</h3>
-
 <p>The reverse function to <code>nifty:pointer_of/2</code> is <code>nifty:dereference</code>. This function takes a pointer
 and translates the value it points to into an Erlang value:</p>
 
@@ -275,7 +273,6 @@ and translates the value it points to into an Erlang value:</p>
 232</code></pre></figure>
 
 <h3 id="casting-a-pointer-to-a-different-type">Casting A Pointer To A Different Type</h3>
-
 <p>As shown in the previous section, it is possible to cast a pointer to a different type. <code>nifty:as_type/2</code>
 takes a pointer and a type and returns that pointer casted to the type. <code>as_type/2</code> also checks
 if the type is known:</p>
@@ -288,16 +285,14 @@ if the type is known:</p>
 undef %% type is unknown in the scope of nifty</code></pre></figure>
 
 <h3 id="function-pointers">Function Pointers</h3>
-
 <p>Function pointers default to <code>void *</code> pointers and are handled as such. That means, that you are not able to dereference
 them. You can however obtain them from functions or pass them to other functions.</p>
 
 <h2 id="memory-management">Memory Management</h2>
 
 <h3 id="memory-allocation-and-free">Memory Allocation And free()</h3>
-
-<p>Nifty&#39;s <code>malloc()</code> is <code>nifty:malloc/1</code>. It works in the same way as <code>malloc()</code> as it allocates the
-specified amount of memory and returns a <code>nifty.void *</code> pointer to it. In a similar manner Nifty&#39;s <code>free()</code>
+<p>Nifty’s <code>malloc()</code> is <code>nifty:malloc/1</code>. It works in the same way as <code>malloc()</code> as it allocates the
+specified amount of memory and returns a <code>nifty.void *</code> pointer to it. In a similar manner Nifty’s <code>free()</code>
 is <code>nifty:free/1</code>, which deallocates the memory segment associated by the given pointer:</p>
 
 <figure class="highlight"><pre><code class="language-erlang" data-lang="erlang">1&gt; Big = nifty:malloc(1024).
@@ -308,7 +303,6 @@ ok</code></pre></figure>
 <p>All of by Nifty allocated memory is not garbage collected, so make sure to free all memory you used.</p>
 
 <h2 id="segfaults">Segfaults</h2>
-
 <p>Be careful when you are using pointers, memory allocation and so on. Like in C it is possible to access
 invalid or protected memory areas that result in a memory access exception more commonly known as
 segfault:</p>
@@ -318,15 +312,10 @@ Segmentation fault (core dumped)
 $</code></pre></figure>
 
 <p>As you will see, a segfault will crash the Erlang runtime. You can however catch segafaults as demonstrated in the
-<a  href="http://parapluu.github.io/nifty//tutorial5">next tutorial</a>.</p>
+<a href="http://parapluu.github.io/nifty//tutorial5">next tutorial</a>.</p>
 
-<table><thead>
-<tr>
-<th><a  href="http://parapluu.github.io/nifty//tutorial3">Previous Tutorial</a></th>
-<th><a  href="http://parapluu.github.io/nifty//tutorial5">Next Tutorial</a></th>
-</tr>
-</thead><tbody>
-</tbody></table>
+<p>| <a href="http://parapluu.github.io/nifty//tutorial3">Previous Tutorial</a> | <a href="http://parapluu.github.io/nifty//tutorial5">Next Tutorial</a> |
+|———————————————————–|——————————————————-|</p>
 
     </div><!-- /.article-wrap -->
     

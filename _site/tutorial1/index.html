@@ -125,11 +125,11 @@
   <article>
     <h1>Tutorial 1: First Steps</h1>
     <div class="article-wrap">
-      <p><a  href="http://parapluu.github.io/nifty//files/tut1.tar.gz"><strong>Files For This Tutorial</strong></a></p>
+      <p><a href="http://parapluu.github.io/nifty//files/tut1.tar.gz"><strong>Files For This Tutorial</strong></a></p>
 
 <h2 id="a-simple-example">A simple Example</h2>
 
-<p>Let&#39;s say you want to create a NIF module from the following example C file <code>fib.c</code>:</p>
+<p>Let’s say you want to create a NIF module from the following example C file <code>fib.c</code>:</p>
 
 <figure class="highlight"><pre><code class="language-c--" data-lang="c++">int
 fib(int n) {
@@ -140,7 +140,7 @@ fib(int n) {
   }
 }</code></pre></figure>
 
-<p>Nifty needs a header file to create a NIF module, so let&#39;s write one and store it under <code>fib.h</code></p>
+<p>Nifty needs a header file to create a NIF module, so let’s write one and store it under <code>fib.h</code></p>
 
 <figure class="highlight"><pre><code class="language-c--" data-lang="c++">extern int fib(int n);</code></pre></figure>
 
@@ -154,7 +154,7 @@ Compiled src/fib.erl
 Compiling c_src/fib_nif.c
 ok</code></pre></figure>
 
-<p>Now let&#39;s try to load the module:</p>
+<p>Now let’s try to load the module:</p>
 
 <figure class="highlight"><pre><code class="language-erlang" data-lang="erlang">2&gt; l(fib).
 =ERROR REPORT==== 4-Apr-2014::14:30:16 ===
@@ -181,12 +181,13 @@ ok
 
 <p>The third arguments specifies the compile options which are equivalent to the options that you can set in a <code>rebar.config</code>. 
 To add a source file or compile options to your NIF module, you have to use the target
-<code>{&quot;.*&quot;, &quot;$NIF&quot;, [&lt;source files&gt;], &lt;optional options&gt;}</code> in the port_specs option. Fortunatley, Nifty comes with 
+<code>{".*", "$NIF", [&lt;source files&gt;], &lt;optional options&gt;}</code> in the port_specs option. Fortunatley, Nifty comes with 
 some utility functions, that help creating such a configuration. We want to add a source file to an empty configuration. an empty 
 configuration is <code>[]</code> and we can add the source <code>fib.c</code> with <code>nifty_utils:add_sources</code>.</p>
 
 <p>When you leave the interactive interpreter, you will see that Nifty created a complete Erlang project:</p>
-<figure class="highlight"><pre><code class="language-text" data-lang="text">fib
+
+<pre><code>fib
 ├── c_src
 │   └── fib_nif.c
 ├── ebin
@@ -198,14 +199,11 @@ configuration is <code>[]</code> and we can add the source <code>fib.c</code> wi
 └── src
     ├── fib_remote.erl
     └── fib.erl
-</code></pre></figure>
-<table><thead>
-<tr>
-<th><a  href="http://parapluu.github.io/nifty//files/tut1.tar.gz">Tutorial Files</a></th>
-<th><a  href="http://parapluu.github.io/nifty//tutorial2">Next Tutorial</a></th>
-</tr>
-</thead><tbody>
-</tbody></table>
+</code></pre>
+
+<p>| <a href="http://parapluu.github.io/nifty//files/tut1.tar.gz">Tutorial Files</a> | <a href="http://parapluu.github.io/nifty//tutorial2">Next Tutorial</a> |
+|—————————————————————-|——————————————————-|</p>
+
 
     </div><!-- /.article-wrap -->
     

@@ -125,11 +125,11 @@
   <article>
     <h1>Tutorial 5: Dealing With Crashes</h1>
     <div class="article-wrap">
-      <p><a  href="http://parapluu.github.io/nifty//files/tut5.tar.gz"><strong>Files For This Tutorial</strong></a></p>
+      <p><a href="http://parapluu.github.io/nifty//files/tut5.tar.gz"><strong>Files For This Tutorial</strong></a></p>
 
 <h2 id="setup">Setup</h2>
 
-<p>Let&#39;s say you want to create a NIF module from the following example C file <code>test.c</code>:</p>
+<p>Let’s say you want to create a NIF module from the following example C file <code>test.c</code>:</p>
 
 <figure class="highlight"><pre><code class="language-c--" data-lang="c++">#include &quot;test.h&quot;
 #include &quot;signal.h&quot;
@@ -187,16 +187,10 @@ ok
 <p>As you can see, <code>fails\0</code> now returns <code>{error, node_crashed}</code> instead of crashing Erlang. After the remote node has crashed, it is necessary to 
 restart it with <code>restart\0</code>. Otherwise every function call will return <code>{error, node_down}</code>. You can also stop the remote node with <code>stop\0</code>. 
 Restarting the or stopping is a hard reset of the NIF module. Static C variables and allocated memory will behave as you freshly
-loaded the NIF module. This means, that all pointers that you still have are invalid. </p>
+loaded the NIF module. This means, that all pointers that you still have are invalid.</p>
 
-<table><thead>
-<tr>
-<th><a  href="http://parapluu.github.io/nifty//tutorial4">Previous Tutorial</a></th>
-<th><a  href="http://parapluu.github.io/nifty//files/tut5.tar.gz">Tutorial Files</a></th>
-<th><a  href="http://parapluu.github.io/nifty//tutorial_trouble">Next Tutorial</a></th>
-</tr>
-</thead><tbody>
-</tbody></table>
+<p>| <a href="http://parapluu.github.io/nifty//tutorial4">Previous Tutorial</a> | <a href="http://parapluu.github.io/nifty//files/tut5.tar.gz">Tutorial Files</a> | <a href="http://parapluu.github.io/nifty//tutorial_trouble">Next Tutorial</a> |
+|———————————————————–|—————————————————————-|————————————————————–|</p>
 
     </div><!-- /.article-wrap -->
     
