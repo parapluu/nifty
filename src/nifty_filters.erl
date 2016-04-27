@@ -34,6 +34,8 @@
          loopcounter/2,
 
          config_schedule_dirty/1,
+         config_schedule_dirty/2,
+         config_schedule_dirty_type/2,
          enum_aliases/1,
          clear_function_pointers/1]).
 
@@ -177,12 +179,55 @@ config_schedule_dirty(Options) ->
         NiftyOptions ->
             case proplists:get_value(schedule_dirty, NiftyOptions) of
                 undefined ->
-                    false;
+                    %% check the all functions
+                    FOpts = proplists:get_value(functions_options, NiftyOptions, []),
+                    lists:foldl(fun ({_, Opts}, Acc) ->
+                                        Acc orelse lists:member(schedule_dirty_cpu, Opts)
+                                            orelse lists:member(schedule_dirty_io, Opts)
+                                end, false, FOpts);
                 false ->
                     false;
                 _ ->
                     true
             end
+    end.
+
+-spec config_schedule_dirty(nifty_compiler:options(), string()) -> boolean().
+config_schedule_dirty(Options, FN) ->
+    case proplists:get_value(nifty, Options) of
+        undefined ->
+            false;
+        NiftyOptions ->
+            case proplists:get_value(schedule_dirty, NiftyOptions) of
+                undefined ->
+                    %% check the functions
+                    FOpts = get_function_options(NiftyOptions, FN),
+                    lists:member(schedule_dirty_cpu, FOpts) orelse
+                        lists:member(schedule_dirty_io, FOpts);
+                false ->
+                    false;
+                _ ->
+                    true
+            end
+    end.
+
+-spec get_function_options(nifty_compiler:options(), string()) -> proplists:proplist().
+get_function_options(NiftyOptions, FN) ->
+    case proplists:get_value(functions_options, NiftyOptions) of
+        undefined ->
+            [];
+        Options when is_list(Options) ->
+            proplists:get_value(FN, Options, [])
+    end.
+
+-spec config_schedule_dirty_type(nifty_compiler:options(), string()) -> string().
+config_schedule_dirty_type(Options, FN) ->
+    %% should always succeed:
+    NiftyOptions = proplists:get_value(nifty, Options),
+    FOpts = get_function_options(NiftyOptions, FN),
+    case lists:member(schedule_dirty_io, FOpts) of
+        true -> "ERL_NIF_DIRTY_JOB_IO_BOUND";
+        _ -> "ERL_NIF_DIRTY_JOB_CPU_BOUND"
     end.
 
 -spec enum_aliases(dict:dict()) -> nonempty_string().

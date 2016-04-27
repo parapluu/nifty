@@ -1,13 +1,13 @@
 {% with fn=symbols|fetch_keys %}{% for name in fn %}
 
 
-{% if config|config_schedule_dirty %}
+{% if config|config_schedule_dirty:name %}
 #ifdef ERL_NIF_DIRTY_SCHEDULER_SUPPORT
 static ERL_NIF_TERM _nifty_impl_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]);
 
 static ERL_NIF_TERM
 _nifty_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
-  return enif_schedule_nif(env, "{{name}}", 0, &_nifty_impl_{{name}}, argc, argv);
+  return enif_schedule_nif(env, "{{name}}", {{config|config_schedule_dirty_type:name}}, &_nifty_impl_{{name}}, argc, argv);
 }
 
 static ERL_NIF_TERM
@@ -17,7 +17,7 @@ static ERL_NIF_TERM
 _nifty_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 #endif
 {% endif %}
-{% if not config|config_schedule_dirty %}
+{% if not config|config_schedule_dirty:name %}
 static ERL_NIF_TERM
 _nifty_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {% endif %}
@@ -80,7 +80,7 @@ _nifty_{{name}}(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 			{% endif %}
 		{% endfor %}
 	{% endwith %}
-	
+
 	{% with arguments=symbols|fetch:name %}
 		{% for argument in arguments %}
 			{% if argument|is_return %}
