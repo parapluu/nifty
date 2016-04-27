@@ -4,35 +4,35 @@ description:      New, Documentation and Tutorials of Nifty
 #url:              http://130.238.11.192:4000
 url: http://parapluu.github.io/nifty/
 #url:              http://localhost:4000
-disqus_shortname: 
+disqus_shortname:
 
 # Owner/author information
 owner:
   name:           Nifty
   avatar:         avatar.png
   bio:            "Nifty - NIF interface generator"
-  email:         
+  email:
   # Social networking links are used in author-bio sidebar. Update and remove as you like.
-  twitter:        
-  facebook:       
+  twitter:
+  facebook:
   github:         parapluu/nifty
-  stackoverflow: 
-  linkedin:       
-  instagram:      
-  lastfm:         
-  tumblr: 
-  pinterest: 
-  foursquare: 
-  steam: 
-  dribbble: 
+  stackoverflow:
+  linkedin:
+  instagram:
+  lastfm:
+  tumblr:
+  pinterest:
+  foursquare:
+  steam:
+  dribbble:
   # For Google Authorship https://plus.google.com/authorship
   google_plus:
 
 # Analytics and webmaster tools stuff goes here
-google_analytics:   
-google_verify:      
+google_analytics:
+google_verify:
 # https://ssl.bing.com/webmaster/configure/verify/ownership Option 2 content= goes here
-bing_verify:        
+bing_verify:
 
 # Links to include in top navigation
 # For external links add external: true
@@ -54,7 +54,7 @@ links:
 # http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 timezone:    America/New_York
 future:      true
-pygments:    true
+highlighter:    true
 markdown:    redcarpet
 
 redcarpet:

@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Module nifty_clangparse</title>
+<link rel="stylesheet" type="text/css" href="stylesheet.css" title="EDoc">
+</head>
+<body bgcolor="white">
+<div class="navbar"><a name="#navbar_top"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<hr>
+
+<h1>Module nifty_clangparse</h1>
+<ul class="index"><li><a href="#types">Data Types</a></li><li><a href="#index">Function Index</a></li><li><a href="#functions">Function Details</a></li></ul>
+
+
+<h2><a name="types">Data Types</a></h2>
+
+<h3 class="typedecl"><a name="type-cname">cname()</a></h3>
+<p><tt>cname() = nonempty_string()</tt></p>
+
+
+<h3 class="typedecl"><a name="type-constr_table">constr_table()</a></h3>
+<p><tt>constr_table() = <a href="dict.html#type-dict">dict:dict</a>({struct | typedef | enum, <a href="#type-cname">cname()</a>}, <a href="#type-ctype">ctype()</a> | [<a href="#type-field">field()</a>] | [<a href="#type-enum_decl">enum_decl()</a>])</tt></p>
+
+
+<h3 class="typedecl"><a name="type-constructor_type">constructor_type()</a></h3>
+<p><tt>constructor_type() = struct</tt></p>
+
+
+<h3 class="typedecl"><a name="type-ctype">ctype()</a></h3>
+<p><tt>ctype() = nonempty_string()</tt></p>
+
+
+<h3 class="typedecl"><a name="type-ctypedef">ctypedef()</a></h3>
+<p><tt>ctypedef() = {base, [string()]} | {typedef, <a href="#type-ctype">ctype()</a>} | {userdef, [string() | {<a href="#type-constructor_type">constructor_type()</a>, nonempty_string()}]}</tt></p>
+
+
+<h3 class="typedecl"><a name="type-enum_decl">enum_decl()</a></h3>
+<p><tt>enum_decl() = {<a href="#type-cname">cname()</a>, integer()}</tt></p>
+
+
+<h3 class="typedecl"><a name="type-field">field()</a></h3>
+<p><tt>field() = {field, <a href="#type-cname">cname()</a>, <a href="#type-ctype">ctype()</a>, <a href="#type-index">index()</a>}</tt></p>
+
+
+<h3 class="typedecl"><a name="type-func_location">func_location()</a></h3>
+<p><tt>func_location() = <a href="dict.html#type-dict">dict:dict</a>(<a href="#type-path">path()</a>, <a href="#type-cname">cname()</a>)</tt></p>
+
+
+<h3 class="typedecl"><a name="type-index">index()</a></h3>
+<p><tt>index() = integer()</tt></p>
+
+
+<h3 class="typedecl"><a name="type-parser_output">parser_output()</a></h3>
+<p><tt>parser_output() = {<a href="#type-func_location">func_location()</a>, <a href="#type-symbol_table">symbol_table()</a>, <a href="#type-types">types()</a>, <a href="#type-constr_table">constr_table()</a>}</tt></p>
+
+
+<h3 class="typedecl"><a name="type-path">path()</a></h3>
+<p><tt>path() = string()</tt></p>
+
+
+<h3 class="typedecl"><a name="type-symbol_table">symbol_table()</a></h3>
+<p><tt>symbol_table() = <a href="dict.html#type-dict">dict:dict</a>(<a href="#type-cname">cname()</a>, {return, <a href="#type-ctype">ctype()</a>} | {argument, <a href="#type-index">index()</a>, <a href="#type-ctype">ctype()</a>})</tt></p>
+
+
+<h3 class="typedecl"><a name="type-type_table">type_table()</a></h3>
+<p><tt>type_table() = <a href="dict.html#type-dict">dict:dict</a>(<a href="#type-ctype">ctype()</a>, <a href="#type-ctypedef">ctypedef()</a>)</tt></p>
+
+
+<h3 class="typedecl"><a name="type-types">types()</a></h3>
+<p><tt>types() = [<a href="#type-ctype">ctype()</a>]</tt></p>
+
+
+<h2><a name="index">Function Index</a></h2>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#build_type_table-2">build_type_table/2</a></td><td>building the type table from the raw parser output.</td></tr>
+<tr><td valign="top"><a href="#parse-1">parse/1</a></td><td>Takes clang compiler arguments, and returns functions locations, symbol table, types and constructor table.</td></tr>
+</table>
+
+<h2><a name="functions">Function Details</a></h2>
+
+<h3 class="function"><a name="build_type_table-2">build_type_table/2</a></h3>
+<div class="spec">
+<p><tt>build_type_table(Types::<a href="#type-types">types()</a>, Constr::<a href="#type-constr_table">constr_table()</a>) -&gt; <a href="#type-type_table">type_table()</a></tt><br></p>
+</div><p>building the type table from the raw parser output</p>
+
+<h3 class="function"><a name="parse-1">parse/1</a></h3>
+<div class="spec">
+<p><tt>parse(Args::[string()]) -&gt; <a href="#type-parser_output">parser_output()</a> | {error, fail}</tt><br></p>
+</div><p>Takes clang compiler arguments, and returns functions locations, symbol table, types and constructor table</p>
+<hr>
+
+<div class="navbar"><a name="#navbar_bottom"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<p><i>Generated by EDoc, Oct 21 2015, 10:08:45.</i></p>
+</body>
+</html>
