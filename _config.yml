@@ -55,10 +55,6 @@ links:
 timezone:    CET
 future:      true
 highlighter:    true
-markdown:    kramdown
-
-# redcarpet:
-#   extensions: ["no_intra_emphasis", "fenced_code_blocks", "autolink", "tables", "with_toc_data"]
 
 # https://github.com/mojombo/jekyll/wiki/Permalinks
 permalink:   /:categories/:title/
