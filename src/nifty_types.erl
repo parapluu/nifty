@@ -64,7 +64,7 @@ check_type2(Type, Types, Constructors) ->
                         {userdef, [T]} ->
                             %% constructor or dead end
                             case T of
-                                {struct, Name} ->
+                                {struct, _Name} ->
                                     case Constructors of
                                         undef -> true;
                                         C -> dict:is_key(T, C)
