@@ -46,9 +46,10 @@ check_type(Type, Types) ->
 %% @doc Checks if <code>Type</code> is a valid type
 -spec check_type(nifty_clangparse:ctype(), nifty_clangparse:type_table(), nifty_clangparse:constr_table() | undef) -> boolean().
 check_type(Type, Types, Constructors) ->
-    (not lists:member(Type, ?CLANG_BLACKLIST)) andalso
-                                                 (check_type2(Type, nifty:get_types(), dict:new()) orelse
-                                                  check_type2(Type, Types, Constructors)).
+    (not lists:member(Type, ?CLANG_BLACKLIST))
+	andalso
+	  (check_type2(Type, nifty:get_types(), dict:new()) orelse
+	   check_type2(Type, Types, Constructors)).
 
 check_type2(Type, Types, Constructors) ->
     case dict:is_key(Type, Types) of
@@ -63,13 +64,13 @@ check_type2(Type, Types, Constructors) ->
                         {userdef, [T]} ->
                             %% constructor or dead end
                             case T of
-                                {struct, Name} ->
+                                {struct, _Name} ->
                                     case Constructors of
                                         undef -> true;
-                                        C -> dict:is_key({struct, Name}, C)
+                                        C -> dict:is_key(T, C)
                                     end;
                                 _->
-                                    case T=:=Type of
+                                    case T =:= Type of
                                         true ->
                                             false; %% loop
                                         false ->
