@@ -2,7 +2,7 @@
  * Copyright (c) 2014, Andreas Löscher <andreas.loscher@it.uu.se> and
  *                     Konstantinos Sagonas <kostis@it.uu.se>
  * All rights reserved.
- * 
+ *
  * This file is distributed under the Simplified BSD License.
  * Details can be found in the LICENSE file.
  */
@@ -25,7 +25,7 @@ typedef unsigned __int64 uint64_t;
 	#else
 		#define ENV32BIT
 	#endif
-#endif 
+#endif
 
 #ifdef ENV32BIT
 typedef unsigned long ptr_t;
@@ -88,7 +88,7 @@ float_ref(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
   int err;
   double helper;
   float *value;
-  
+
   value = enif_alloc(sizeof(float));
   if (!value) {
     goto error;
@@ -101,8 +101,8 @@ float_ref(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
   }
 
   *value = (float)helper;
-  
-  return enif_make_tuple2(env, 
+
+  return enif_make_tuple2(env,
 			  nifty_make_ptr(env, (ptr_t)value),
 			  enif_make_string(env, "nifty.float *", ERL_NIF_LATIN1));
 
@@ -129,7 +129,7 @@ double_ref(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
   int err;
   double *value;
-  
+
   value = enif_alloc(sizeof(double));
   if (!value) {
     goto error;
@@ -141,7 +141,7 @@ double_ref(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
     goto error;
   }
 
-  return enif_make_tuple2(env, 
+  return enif_make_tuple2(env,
 			  nifty_make_ptr(env, (ptr_t)value),
 			  enif_make_string(env, "nifty.double *", ERL_NIF_LATIN1));
 
@@ -216,7 +216,7 @@ mem_write_list(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
     goto error;
   }
 
-	
+
   err = enif_get_tuple(env, argv[1], &ar, (const ERL_NIF_TERM**)(&tpl));
   if (err) {
     err = nifty_get_ptr(env, tpl[0], (ptr_t*)&ptr);
@@ -336,6 +336,42 @@ mem_alloc(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 }
 
 static ERL_NIF_TERM
+mem_copy(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+{
+	ptr_t ptr_from, ptr_to, n;
+	int ar, err;
+	ERL_NIF_TERM *tpl;
+
+	err = enif_get_tuple(env, argv[0], &ar, (const ERL_NIF_TERM**)(&tpl));
+  if (err) {
+    err = nifty_get_ptr(env, tpl[0], (ptr_t*)&ptr_from);
+  }
+  if (!err) {
+    goto error;
+  }
+
+	err = enif_get_tuple(env, argv[1], &ar, (const ERL_NIF_TERM**)(&tpl));
+  if (err) {
+    err = nifty_get_ptr(env, tpl[0], (ptr_t*)&ptr_to);
+  }
+  if (!err) {
+    goto error;
+  }
+
+	err = nifty_get_ptr(env, argv[2], &n);
+	if (!err) {
+		goto error;
+	}
+
+	memcpy((void*)ptr_to, (const void*)ptr_from, (size_t)n);
+
+	return enif_make_atom(env, "ok");
+
+	error:
+	 return enif_make_badarg(env);
+}
+
+static ERL_NIF_TERM
 get_config(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
   return enif_make_list2(env,
@@ -363,7 +399,7 @@ get_config(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 static ERL_NIF_TERM
 get_env(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-  return enif_make_tuple2(env, 
+  return enif_make_tuple2(env,
 			  nifty_make_ptr(env, (ptr_t)env),
 			  enif_make_string(env, "nifty.void *", ERL_NIF_LATIN1));
 }
@@ -382,6 +418,7 @@ static ErlNifFunc nif_funcs[] = {
   {"mem_write_binary", 2, mem_write_binary},
   {"mem_read", 2, mem_read},
   {"mem_alloc", 1, mem_alloc},
+  {"mem_copy", 3, mem_copy},
   {"get_config", 0, get_config},
   {"get_env", 0, get_env}
 };

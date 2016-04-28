@@ -30,13 +30,21 @@
          mem_write/2,
          mem_read/2,
          mem_alloc/1,
+         mem_copy/3,
          malloc/1,
          free/1,
          %% configuration
          get_config/0,
          get_env/0,
          %% builtin types
-         get_types/0
+         get_types/0,
+         %% array utilities
+         array_new/2,
+         array_ith/2,
+         array_element/2,
+         array_set/3,
+         list_to_array/2,
+         array_to_list/2
         ]).
 
 -on_load(init/0).
@@ -45,6 +53,7 @@
 -type addr() :: integer().
 -type ptr() :: {addr(), nonempty_string()}.
 -type options() :: proplists:proplist().
+-type cvalue() :: ptr() | integer() | float() | tuple() | {string(), integer()} | {'error', reason()}.
 
 init() -> %% loading code from jiffy
     PrivDir = case code:priv_dir(?MODULE) of
@@ -182,10 +191,13 @@ get_derefed_type(Type, Module) ->
     end.
 
 %% @doc Dereference a nifty pointer
--spec dereference(ptr()) -> ptr() | integer() | float() | list() | {string(), integer()} | {'error', reason()}.
+-spec dereference(ptr()) -> cvalue().
 dereference(Pointer) ->
     {Address, ModuleType} = Pointer,
-    [ModuleName, Type] = string:tokens(ModuleType, "."),
+    [ModuleName, Type] = case string:tokens(ModuleType, ".") of
+                             [NiftyType] -> ["nifty", NiftyType];
+                             FullType -> FullType
+                         end,
     Module = list_to_atom(ModuleName),
     %% case Module of
     %%  nifty ->
@@ -528,6 +540,11 @@ mem_read(_, _) ->
 mem_alloc(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
+%% @doc Copies <code>Size</code> bytes from <code>Ptr1</code> to <code>Ptr2</code>
+-spec mem_copy(ptr(), ptr(), non_neg_integer()) -> ok.
+mem_copy(_, _, _) ->
+    erlang:nif_error(nif_library_not_loaded).
+
 %% config
 %% @doc Returns the platform specific configuration of nifty
 -spec get_config() -> proplists:proplist().
@@ -591,3 +608,44 @@ as_type({Address, _} = Ptr, Type) ->
                     undef
             end
     end.
+
+%% @doc Allocates an array with <code>Size</code> elements of type <code>Type</code>
+-spec array_new(nonempty_string(), non_neg_integer()) -> ptr().
+array_new(Type, Size) ->
+    {Addr, _} = malloc(size_of(Type)*Size),
+    {Addr, referred_type(Type)}.
+
+array_element_type({_, Type}) ->
+    string:strip(lists:droplast(Type)).
+
+%% @doc returns a pointer to the element at position <code>Index</code> of the array
+-spec array_ith(ptr(), integer()) -> ptr().
+array_ith({Addr, Type} = Array, Index) ->
+    %% Type must be a pointer of the stored type
+    Offset = size_of(array_element_type(Array)),
+    {Addr + (Index * Offset), Type}.
+
+%% @doc returns the element at position <code>Index</code> of the array
+-spec array_element(ptr(), integer()) -> cvalue().
+array_element(Array, Index) ->
+    dereference(array_ith(Array, Index)).
+
+%% @doc updates the element at position <code>Index</code> of the array
+-spec array_set(ptr(), term(), integer()) -> ok.
+array_set(Array, Value, Index) ->
+    ElementPtr = array_ith(Array, Index),
+    NewElement = pointer_of(Value, array_element_type(Array)),
+    Size = size_of(array_element_type(Array)),
+    mem_copy(NewElement, ElementPtr, Size),
+    free(NewElement).
+
+-spec array_to_list(ptr(), non_neg_integer()) -> list(cvalue()).
+array_to_list(Array, N) ->
+    [array_element(Array, I) || I <- lists:seq(0,N)].
+
+-spec list_to_array(list(), nonempty_string()) -> ptr().
+list_to_array(List, Type) ->
+    N = length(List),
+    A = array_new(Type, N),
+    _ = [array_set(A, E, I) || { I, E} <- lists:zip(lists:seq(0,N-1), List) ],
+    A.
