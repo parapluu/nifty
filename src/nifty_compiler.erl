@@ -11,12 +11,12 @@
 -export([render/4,
          compile/3]).
 
+-export_type([options/0]).
+
 -type reason() :: atom().
 -type options() :: proplists:proplist().
 -type renderout() :: {iolist(), iolist(), iolist(), iolist(), iolist(), iolist()}.
 -type modulename() :: string().
-
--export_type([options/0]).
 
 %% @doc Renders an <code>InterfaceFile</code> into a Erlang module containing of <code>ModuleName</code>.erl
 %% <code>ModuleName</code>.c, <code>ModuleName</code>.app and  <code>rebar</code>.config and returns the
@@ -193,8 +193,8 @@ compile(InterfaceFile, Module, Options) ->
     Env = build_env(ModuleName, UCO),
     CFlags = string:tokens(proplists:get_value("CFLAGS", Env, ""), " "),
     case render(InterfaceFile, ModuleName, CFlags, UCO) of
-        {error, E} ->
-            {error, E};
+        {error, _} = E ->
+            E;
         {Output, Lost} ->
             ok = store_files(InterfaceFile, ModuleName, UCO, Output),
             case compile_module(ModuleName) of
