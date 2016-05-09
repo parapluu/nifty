@@ -1,9 +1,10 @@
 -module(nifty_lib_test).
 -export([cstr_list_test/0,
-	 read_write_test/0,
-	 short_test/0,
-	 int_deref_test/0,
-	 pointer_of_pointer_test/0]).
+         read_write_test/0,
+         short_test/0,
+         int_deref_test/0,
+         pointer_of_pointer_test/0,
+         array_test/0]).
 
 -include_lib("proper/include/proper.hrl").
 -inlcude_lib("eunit/include/eunit.hrl").
@@ -42,9 +43,9 @@ prop_read_write() ->
 
 -spec prop_short() -> proper:outer_test().
 prop_short() ->
-     ?FORALL(S, 
-	     integer(0,trunc(math:pow(2,16))-1),
-	     short_comp(S)).
+    ?FORALL(S,
+            integer(0,trunc(math:pow(2,16))-1),
+            short_comp(S)).
 
 %% testcases
 -spec cstr_list_test() -> boolean().
@@ -73,3 +74,9 @@ int_deref_test() ->
 -spec pointer_of_pointer_test() -> boolean().
 pointer_of_pointer_test() ->
     10 =:= nifty:dereference(nifty:dereference(nifty:pointer_of(nifty:pointer_of(10, "int"), "nifty.int *"))).
+
+-spec array_test() -> boolean().
+array_test() ->
+    Array = nifty:list_to_array([1,2,3,4,5], "int"),
+    ok = nifty:array_set(Array, 1000, 2),
+    [1,2,1000,4,5] =:= nifty:array_to_list(Array, 5).
