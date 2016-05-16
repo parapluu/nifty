@@ -19,6 +19,13 @@ BEAMS = ebin$(SEP)nifty_clangparse.beam \
 
 REBAR := .$(SEP)rebar
 
+# LLVM config
+ifdef NIFTY_LLVM_VERSION
+	LLVM_CONFIG := NIFTY_LLVM_VERSION_CONFIG=-$(NIFTY_LLVM_VERSION)
+else
+	LLVM_CONFIG :=
+endif
+
 DIALYZER_APPS = erts kernel stdlib compiler crypto syntax_tools tools
 DIALYZER_FLAGS = -Wunmatched_returns -Wunderspecs
 
@@ -32,7 +39,7 @@ get-deps:
 	$(REBAR) get-deps
 
 compile:
-	$(REBAR) compile
+	$(LLVM_CONFIG) $(REBAR) compile
 
 dialyze: compile .nifty_plt
 	dialyzer --plt .nifty_plt $(DIALYZER_FLAGS) ebin
