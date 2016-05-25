@@ -9,7 +9,6 @@
 		{modules, [
 			nifty, 
 			nifty_clangparse,
-			nifty_compiler,
 			nifty_filters,
 			nifty_rebar,
 			nifty_remote,

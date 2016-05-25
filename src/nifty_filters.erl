@@ -171,7 +171,7 @@ array_size([H|T], Acc) ->
             Acc
     end.
 
--spec config_schedule_dirty(nifty_compiler:options()) -> boolean().
+-spec config_schedule_dirty(nifty:options()) -> boolean().
 config_schedule_dirty(Options) ->
     case proplists:get_value(nifty, Options) of
         undefined ->
@@ -192,7 +192,7 @@ config_schedule_dirty(Options) ->
             end
     end.
 
--spec config_schedule_dirty(nifty_compiler:options(), string()) -> boolean().
+-spec config_schedule_dirty(nifty:options(), string()) -> boolean().
 config_schedule_dirty(Options, FN) ->
     case proplists:get_value(nifty, Options) of
         undefined ->
@@ -211,7 +211,7 @@ config_schedule_dirty(Options, FN) ->
             end
     end.
 
--spec get_function_options(nifty_compiler:options(), string()) -> proplists:proplist().
+-spec get_function_options(nifty:options(), string()) -> proplists:proplist().
 get_function_options(NiftyOptions, FN) ->
     case proplists:get_value(functions_options, NiftyOptions) of
         undefined ->
@@ -220,7 +220,7 @@ get_function_options(NiftyOptions, FN) ->
             proplists:get_value(FN, Options, [])
     end.
 
--spec config_schedule_dirty_type(nifty_compiler:options(), string()) -> string().
+-spec config_schedule_dirty_type(nifty:options(), string()) -> string().
 config_schedule_dirty_type(Options, FN) ->
     %% should always succeed:
     NiftyOptions = proplists:get_value(nifty, Options),
