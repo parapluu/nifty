@@ -80,5 +80,4 @@ make tests
 + Functions using unsupported types will not be translated and a warning is returned. 
 + Variable arguments of functions (**va_list** or **...**) is not supported. If **va_list** as type is used, Nifty will print a warning. If **...** is used, then the function is translated **without** the variable arguments: **int printf(const char *format, ...)** will be translated into **printf/1**
 + The usage of incomplete types is limited
-+ There is currently no nice way of using arrays although **nifty:mem_alloc/1** and **nifty:mem_read/1** allow basic usage.
 + Nifty has not been tested under Windows.
