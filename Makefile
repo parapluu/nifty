@@ -10,7 +10,6 @@ endif
 
 BEAMS = ebin$(SEP)nifty_clangparse.beam \
 	ebin$(SEP)nifty.beam \
-	ebin$(SEP)nifty_compiler.beam \
 	ebin$(SEP)nifty_filters.beam \
 	ebin$(SEP)nifty_rebar.beam \
 	ebin$(SEP)nifty_tags.beam \

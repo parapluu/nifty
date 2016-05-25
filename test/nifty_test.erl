@@ -19,9 +19,9 @@
 
 -spec compile_builtin() -> ok.
 compile_builtin() ->
-    ?_assertEqual(ok, nifty_compiler:compile("../test/cfiles/builtin_types.h",
-                                             nt_builtin,
-                                             ?OPTS("../test/cfiles/builtin_types.c"))).
+    ?_assertEqual(ok, nifty:compile("../test/cfiles/builtin_types.h",
+                                    nt_builtin,
+                                    ?OPTS("../test/cfiles/builtin_types.c"))).
 
 -spec call_functions_builtin() -> term().
 call_functions_builtin() ->
@@ -75,9 +75,9 @@ builtin_test_() ->
 
 -spec compile_arguments() -> term().
 compile_arguments() ->
-    ?_assertEqual(ok, nifty_compiler:compile("../test/cfiles/arguments.h",
-                                             nt_arguments,
-                                             ?OPTS("../test/cfiles/arguments.c"))).
+    ?_assertEqual(ok, nifty:compile("../test/cfiles/arguments.h",
+                                    nt_arguments,
+                                    ?OPTS("../test/cfiles/arguments.c"))).
 
 -spec call_functions_arguments() -> term().
 call_functions_arguments() ->
@@ -94,7 +94,7 @@ arguments_test_()->
 
 -spec compile_structs() -> term().
 compile_structs() ->
-    ?_assertEqual(ok, nifty_compiler:compile("../test/cfiles/structs.h", nt_structs, [])).
+    ?_assertEqual(ok, nifty:compile("../test/cfiles/structs.h", nt_structs, [])).
 
 -spec  call_functions_structs() -> ok.
 call_functions_structs() ->
@@ -111,11 +111,11 @@ structs_test_() ->
 
 -spec compile_proxy() -> term().
 compile_proxy() ->
-    ?_assertEqual(ok, nifty_compiler:compile("../test/cfiles/proxy_header.h",
-                                             nt_proxy,
-                                             nifty_utils:add_sources(
-                                               ["../test/cfiles/proxy_header.c"],
-                                               nifty_utils:add_cflags("-I../test/cfiles", [])))).
+    ?_assertEqual(ok, nifty:compile("../test/cfiles/proxy_header.h",
+                                    nt_proxy,
+                                    nifty_utils:add_sources(
+                                        ["../test/cfiles/proxy_header.c"],
+                                         nifty_utils:add_cflags("-I../test/cfiles", [])))).
 
 -spec call_functions_proxy() -> term().
 call_functions_proxy() ->
@@ -131,11 +131,11 @@ proxy_test_()->
 -spec fptr_test_() -> term().
 fptr_test_() ->
     {timeout, 180,
-     ?_assertEqual(ok, nifty_compiler:compile("../test/cfiles/fptr.h", nt_fptr, []))}.
+     ?_assertEqual(ok, nifty:compile("../test/cfiles/fptr.h", nt_fptr, []))}.
 
 -spec compile_array() -> term().
 compile_array() ->
-    ?_assertEqual(ok, nifty_compiler:compile(
+    ?_assertEqual(ok, nifty:compile(
                         "../test/cfiles/array.h", nt_array,
                         nifty_utils:add_sources(["../test/cfiles/array.c"], []))).
 
@@ -159,12 +159,12 @@ array_test_() ->
 
 -spec compile_tut2() -> term().
 compile_tut2() ->
-    ?_assertEqual(ok, nifty_compiler:compile("../test/cfiles/answer.h",
-                                             nt_tut2,
-                                             nifty_utils:add_sources(
-                                               ["../test/cfiles/answer.c"],
-                                               nifty_utils:add_cflags(
-                                                 "-I../test/cfiles", [])))).
+    ?_assertEqual(ok, nifty:compile("../test/cfiles/answer.h",
+                                    nt_tut2,
+                                    nifty_utils:add_sources(
+                                        ["../test/cfiles/answer.c"],
+                                        nifty_utils:add_cflags(
+                                        "-I../test/cfiles", [])))).
 
 -spec call_tut2() -> term().
 call_tut2() ->
@@ -177,12 +177,11 @@ tut2_test_()->
 
 -spec compile_dereference_regression() -> term().
 compile_dereference_regression() ->
-    ?_assertEqual(ok, nifty_compiler:compile("../test/cfiles/dereference_regression.h",
-                                             dereference_regression,
-                                             nifty_utils:add_sources(
-                                               ["../test/cfiles/dereference_regression.c"],
-                                               nifty_utils:add_cflags(
-                                                 "-I../test/cfiles", [])))).
+    ?_assertEqual(ok, nifty:compile("../test/cfiles/dereference_regression.h",
+                                    dereference_regression,
+                                    nifty_utils:add_sources(
+                                        ["../test/cfiles/dereference_regression.c"],
+                                         nifty_utils:add_cflags("-I../test/cfiles", [])))).
 
 -spec call_dereference_regression() -> term().
 call_dereference_regression() ->
@@ -218,9 +217,7 @@ check_enum() ->
 compile_arguments_dirty() ->
     Opts = nifty_utils:add_sources(["../test/cfiles/arguments.c"], [])
         ++ [{nifty, [schedule_dirty, {function_options, [{"f2", [schedule_dirty_io]}]}]}],
-    ?_assertEqual(ok, nifty_compiler:compile("../test/cfiles/arguments.h",
-                                             nt_arguments_dirty,
-                                             Opts)).
+    ?_assertEqual(ok, nifty:compile("../test/cfiles/arguments.h", nt_arguments_dirty, Opts)).
 
 -spec call_functions_arguments_dirt() -> term().
 call_functions_arguments_dirt() ->
