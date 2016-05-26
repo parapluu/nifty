@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2014, Andreas Löscher <andreas.loscher@it.uu.se> and
- *                     Konstantinos Sagonas <kostis@it.uu.se>
+ * Copyright (c) 2014-2016, Andreas Löscher <andreas.loscher@it.uu.se>
+ *                      and Konstantinos Sagonas <kostis@it.uu.se>
  * All rights reserved.
  *
  * This file is distributed under the Simplified BSD License.
@@ -383,24 +383,22 @@ parse_impl(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
   char **cargv;
   unsigned arg_count, i;
   ERL_NIF_TERM head, tail, list, retval;
-  int errorval=0;
 
   list = argv[0];
   if (!enif_get_list_length(env, list, &arg_count)) {
-    errorval = 1;
-    goto error;
+    return enif_make_badarg(env);
   }
 
   cargv = enif_alloc(sizeof(char*)*arg_count);
 
   for (i = 0; i<arg_count; i++) {
     if (!enif_get_list_cell(env, list, &head, &tail)) {
-      errorval = 1;
+      retval = enif_make_badarg(env);
       goto free_cells;
     }
     list = tail;
     if (!(cargv[i] = term2string(env, head))) {
-      errorval = 1;
+      retval = enif_make_badarg(env);
       goto free_cells;
     }
   }
@@ -408,16 +406,12 @@ parse_impl(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
  free_cells:
   arg_count = i;
-  for (i=0; i<arg_count; i++) {
+  for (i = 0; i<arg_count; i++) {
     enif_free(cargv[i]);
   }
   enif_free(cargv);
 
- error:
-  if (errorval)
-    return enif_make_badarg(env);
-  else
-    return retval;
+  return retval;
 }
 
 static ErlNifFunc nif_funcs[] = {
