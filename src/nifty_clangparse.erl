@@ -44,13 +44,13 @@
 
 init() -> %% loading code from jiffy
   PrivDir = case code:priv_dir(?MODULE) of
-	      {error, _} ->
-		EbinDir = filename:dirname(code:which(?MODULE)),
-		AppPath = filename:dirname(EbinDir),
-		filename:join(AppPath, "priv");
-	      Path ->
-		Path
-	    end,
+              {error, _} ->
+                EbinDir = filename:dirname(code:which(?MODULE)),
+                AppPath = filename:dirname(EbinDir),
+                filename:join(AppPath, "priv");
+              Path ->
+                Path
+            end,
   erlang:load_nif(filename:join(PrivDir, "nifty_clangparse"), 0).
 
 cparse(_) ->
@@ -80,20 +80,20 @@ fill_constructed([], _, Types) ->
   Types;
 fill_constructed([H|T], Constr, Types) ->
   NewTypes = case H of
-	       {typedef, Alias} ->
-		 Type = dict:fetch(H, Constr),
-		 case is_fptr(Type) of
-		   true ->
-		     dict:store(Alias, {typedef, "void *"}, Types);
-		   false ->
-		     dict:store(Alias, {typedef, Type}, Types)
-		 end;
-	       {struct, Name} ->
-		 D = dict:store("struct "++Name, {userdef, [H]}, Types),
-		 dict:store("struct "++Name++" *", {userdef, ["*", H]}, D);
-	       {enum, Name} ->
-		 dict:store("enum " ++ Name, {typedef, "long long"}, Types)
-	     end,
+               {typedef, Alias} ->
+                 Type = dict:fetch(H, Constr),
+                 case is_fptr(Type) of
+                   true ->
+                     dict:store(Alias, {typedef, "void *"}, Types);
+                   false ->
+                     dict:store(Alias, {typedef, Type}, Types)
+                 end;
+               {struct, Name} ->
+                 D = dict:store("struct "++Name, {userdef, [H]}, Types),
+                 dict:store("struct "++Name++" *", {userdef, ["*", H]}, D);
+               {enum, Name} ->
+                 dict:store("enum " ++ Name, {typedef, "long long"}, Types)
+             end,
   fill_constructed(T, Constr, NewTypes).
 
 fill_types([], Types) ->
@@ -113,26 +113,26 @@ fill_type_table(Types, [Type|TypeNames]) ->
     userdef ->
       [H|T] = L,
       case H of
-	{_,_} ->
-	  fill_type_table(Types, TypeNames);
-	_ ->
-	  case (H =:= "*") orelse string:str(H, "[")>0 of
-	    true ->
-	      [N|_] = T,
-	      case N of
-		{_,_} ->
-		  fill_type_table(Types, TypeNames);
-		_ ->
-		  [P|Token] = lists:reverse(string:tokens(Type, " ")),
-		  NewP = string:substr(P, 1, length(P) - length(H)),
-		  NType = string:strip(string:join(lists:reverse(Token)++[NewP], " ")),
-		  case dict:is_key(NType, Types) of
-		    true -> fill_type_table(Types, TypeNames);
-		    false -> fill_type_table(dict:store(NType, {Kind, T}, Types), [NType|TypeNames])
-		  end
-	      end;
-	    false -> fill_type_table(Types, TypeNames)
-	  end
+        {_,_} ->
+          fill_type_table(Types, TypeNames);
+        _ ->
+          case (H =:= "*") orelse string:str(H, "[")>0 of
+            true ->
+              [N|_] = T,
+              case N of
+                {_,_} ->
+                  fill_type_table(Types, TypeNames);
+                _ ->
+                  [P|Token] = lists:reverse(string:tokens(Type, " ")),
+                  NewP = string:substr(P, 1, length(P) - length(H)),
+                  NType = string:strip(string:join(lists:reverse(Token)++[NewP], " ")),
+                  case dict:is_key(NType, Types) of
+                    true -> fill_type_table(Types, TypeNames);
+                    false -> fill_type_table(dict:store(NType, {Kind, T}, Types), [NType|TypeNames])
+                  end
+              end;
+            false -> fill_type_table(Types, TypeNames)
+          end
       end
   end.
 
@@ -149,14 +149,14 @@ count_in_list([H|T], E, Acc) ->
 
 simplify_specifiers(Specifiers) ->
   LSpec = case count_in_list(Specifiers, "long") of
-	    0 ->
-	      case lists:member("short", Specifiers) of
-		true -> ["short"];
-		false -> ["none"]
-	      end;
-	    1 -> ["long"];
-	    _ -> ["longlong"]
-	  end,
+            0 ->
+              case lists:member("short", Specifiers) of
+                true -> ["short"];
+                false -> ["none"]
+              end;
+            1 -> ["long"];
+            _ -> ["longlong"]
+          end,
   case count_in_list(Specifiers, "unsigned") of
     0 -> ["signed"|LSpec];
     _ -> ["unsigned"|LSpec]
@@ -176,22 +176,22 @@ parse_type([E|T], TypeDef, Kind) ->
     _ ->
       %% simple type
       case lists:member(E, ?BASE_TYPES) of
-	true -> parse_type(T, [E|simplify_specifiers(TypeDef)], base);
-	false ->
-	  case lists:member(E, ?SPECIFIER) of
-	    true -> parse_type(T, [E|TypeDef], none);
-	    false ->
-	      case ((E =:= "*") orelse lists:member($[, E)) of
-		true ->
-		  case Kind of
-		    none -> parse_type(["int"|[E|T]], TypeDef, base);
-		    _ -> parse_type(T, [E|TypeDef], Kind)
-		  end;
-		false ->
-		  %% user defined type
-		  parse_type(T, [E|TypeDef], userdef)
-	      end
-	  end
+        true -> parse_type(T, [E|simplify_specifiers(TypeDef)], base);
+        false ->
+          case lists:member(E, ?SPECIFIER) of
+            true -> parse_type(T, [E|TypeDef], none);
+            false ->
+              case ((E =:= "*") orelse lists:member($[, E)) of
+                true ->
+                  case Kind of
+                    none -> parse_type(["int"|[E|T]], TypeDef, base);
+                    _ -> parse_type(T, [E|TypeDef], Kind)
+                  end;
+                false ->
+                  %% user defined type
+                  parse_type(T, [E|TypeDef], userdef)
+              end
+          end
       end
   end.
 
@@ -223,11 +223,11 @@ build_type_entry(TypeTable, Type) ->
       TypeTable;
     false->
       case is_fptr(NType) of
-	true ->
-	  TDef_Table = dict:store(NType, {typedef, "void *"}, TypeTable),
-	  build_type_entry(TDef_Table, "void *");
-	false ->
-	  Def = parse_type(string:tokens(type_extend(NType), " ")),
-	  dict:store(NType, Def, TypeTable)
+        true ->
+          TDef_Table = dict:store(NType, {typedef, "void *"}, TypeTable),
+          build_type_entry(TDef_Table, "void *");
+        false ->
+          Def = parse_type(string:tokens(type_extend(NType), " ")),
+          dict:store(NType, Def, TypeTable)
       end
   end.

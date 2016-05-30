@@ -32,8 +32,8 @@ resolve_type2(Type, Types) ->
     true ->
       {Kind, TypeDef} = dict:fetch(Type, Types),
       case Kind of
-	typedef -> resolve_type(TypeDef, Types);
-	_ -> Type
+        typedef -> resolve_type(TypeDef, Types);
+        _ -> Type
       end;
     false ->
       undef
@@ -56,36 +56,36 @@ check_type2(Type, Types, Constructors) ->
   case dict:is_key(Type, Types) of
     true ->
       case resolve_type(Type, Types) of
-	undef ->
-	  false;
-	RType ->
-	  case dict:fetch(RType, Types) of
-	    {userdef, [RType]} ->
-	      false; %% loop
-	    {userdef, [T]} ->
-	      %% constructor or dead end
-	      case T of
-		{struct, _Name} ->
-		  case Constructors of
-		    undef -> true;
-		    C -> dict:is_key(T, C)
-		  end;
-		_->
-		  case T =:= Type of
-		    true -> false; %% loop
-		    false -> check_type(T, Types) %% something else
-		  end
-	      end;
-	    {userdef, [T, "const"]} ->
-	      %% discard const and check again
-	      check_type(T,Types);
-	    {userdef, [H|T]} ->
-	      string:right(H, 1) =/= ")"          %% function pointer
-		andalso lists:last(T) =/= "union" %% union
-		andalso lists:last(T) =/= "enum"; %% enum
-	    {base, _} ->
-	      true
-	  end
+        undef ->
+          false;
+        RType ->
+          case dict:fetch(RType, Types) of
+            {userdef, [RType]} ->
+              false; %% loop
+            {userdef, [T]} ->
+              %% constructor or dead end
+              case T of
+                {struct, _Name} ->
+                  case Constructors of
+                    undef -> true;
+                    C -> dict:is_key(T, C)
+                  end;
+                _->
+                  case T =:= Type of
+                    true -> false; %% loop
+                    false -> check_type(T, Types) %% something else
+                  end
+              end;
+            {userdef, [T, "const"]} ->
+              %% discard const and check again
+              check_type(T,Types);
+            {userdef, [H|T]} ->
+              string:right(H, 1) =/= ")"          %% function pointer
+                andalso lists:last(T) =/= "union" %% union
+                andalso lists:last(T) =/= "enum"; %% enum
+            {base, _} ->
+              true
+          end
       end;
     false ->
       false
