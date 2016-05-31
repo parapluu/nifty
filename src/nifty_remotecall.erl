@@ -77,16 +77,16 @@ slave_server(P) ->
       slave_server(P);
     {Module, Function, Args} ->
       RetMsg = try erlang:apply(Module, Function, Args) of
-		   RetVal ->
-		   {return, RetVal}
-	       catch
-		 throw:Error ->
-		   {throw, Error};
-		 error:Error ->
-		   {error, Error};
-		 exit:Error ->
-		   {exit, Error}
-	       end,
+                   RetVal ->
+                   {return, RetVal}
+               catch
+                 throw:Error ->
+                   {throw, Error};
+                 error:Error ->
+                   {error, Error};
+                 exit:Error ->
+                   {exit, Error}
+               end,
       P ! RetMsg,
       slave_server(P)
   end.
@@ -119,10 +119,10 @@ receive_msg(T) ->
       erlang:exit(Error)
   after T ->
       case is_slave_alive() of
-	false ->
-	  erlang:error(node_crashed);
-	true ->
-	  receive_msg(1000)
+        false ->
+          erlang:error(node_crashed);
+        true ->
+          receive_msg(1000)
       end
   end.
 

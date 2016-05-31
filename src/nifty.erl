@@ -48,7 +48,7 @@
          array_to_list/2
         ]).
 
--export_type([error_reason/0, options/0]).
+-export_type([error_reason/0, options/0, ptr/0, comp_ret/0, cvalue/0]).
 
 -type error_reason() :: 'compile' | 'no_file'.
 -type options() :: proplists:proplist().
@@ -67,13 +67,13 @@
 
 init() -> %% loading code from jiffy
   PrivDir = case code:priv_dir(?MODULE) of
-	      {error, _} ->
-		EbinDir = filename:dirname(code:which(?MODULE)),
-		AppPath = filename:dirname(EbinDir),
-		filename:join(AppPath, "priv");
-	      Path ->
-		Path
-	    end,
+              {error, _} ->
+                EbinDir = filename:dirname(code:which(?MODULE)),
+                AppPath = filename:dirname(EbinDir),
+                filename:join(AppPath, "priv");
+              Path ->
+                Path
+            end,
   ok = erlang:load_nif(filename:join(PrivDir, "nifty"), 0),
   load_dependencies().
 
@@ -87,10 +87,10 @@ load_dependency(Module) ->
       %% module not found
       NiftyPath = code:lib_dir(nifty, deps),
       case code:add_patha(filename:join([NiftyPath, atom_to_list(Module), "ebin"])) of
-	{error, _} ->
-	  {error, dependency_not_found};
-	true ->
-	  ok
+        {error, _} ->
+          {error, dependency_not_found};
+        true ->
+          ok
       end;
     {module, Module} ->
       ok
@@ -136,15 +136,15 @@ compile(InterfaceFile, Module, Options) ->
     {Output, Lost} ->
       ok = store_files(InterfaceFile, ModuleName, UCO, Output),
       case compile_module(ModuleName) of
-	ok ->
-	  ModulePath = filename:absname(filename:join([ModuleName, "ebin"])),
-	  true = code:add_patha(ModulePath),
-	  case Lost of
-	    [] -> ok;
-	    _ -> {warning, {not_complete, Lost}}
-	  end;
-	fail ->
-	  {error, compile}
+        ok ->
+          ModulePath = filename:absname(filename:join([ModuleName, "ebin"])),
+          true = code:add_patha(ModulePath),
+          case Lost of
+            [] -> ok;
+            _ -> {warning, {not_complete, Lost}}
+          end;
+        fail ->
+          {error, compile}
       end
   end.
 
@@ -168,28 +168,28 @@ render(InterfaceFile, ModuleName, CFlags, Options) ->
       {error, no_file};
     true ->
       case nifty_clangparse:parse([PathToH|CFlags]) of
-	{error, fail} ->
-	  {error, compile};
-	{FuncLoc, Raw_Symbols, Raw_Types, Unsave_Constructors} ->
-	  Constructors = check_constructors(Unsave_Constructors),
-	  Unsave_Types = nifty_clangparse:build_type_table(Raw_Types, Constructors),
-	  Types = check_types(Unsave_Types, Constructors),
-	  Unsave_Symbols = filter_symbols(InterfaceFile, Raw_Symbols, FuncLoc),
-	  {Symbols, Lost} = check_symbols(Unsave_Symbols, Types),
-	  RenderVars = [{"module", ModuleName},
-			{"header", InterfaceFile},
-			{"config", Options},
-			{"types", Types},
-			{"symbols", Symbols},
-			{"constructors", Constructors},
-			{"none", none}],
-	  COutput = render_with_errors(nifty_c_template, RenderVars),
-	  ErlOutput = render_with_errors(nifty_erl_template, RenderVars),
-	  SaveErlOutput = render_with_errors(nifty_save_erl_template, RenderVars),
-	  HrlOutput = render_with_errors( nifty_hrl_template, RenderVars),
-	  AppOutput = render_with_errors(nifty_app_template, RenderVars),
-	  ConfigOutput = render_with_errors(nifty_config_template, RenderVars),
-	  {{ErlOutput, SaveErlOutput, HrlOutput, COutput, AppOutput, ConfigOutput}, Lost}
+        {error, fail} ->
+          {error, compile};
+        {FuncLoc, Raw_Symbols, Raw_Types, Unsave_Constructors} ->
+          Constructors = check_constructors(Unsave_Constructors),
+          Unsave_Types = nifty_clangparse:build_type_table(Raw_Types, Constructors),
+          Types = check_types(Unsave_Types, Constructors),
+          Unsave_Symbols = filter_symbols(InterfaceFile, Raw_Symbols, FuncLoc),
+          {Symbols, Lost} = check_symbols(Unsave_Symbols, Types),
+          RenderVars = [{"module", ModuleName},
+                        {"header", InterfaceFile},
+                        {"config", Options},
+                        {"types", Types},
+                        {"symbols", Symbols},
+                        {"constructors", Constructors},
+                        {"none", none}],
+          COutput = render_with_errors(nifty_c_template, RenderVars),
+          ErlOutput = render_with_errors(nifty_erl_template, RenderVars),
+          SaveErlOutput = render_with_errors(nifty_save_erl_template, RenderVars),
+          HrlOutput = render_with_errors( nifty_hrl_template, RenderVars),
+          AppOutput = render_with_errors(nifty_app_template, RenderVars),
+          ConfigOutput = render_with_errors(nifty_config_template, RenderVars),
+          {{ErlOutput, SaveErlOutput, HrlOutput, COutput, AppOutput, ConfigOutput}, Lost}
       end
   end.
 
@@ -209,13 +209,13 @@ render_with_errors(Template, Vars) ->
 check_types(Types, Constr) ->
   %% somehow we have incomplete types in the type table
   Pred = fun (Key, Value) ->
-	     case Value of
-	       {userdef, [{struct, Name}]} ->
-		 dict:is_key({struct, Name}, Constr);
-	       _ ->
-		 nifty_types:check_type(Key, Types, Constr)
-	     end
-	 end,
+             case Value of
+               {userdef, [{struct, Name}]} ->
+                 dict:is_key({struct, Name}, Constr);
+               _ ->
+                 nifty_types:check_type(Key, Types, Constr)
+             end
+         end,
   dict:filter(Pred, Types).
 
 check_constructors(Constr) ->
@@ -225,26 +225,26 @@ check_constructors(Constr) ->
 filter_symbols(InterfaceFile, Symbols, FuncLoc) ->
   BaseName = filename:basename(InterfaceFile),
   Pred = fun (Key, _) ->
-	     filename:basename(dict:fetch(Key, FuncLoc)) =:= BaseName
-	 end,
+             filename:basename(dict:fetch(Key, FuncLoc)) =:= BaseName
+         end,
   dict:filter(Pred, Symbols).
 
 check_symbols(Symbols, Types) ->
   Pred = fun (_, Args) -> check_args(Args, Types) end,
   Accml = fun(Name, Args, AccIn) ->
-	      case check_args(Args, Types) of
-		true -> AccIn;
-		false -> [Name|AccIn]
-	      end
-	  end,
+              case check_args(Args, Types) of
+                true -> AccIn;
+                false -> [Name|AccIn]
+              end
+          end,
   {dict:filter(Pred, Symbols), dict:fold(Accml, [], Symbols)}.
 
 check_args([], _) -> true;
 check_args([H|T], Types) ->
   Type = case H of
-	   {return, Tp} -> Tp;
-	   {argument, _, Tp} -> Tp
-	 end,
+           {return, Tp} -> Tp;
+           {argument, _, Tp} -> Tp
+         end,
   case nifty_types:check_type(Type, Types) of
     false -> false;
     true -> check_args(T, Types)
@@ -256,29 +256,29 @@ store_files(InterfaceFile, ModuleName, Options, RenderOutput) ->
 
 store_files(_, ModuleName, _, RenderOutput, Path) ->
   ok = case file:make_dir(filename:join([Path, ModuleName])) of
-	 ok -> ok;
-	 {error,eexist} -> ok;
-	 _ -> fail
+         ok -> ok;
+         {error,eexist} -> ok;
+         _ -> fail
        end,
   ok = case file:make_dir(filename:join([Path, ModuleName, "src"])) of
-	 ok -> ok;
-	 {error,eexist} -> ok;
-	 _ -> fail
+         ok -> ok;
+         {error,eexist} -> ok;
+         _ -> fail
        end,
   ok = case file:make_dir(filename:join([Path, ModuleName, "include"])) of
-	 ok -> ok;
-	 {error,eexist} -> ok;
-	 _ -> fail
+         ok -> ok;
+         {error,eexist} -> ok;
+         _ -> fail
        end,
   ok = case file:make_dir(filename:join([Path, ModuleName, "c_src"])) of
-	 ok -> ok;
-	 {error,eexist} -> ok;
-	 _ -> fail
+         ok -> ok;
+         {error,eexist} -> ok;
+         _ -> fail
        end,
   ok = case file:make_dir(filename:join([Path, ModuleName, "ebin"])) of
-	 ok -> ok;
-	 {error,eexist} -> ok;
-	 _ -> fail
+         ok -> ok;
+         {error,eexist} -> ok;
+         _ -> fail
        end,
   {ErlOutput, SaveErlOutput, HrlOutput, COutput, AppOutput, ConfigOutput} = RenderOutput,
   ok = fwrite_render(Path, ModuleName, "src", ModuleName++".erl", ErlOutput),
@@ -311,14 +311,14 @@ rebar_commands(RawArgs) ->
 
 build_env(ModuleName, Options) ->
   Env = case proplists:get_value(port_env, Options) of
-	  undefined -> [];
-	  EnvList -> EnvList
-	end,
+          undefined -> [];
+          EnvList -> EnvList
+        end,
   EnvAll = case proplists:get_value(port_specs, Options) of
-	     undefined -> Env;
-	     SpecList ->
-	       lists:concat([Env, get_spec_env(ModuleName, SpecList)])
-	   end,
+             undefined -> Env;
+             SpecList ->
+               lists:concat([Env, get_spec_env(ModuleName, SpecList)])
+           end,
   Config = rebar_config:set(rebar_config:new(), port_env, EnvAll),
   rebar_port_compiler:setup_env(Config).
 
@@ -328,8 +328,8 @@ get_spec_env(ModuleName, [S|T]) ->
   case S of
     {_, Lib, _, Options} ->
       case proplists:get_value(env, Options) of
-	undefined -> [];
-	Env -> expand_env(Env, [])
+        undefined -> [];
+        Env -> expand_env(Env, [])
       end;
     _ ->
       get_spec_env(ModuleName, T)
@@ -366,19 +366,19 @@ remove_envvar(Key, Opt) ->
       string:substr(Striped, 1, E1);
     _ ->
       case string:str(Striped, K2) of
-	1 ->
-	  string:substr(Striped, length(K2)+1);
-	E23 ->
-	  string:substr(Striped, 1, E23 -1);
-	_ ->
-	  case string:str(Striped, K3) of
-	    1 ->
-	      string:substr(Striped, length(K3)+1);
-	    E23 ->
-	      string:substr(Striped, 1, E23 - 1);
-	    _ ->
-	      Striped
-	  end
+        1 ->
+          string:substr(Striped, length(K2)+1);
+        E23 ->
+          string:substr(Striped, 1, E23 -1);
+        _ ->
+          case string:str(Striped, K3) of
+            1 ->
+              string:substr(Striped, length(K3)+1);
+            E23 ->
+              string:substr(Striped, 1, E23 - 1);
+            _ ->
+              Striped
+          end
       end
   end.
 
@@ -392,11 +392,11 @@ libname(ModuleName) ->
 
 update_compile_options(InterfaceFile, ModuleName, CompileOptions) ->
   NewPort_Spec = case proplists:get_value(port_specs, CompileOptions) of
-		   undefined ->
-		     [module_spec(".*", [], [], InterfaceFile, ModuleName)];
-		   UPortSpec ->
-		     update_port_spec(InterfaceFile, ModuleName, UPortSpec, [], false)
-		 end,
+                   undefined ->
+                     [module_spec(".*", [], [], InterfaceFile, ModuleName)];
+                   UPortSpec ->
+                     update_port_spec(InterfaceFile, ModuleName, UPortSpec, [], false)
+                 end,
   orddict:store(port_specs, NewPort_Spec, orddict:from_list(CompileOptions)).
 
 module_spec(ARCH, Sources, Options, InterfaceFile,  ModuleName) ->
@@ -405,15 +405,15 @@ module_spec(ARCH, Sources, Options, InterfaceFile,  ModuleName) ->
     libname(ModuleName),
     ["c_src/"++ModuleName++"_nif.c"|abspath_sources(Sources)],
     norm_opts(join_options([{env,
-			     [{"CFLAGS",
-			       "$CFLAGS -I"++filename:absname(filename:dirname(nifty_utils:expand(InterfaceFile)))}]}],
-			   Options))
+                             [{"CFLAGS",
+                               "$CFLAGS -I"++filename:absname(filename:dirname(nifty_utils:expand(InterfaceFile)))}]}],
+                           Options))
   }.
 
 join_options(Proplist1, Proplist2) ->
   orddict:merge(fun(_, X, Y) -> X ++ Y end,
-		orddict:from_list(Proplist1),
-		orddict:from_list(Proplist2)).
+                orddict:from_list(Proplist1),
+                orddict:from_list(Proplist2)).
 
 abspath_sources(S) -> abspath_sources(S, []).
 
@@ -431,16 +431,16 @@ update_port_spec(InterfaceFile,  ModuleName, [Spec|T], Acc, Found) ->
   case expand_spec(Spec) of
     {ARCH, Shared, Sources} ->
       update_port_spec(
-	InterfaceFile,
-	ModuleName,
-	T,
-	[module_spec(ARCH, Sources, [], InterfaceFile, ModuleName)|Acc], true);
+        InterfaceFile,
+        ModuleName,
+        T,
+        [module_spec(ARCH, Sources, [], InterfaceFile, ModuleName)|Acc], true);
     {ARCH, Shared, Sources, Options} ->
       update_port_spec(
-	InterfaceFile,
-	ModuleName,
-	T,
-	[module_spec(ARCH, Sources, Options, InterfaceFile, ModuleName)|Acc], true);
+        InterfaceFile,
+        ModuleName,
+        T,
+        [module_spec(ARCH, Sources, Options, InterfaceFile, ModuleName)|Acc], true);
     _ ->
       update_port_spec(InterfaceFile, ModuleName, T, [Spec|Acc], Found)
   end.
@@ -508,43 +508,43 @@ get_derefed_type(Type, Module) ->
       {_, TypeDef} = dict:fetch(ResType, Types),
       [H|_] = TypeDef,
       case (H =:= "*") orelse (string:str(H, "[") > 0) of
-	true ->
-	  [[_|PointerDef]|Token] = lists:reverse(string:tokens(ResType, " ")),
-	  NType = case PointerDef of
-		    [] ->string:join(lists:reverse(Token), " ");
-		    _ -> string:join(lists:reverse([PointerDef|Token]), " ")
-		  end,
-	  ResNType = nifty_types:resolve_type(NType, Types),
-	  case dict:is_key(ResNType, Types) of
-	    true ->
-	      {_, DTypeDef} = dict:fetch(ResNType, Types),
-	      [DH|_] = DTypeDef,
-	      case DH of
-		{_, _} -> {final, ResNType};
-		_ -> case (DH =:= "*") orelse (string:str(DH, "[") > 0) of
-		       true -> {pointer, ResNType};
-		       false -> {final, ResNType}
-		     end
-	      end;
-	    false ->
-	      undef
-	  end;
-	false ->
-	  {final, ResType}
+        true ->
+          [[_|PointerDef]|Token] = lists:reverse(string:tokens(ResType, " ")),
+          NType = case PointerDef of
+                    [] ->string:join(lists:reverse(Token), " ");
+                    _ -> string:join(lists:reverse([PointerDef|Token]), " ")
+                  end,
+          ResNType = nifty_types:resolve_type(NType, Types),
+          case dict:is_key(ResNType, Types) of
+            true ->
+              {_, DTypeDef} = dict:fetch(ResNType, Types),
+              [DH|_] = DTypeDef,
+              case DH of
+                {_, _} -> {final, ResNType};
+                _ -> case (DH =:= "*") orelse (string:str(DH, "[") > 0) of
+                       true -> {pointer, ResNType};
+                       false -> {final, ResNType}
+                     end
+              end;
+            false ->
+              undef
+          end;
+        false ->
+          {final, ResType}
       end;
     false ->
       case lists:last(Type) of
-	$* ->
-	  %% pointer
-	  NName = string:strip(string:left(Type, length(Type)-1)),
-	  case lists:last(NName) of
-	    $* ->
-	      {pointer, NName};
-	    _ ->
-	      {final, NName}
-	  end;
-	_ ->
-	  {error, unknown_type}
+        $* ->
+          %% pointer
+          NName = string:strip(string:left(Type, length(Type)-1)),
+          case lists:last(NName) of
+            $* ->
+              {pointer, NName};
+            _ ->
+              {final, NName}
+          end;
+        _ ->
+          {error, unknown_type}
       end
   end.
 
@@ -553,9 +553,9 @@ get_derefed_type(Type, Module) ->
 dereference(Pointer) ->
   {Address, ModuleType} = Pointer,
   [ModuleName, Type] = case string:tokens(ModuleType, ".") of
-			 [NiftyType] -> ["nifty", NiftyType];
-			 FullType -> FullType
-		       end,
+                         [NiftyType] -> ["nifty", NiftyType];
+                         FullType -> FullType
+                       end,
   Module = list_to_atom(ModuleName),
   %% case Module of
   %%  nifty ->
@@ -586,39 +586,39 @@ build_type(Module, Type, Address) ->
       RType = nifty_types:resolve_type(Type, Types),
       {Kind, Def} =  dict:fetch(RType, Types),
       case Kind of
-	userdef ->
-	  case Def of
-	    [{struct, Name}] ->
-	      Module:erlptr_to_record({Address, Name});
-	    _ ->
-	      {error, undefined}
-	  end;
-	base ->
-	  case Def of
-	    ["char", Sign, _] ->
-	      int_deref(Address, 1, Sign);
-	    ["int", Sign, L] ->
-	      {_, {ShI, I, LI, LLI, _, _}} = proplists:lookup("sizes", get_config()),
-	      Size = case L of
-		       "short" ->
-			 ShI;
-		       "none" ->
-			 I;
-		       "long" ->
-			 LI;
-		       "longlong" ->
-			 LLI
-		     end,
-	      int_deref(Address, Size, Sign);
-	    ["float", _, _] ->
-	      float_deref(Address);
-	    ["double", _, _] ->
-	      double_deref(Address);
-	    _ ->
-	      {error, unknown_builtin_type}
-	  end;
-	_ ->
-	  {error, unknown_type}
+        userdef ->
+          case Def of
+            [{struct, Name}] ->
+              Module:erlptr_to_record({Address, Name});
+            _ ->
+              {error, undefined}
+          end;
+        base ->
+          case Def of
+            ["char", Sign, _] ->
+              int_deref(Address, 1, Sign);
+            ["int", Sign, L] ->
+              {_, {ShI, I, LI, LLI, _, _}} = proplists:lookup("sizes", get_config()),
+              Size = case L of
+                       "short" ->
+                         ShI;
+                       "none" ->
+                         I;
+                       "long" ->
+                         LI;
+                       "longlong" ->
+                         LLI
+                     end,
+              int_deref(Address, Size, Sign);
+            ["float", _, _] ->
+              float_deref(Address);
+            ["double", _, _] ->
+              double_deref(Address);
+            _ ->
+              {error, unknown_builtin_type}
+          end;
+        _ ->
+          {error, unknown_type}
       end;
     false ->
       {error, unknown_type}
@@ -629,10 +629,10 @@ int_deref(Addr, Size, Sign) ->
   case Sign of
     "signed" ->
       case I > (trunc(math:pow(2, (Size*8)-1))-1) of
-	true ->
-	  I - trunc(math:pow(2,(Size*8)));
-	false ->
-	  I
+        true ->
+          I - trunc(math:pow(2,(Size*8)));
+        false ->
+          I
       end;
     "unsigned" ->
       I
@@ -689,47 +689,47 @@ size_of(Type) ->
     true ->
       %% builtin
       case dict:fetch(Type, Types) of
-	{base, ["char", _, _]} ->
-	  1;
-	{base, ["int", _, L]} ->
-	  {_, {ShI, I, LI, LLI, _, _}} = proplists:lookup("sizes", get_config()),
-	  case L of
-	    "short" ->
-	      ShI;
-	    "none" ->
-	      I;
-	    "long" ->
-	      LI;
-	    "longlong" ->
-	      LLI
-	  end;
-	{base, ["float", _, _]}->
-	  {_, {_, _, _, _, Fl, _}} = proplists:lookup("sizes", get_config()),
-	  Fl;
-	{base, ["double", _, _]}->
-	  {_, {_, _, _, _, _, Dbl}} = proplists:lookup("sizes", get_config()),
-	  Dbl;
-	{base, ["*"|_]} ->
-	  {_, {_, P}} = proplists:lookup("arch", get_config()),
-	  P
+        {base, ["char", _, _]} ->
+          1;
+        {base, ["int", _, L]} ->
+          {_, {ShI, I, LI, LLI, _, _}} = proplists:lookup("sizes", get_config()),
+          case L of
+            "short" ->
+              ShI;
+            "none" ->
+              I;
+            "long" ->
+              LI;
+            "longlong" ->
+              LLI
+          end;
+        {base, ["float", _, _]}->
+          {_, {_, _, _, _, Fl, _}} = proplists:lookup("sizes", get_config()),
+          Fl;
+        {base, ["double", _, _]}->
+          {_, {_, _, _, _, _, Dbl}} = proplists:lookup("sizes", get_config()),
+          Dbl;
+        {base, ["*"|_]} ->
+          {_, {_, P}} = proplists:lookup("arch", get_config()),
+          P
       end;
     false ->
       %% full referenced
       case string:tokens(Type, ".") of
-	["nifty", TypeName] ->
-	  %% builtin
-	  size_of(TypeName);
-	[ModuleName, TypeName] ->
-	  Mod = list_to_atom(ModuleName),
-	  case {module, Mod} =:= code:ensure_loaded(Mod) andalso
-	    proplists:is_defined(size_of, Mod:module_info(exports)) of
-	    true ->
-	      Mod:size_of(TypeName);
-	    false ->
-	      undef
-	  end;
-	_ ->
-	  undef
+        ["nifty", TypeName] ->
+          %% builtin
+          size_of(TypeName);
+        [ModuleName, TypeName] ->
+          Mod = list_to_atom(ModuleName),
+          case {module, Mod} =:= code:ensure_loaded(Mod) andalso
+            proplists:is_defined(size_of, Mod:module_info(exports)) of
+            true ->
+              Mod:size_of(TypeName);
+            false ->
+              undef
+          end;
+        _ ->
+          undef
       end
   end.
 
@@ -742,8 +742,8 @@ enum_value(Module, Value) ->
     proplists:is_defined(get_enum_aliases, Module:module_info(exports)) of
     true ->
       case proplists:lookup(Value, Module:get_enum_aliases()) of
-	{Value, IntValue} -> IntValue;
-	_ -> undef
+        {Value, IntValue} -> IntValue;
+        _ -> undef
       end;
     false ->
       undef
@@ -785,45 +785,45 @@ pointer_of(Value, Type) ->
       %% pointer
       {Addr, VType} = Value,
       case VType =:= Type of
-	true ->
-	  {_, Size} = proplists:get_value("arch", nifty:get_config()),
-	  {NAddr, _} = int_constr(Addr, Size),
-	  {NAddr, Type++"*"};
-	false ->
-	  undef
+        true ->
+          {_, Size} = proplists:get_value("arch", nifty:get_config()),
+          {NAddr, _} = int_constr(Addr, Size),
+          {NAddr, Type++"*"};
+        false ->
+          undef
       end;
     _ ->
       %% something else
       case string:tokens(Type, ".") of
-	[_] ->
-	  %% base types
-	  builtin_pointer_of(Value, Type);
-	["nifty", T] ->
-	  %% base type
-	  builtin_pointer_of(Value, T);
-	[ModuleName, T] ->
-	  case builtin_pointer_of(Value, T) of
-	    undef ->
-	      %% no base type, try the module
-	      %% resolve type and try again
-	      Module = list_to_atom(ModuleName),
-	      Types = Module:get_types(),
-	      case nifty_types:resolve_type(T, Types) of
-		undef ->
-		  %% can (right now) only be a struct
-		  Module:record_to_erlptr(Value);
-		ResT ->
-		  case builtin_pointer_of(Value, ResT) of
-		    undef ->
-		      %% can (right now) only be a struct
-		      Module:record_to_erlptr(Value);
-		    Ptr ->
-		      Ptr
-		  end
-	      end;
-	    Ptr ->
-	      Ptr
-	  end
+        [_] ->
+          %% base types
+          builtin_pointer_of(Value, Type);
+        ["nifty", T] ->
+          %% base type
+          builtin_pointer_of(Value, T);
+        [ModuleName, T] ->
+          case builtin_pointer_of(Value, T) of
+            undef ->
+              %% no base type, try the module
+              %% resolve type and try again
+              Module = list_to_atom(ModuleName),
+              Types = Module:get_types(),
+              case nifty_types:resolve_type(T, Types) of
+                undef ->
+                  %% can (right now) only be a struct
+                  Module:record_to_erlptr(Value);
+                ResT ->
+                  case builtin_pointer_of(Value, ResT) of
+                    undef ->
+                      %% can (right now) only be a struct
+                      Module:record_to_erlptr(Value);
+                    Ptr ->
+                      Ptr
+                  end
+              end;
+            Ptr ->
+              Ptr
+          end
       end
   end.
 
@@ -832,21 +832,21 @@ builtin_pointer_of(Value, Type) ->
   case dict:is_key(Type, Types) of
     true ->
       case dict:fetch(Type, Types) of
-	{base, ["float", _, _]}->
-	  float_ref(Value);
-	{base, ["double", _, _]}->
-	  double_ref(Value);
-	_ -> case size_of(Type) of
-	       undef ->
-		 undef;
-	       Size ->
-		 case is_integer(Value) of
-		   true ->
-		     as_type(int_constr(Value, Size), "nifty."++Type++" *");
-		   false ->
-		     undef
-		 end
-	     end
+        {base, ["float", _, _]}->
+          float_ref(Value);
+        {base, ["double", _, _]}->
+          double_ref(Value);
+        _ -> case size_of(Type) of
+               undef ->
+                 undef;
+               Size ->
+                 case is_integer(Value) of
+                   true ->
+                     as_type(int_constr(Value, Size), "nifty."++Type++" *");
+                   false ->
+                     undef
+                 end
+             end
       end;
     false ->
       undef
@@ -871,11 +871,11 @@ raw_deref(_) ->
 -spec mem_write(ptr(), binary() | list()) -> ptr().
 mem_write({Addr, _} = Ptr, Data) ->
   {Addr, _} = case is_binary(Data) of
-		true ->
-		  mem_write_binary(Data, Ptr);
-		false ->
-		  mem_write_list(Data, Ptr)
-	      end,
+                true ->
+                  mem_write_binary(Data, Ptr);
+                false ->
+                  mem_write_list(Data, Ptr)
+              end,
   Ptr.
 
 %% @doc Writes the <code>Data</code> to memory and returns a nifty
@@ -929,51 +929,51 @@ get_env() ->
 -spec as_type(ptr(), nonempty_string()) -> ptr() | undef.
 as_type({Address, _} = Ptr, Type) ->
   BaseType = case string:tokens(Type, "*") of
-	       [T] ->
-		 string:strip(T);
-	       _ ->
-		 []
-	     end,
+               [T] ->
+                 string:strip(T);
+               _ ->
+                 []
+             end,
   Types = get_types(),
   case dict:is_key(BaseType, Types) of
     true ->
       {Address, "nifty."++Type};
     false ->
       case string:tokens(Type, ".") of
-	["nifty", TypeName] ->
-	  %% builtin type
-	  as_type(Ptr, TypeName);
-	[ModuleName, TypeName] ->
-	  Mod = list_to_atom(ModuleName),
-	  case {module, Mod} =:= code:ensure_loaded(Mod) andalso
-	    proplists:is_defined(get_types, Mod:module_info(exports)) of
-	    true ->
-	      %% resolve and build but we are looking for the basetype
-	      %% if the base type is defined or basetype * we are allowing
-	      %% casting
-	      [RBUType] = string:tokens(TypeName, "*"),
-	      RBType = string:strip(RBUType),
-	      case nifty_types:resolve_type(RBType, Mod:get_types()) of
-		undef ->
-		  case nifty_types:resolve_type(RBType++" *", Mod:get_types()) of
-		    undef ->
-		      %% unknown type
-		      undef;
-		    _ ->
-		      %% pointer to incomplete type
-		      {Address, Type}
-		  end;
-		_ ->
-		  %% pointer to complete type
-		  {Address, Type}
-	      end;
-	    _ ->
-	      %% module part of the type is not a nifty module
-	      undef
-	  end;
-	_ ->
-	  %% malformed type
-	  undef
+        ["nifty", TypeName] ->
+          %% builtin type
+          as_type(Ptr, TypeName);
+        [ModuleName, TypeName] ->
+          Mod = list_to_atom(ModuleName),
+          case {module, Mod} =:= code:ensure_loaded(Mod) andalso
+            proplists:is_defined(get_types, Mod:module_info(exports)) of
+            true ->
+              %% resolve and build but we are looking for the basetype
+              %% if the base type is defined or basetype * we are allowing
+              %% casting
+              [RBUType] = string:tokens(TypeName, "*"),
+              RBType = string:strip(RBUType),
+              case nifty_types:resolve_type(RBType, Mod:get_types()) of
+                undef ->
+                  case nifty_types:resolve_type(RBType++" *", Mod:get_types()) of
+                    undef ->
+                      %% unknown type
+                      undef;
+                    _ ->
+                      %% pointer to incomplete type
+                      {Address, Type}
+                  end;
+                _ ->
+                  %% pointer to complete type
+                  {Address, Type}
+              end;
+            _ ->
+              %% module part of the type is not a nifty module
+              undef
+          end;
+        _ ->
+          %% malformed type
+          undef
       end
   end.
 

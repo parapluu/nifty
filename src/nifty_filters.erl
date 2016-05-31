@@ -47,8 +47,8 @@ norm_type(Type) ->
     0 -> Type;
     S ->
       case string:str(Type, "]") of
-	0 -> Type; % error;
-	E -> norm_type(string:substr(Type, 1, S-1) ++ "*" ++ string:substr(Type, E+1))
+        0 -> Type; % error;
+        E -> norm_type(string:substr(Type, 1, S-1) ++ "*" ++ string:substr(Type, E+1))
       end
   end.
 
@@ -179,17 +179,17 @@ config_schedule_dirty(Options) ->
       false;
     NiftyOptions ->
       case proplists:get_value(schedule_dirty, NiftyOptions) of
-	undefined ->
-	  %% check the all functions
-	  FOpts = proplists:get_value(functions_options, NiftyOptions, []),
-	  lists:foldl(fun ({_, Opts}, Acc) ->
-			  Acc orelse lists:member(schedule_dirty_cpu, Opts)
-			    orelse lists:member(schedule_dirty_io, Opts)
-		      end, false, FOpts);
-	false ->
-	  false;
-	_ ->
-	  true
+        undefined ->
+          %% check the all functions
+          FOpts = proplists:get_value(functions_options, NiftyOptions, []),
+          lists:foldl(fun ({_, Opts}, Acc) ->
+                          Acc orelse lists:member(schedule_dirty_cpu, Opts)
+                            orelse lists:member(schedule_dirty_io, Opts)
+                      end, false, FOpts);
+        false ->
+          false;
+        _ ->
+          true
       end
   end.
 
@@ -200,15 +200,15 @@ config_schedule_dirty(Options, FN) ->
       false;
     NiftyOptions ->
       case proplists:get_value(schedule_dirty, NiftyOptions) of
-	undefined ->
-	  %% check the functions
-	  FOpts = get_function_options(NiftyOptions, FN),
-	  lists:member(schedule_dirty_cpu, FOpts) orelse
-	    lists:member(schedule_dirty_io, FOpts);
-	false ->
-	  false;
-	_ ->
-	  true
+        undefined ->
+          %% check the functions
+          FOpts = get_function_options(NiftyOptions, FN),
+          lists:member(schedule_dirty_cpu, FOpts) orelse
+            lists:member(schedule_dirty_io, FOpts);
+        false ->
+          false;
+        _ ->
+          true
       end
   end.
 

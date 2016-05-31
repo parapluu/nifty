@@ -34,13 +34,13 @@ merge_nif_spec(Config, {".*", "$NIF", Sources, [{env, Env}]} = Spec) ->
       [{port_specs, [Spec]} | Config];
     Specs ->
       NewSpecs = case get_nifspec(Specs) of
-		   {".*", "$NIF", OldSources} ->
-		     store_nifspec({".*", "$NIF", OldSources ++ Sources, [{env, Env}]}, Specs);
-		   {".*", "$NIF", OldSources, [{env, OldEnv}]} ->
-		     store_nifspec({".*", "$NIF", OldSources ++ Sources, [{env, OldEnv ++ Env}]}, Specs);
-		   undefined ->
-		     store_nifspec({".*", "$NIF", Sources, [{env, []}] }, Specs)
-		 end,
+                   {".*", "$NIF", OldSources} ->
+                     store_nifspec({".*", "$NIF", OldSources ++ Sources, [{env, Env}]}, Specs);
+                   {".*", "$NIF", OldSources, [{env, OldEnv}]} ->
+                     store_nifspec({".*", "$NIF", OldSources ++ Sources, [{env, OldEnv ++ Env}]}, Specs);
+                   undefined ->
+                     store_nifspec({".*", "$NIF", Sources, [{env, []}] }, Specs)
+                 end,
       [{port_specs, NewSpecs} | proplists:delete(port_specs, Config)]
   end.
 
@@ -98,13 +98,13 @@ tokenize(CmdLine) ->
 -spec tokenize(CmdLine :: string(), Acc :: [string()], ArgAcc :: string()) -> [string()].
 tokenize([Sep | Tail], Acc, ArgAcc) when ?IS_WHITESPACE(Sep) ->
   NewAcc = case ArgAcc of
-	     [_ | _] ->
-	       %% Found separator: add to the list of arguments.
-	       [lists:reverse(ArgAcc) | Acc];
-	     [] ->
-	       %% Found separator with no accumulated argument; discard it.
-	       Acc
-	   end,
+             [_ | _] ->
+               %% Found separator: add to the list of arguments.
+               [lists:reverse(ArgAcc) | Acc];
+             [] ->
+               %% Found separator with no accumulated argument; discard it.
+               Acc
+           end,
   tokenize(Tail, NewAcc, []);
 tokenize([QuotationMark | Tail], Acc, ArgAcc) when QuotationMark =:= $"; QuotationMark =:= $' ->
   %% Quoted argument (might contain spaces, tabs, etc.)
@@ -147,8 +147,8 @@ expand_env_var(CmdLine) ->
     "$" ++ Tail ->
       expand_env_var("$", Tail, []);
     "%" ++ Tail ->
-      expand_env_var("%", $%, Tail, [])
-  end.
+                        expand_env_var("%", $%, Tail, [])
+                    end.
 
 -spec expand_env_var(Prefix :: string(), EndMark :: char(), CmdLine :: string(), Acc :: string()) -> {string(), string()}.
 expand_env_var(Prefix, EndMark, [Char | Tail], Acc)
