@@ -247,6 +247,29 @@ visitor_cb(CXCursor cursor, CXCursor parent, CXClientData client_data)
       return CXChildVisit_Continue;
     }
   }
+  case CXCursor_UnionDecl: {
+    tmp = clang_getCursorSpelling(cursor);
+    ctmp = (char*)clang_getCString(tmp);
+    if ((clang_getCursorKind(parent) == CXCursor_TranslationUnit) && (!strlen(ctmp))) {
+      clang_disposeString(tmp);
+      return CXChildVisit_Continue;
+    } else {
+      subd = enif_alloc(sizeof(SubData));
+      subd->types = data->types;
+      subd->data = enif_make_list(env, 0);
+      subd->env = env;
+      clang_visitChildren(cursor, visitor_struct_cb, (CXClientData)subd);
+      etmp = enif_make_tuple2(env, enif_make_atom(env, "union"),
+			      enif_make_string(env, ctmp, ERL_NIF_LATIN1));
+      clang_disposeString(tmp);
+      enif_make_reverse_list(env, subd->data, &etmp2);
+      etmp = enif_make_tuple2(env, etmp, etmp2);
+      data->constr_table = enif_make_list_cell(env, etmp, data->constr_table);
+      data->types = subd->types;
+      enif_free(subd);
+      return CXChildVisit_Continue;
+    }
+  }
   case CXCursor_TypedefDecl: {
     tmp = clang_getCursorSpelling(cursor);
     etmp = enif_make_tuple2(env, enif_make_atom(env, "typedef"),
