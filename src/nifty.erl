@@ -590,6 +590,8 @@ build_type(Module, Type, Address) ->
           case Def of
             [{struct, Name}] ->
               Module:erlptr_to_record({Address, Name});
+            [{union, Name}] ->
+              Module:erlptr_to_urecord({Address, Name});
             _ ->
               {error, undefined}
           end;
@@ -810,13 +812,13 @@ pointer_of(Value, Type) ->
               Types = Module:get_types(),
               case nifty_types:resolve_type(T, Types) of
                 undef ->
-                  %% can (right now) only be a struct
-                  Module:record_to_erlptr(Value);
+                  %% can (right now) only be a struct or a union
+                  structured_pointer_of(Module, Value);
                 ResT ->
                   case builtin_pointer_of(Value, ResT) of
                     undef ->
                       %% can (right now) only be a struct
-                      Module:record_to_erlptr(Value);
+                      structured_pointer_of(Module, Value);
                     Ptr ->
                       Ptr
                   end
@@ -825,6 +827,16 @@ pointer_of(Value, Type) ->
               Ptr
           end
       end
+  end.
+
+structured_pointer_of(Module, Value) ->
+  Tag = atom_to_list(element(1, Value)),
+  case string:str(Tag, "struct") of
+    1 -> Module:record_to_erlptr(Value);
+    _ -> case string:str(Tag, "union") of
+           1 -> Module:urecord_to_erlptr(Value);
+           _ -> undef
+         end
   end.
 
 builtin_pointer_of(Value, Type) ->

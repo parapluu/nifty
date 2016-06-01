@@ -102,7 +102,7 @@ call_functions_structs() ->
      ?_assertMatch({_,_,_}, nifty:dereference(nt_structs:record_to_erlptr(nt_structs:new("struct s2")))),
      ?_assertMatch({_,_,_}, nifty:dereference(nt_structs:record_to_erlptr(nt_structs:new("struct s3")))),
      ?_assertMatch({_,_,_}, nifty:dereference(nt_structs:record_to_erlptr(nt_structs:new("struct s4")))),
-     ?_assertEqual({s4, 0.5, 10}, nifty:dereference(nifty:pointer_of({s4, 0.5, 10}, "nt_structs.struct s4")))].
+     ?_assertEqual({'struct s4', 0.5, 10}, nifty:dereference(nifty:pointer_of({'struct s4', 0.5, 10}, "nt_structs.struct s4")))].
 
 -spec structs_test_() -> term().
 structs_test_() ->
@@ -147,7 +147,7 @@ call_functions_array() ->
                                                           1,0,0,0]))),
      ?_assertEqual(20, fun () ->
                                B = [1,1,1,1,1,1,1,1,1,1],
-                               Rec = {array_st, nifty:mem_write(B), 0, nifty:mem_write(B)},
+                               Rec = {'struct array_st', nifty:mem_write(B), 0, nifty:mem_write(B)},
                                Ptr = nifty:pointer_of(Rec, "nt_array.struct array_st"),
                                nt_array:sumstruct_array(Ptr)
                        end())].

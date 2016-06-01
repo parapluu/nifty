@@ -64,6 +64,8 @@ static ErlNifFunc nif_functions[] = {
 	{% endfor %}{% endwith %}
 	{"erlptr_to_record", 1, erlptr_to_record},
 	{"record_to_erlptr", 1, record_to_erlptr},
+	{"erlptr_to_urecord", 1, erlptr_to_urecord},
+	{"urecord_to_erlptr", 1, urecord_to_erlptr},
 	{"new", 1, new_type_object},
 	{"size_of", 1, size_of}
 	};
