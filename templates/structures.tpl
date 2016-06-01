@@ -232,7 +232,7 @@ size_of(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 		}
 		written += tmp;
 	}
-/* structs */
+/* structs and unions */
 {% with type_keys=types|clear_function_pointers|fetch_keys %}
 	{% for type in type_keys %}
 		{% with kind=types|fetch:type|getNth:1 %}
@@ -291,6 +291,19 @@ new_type_object(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 		return retval;
 	}
 {% endif %}{% endwith%}{% endfor %}{% endwith %}
+/* unions */
+/*
+{% with keys = constructors|fetch_keys %}{% for constr in keys %}{% with kind=constr|getNth:1 name=constr|getNth:2 %}{% if kind=="union" %}
+	if ((!(strcmp((const char*)cstr, "{{name}}")))
+		|| (!(strcmp((const char*)cstr, "union {{name}}"))))
+	{
+		type_holder = (ptr_t)enif_alloc(sizeof(struct {{name}}));
+		retval=ptr_to_urecord_{{name}}(env, type_holder);
+		enif_free((void*)type_holder);
+		return retval;
+	}
+{% endif %}{% endwith%}{% endfor %}{% endwith %}
+*/
 	return enif_make_atom(env, "undef");
 error:
 	return enif_make_badarg(env);

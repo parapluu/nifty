@@ -70,6 +70,11 @@ check_type2(Type, Types, Constructors) ->
                     undef -> true;
                     C -> dict:is_key(T, C)
                   end;
+                {union, _Name} ->
+                  case Constructors of
+                    undef -> true;
+                    C -> dict:is_key(T, C)
+                  end;
                 _->
                   case T =:= Type of
                     true -> false; %% loop
@@ -81,7 +86,6 @@ check_type2(Type, Types, Constructors) ->
               check_type(T,Types);
             {userdef, [H|T]} ->
               string:right(H, 1) =/= ")"          %% function pointer
-                andalso lists:last(T) =/= "union" %% union
                 andalso lists:last(T) =/= "enum"; %% enum
             {base, _} ->
               true

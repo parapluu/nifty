@@ -89,8 +89,11 @@ fill_constructed([H|T], Constr, Types) ->
                      dict:store(Alias, {typedef, Type}, Types)
                  end;
                {struct, Name} ->
-                 D = dict:store("struct "++Name, {userdef, [H]}, Types),
-                 dict:store("struct "++Name++" *", {userdef, ["*", H]}, D);
+                 D = dict:store("struct " ++ Name, {userdef, [H]}, Types),
+                 dict:store("struct " ++ Name ++ " *", {userdef, ["*", H]}, D);
+               {union, Name} ->
+                 D = dict:store("union " ++ Name, {userdef, [H]}, Types),
+                 dict:store("union " ++ Name ++ " *", {userdef, ["*", H]}, D);
                {enum, Name} ->
                  dict:store("enum " ++ Name, {typedef, "long long"}, Types)
              end,
