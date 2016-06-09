@@ -12,6 +12,7 @@ typedef struct _s {
 } complex;
 
 extern int check_i(union_t u);
-extern int check_f(complex s);
+extern float check_f(union_t s);
+extern float check_sf(complex s);
 
 #endif /* NIFTY_UNIONS_TEST */

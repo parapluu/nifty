@@ -6,6 +6,11 @@ check_i(union_t u) {
 }
 
 float
-check_f(complex s) {
+check_f(union_t u) {
+	return u.f;
+}
+
+float
+check_sf(complex s) {
 	return s.u.f;
 }

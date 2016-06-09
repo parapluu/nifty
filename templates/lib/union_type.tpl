@@ -17,6 +17,7 @@
 	ERL_NIF_TERM *{{N}}_tpl;
 	ERL_NIF_TERM {{N}}_ptr;
 	int {{N}}_ar;
+	{{raw_type}}* {{N}}_union;
 		{% endif %}
 	{% endif %}
 {% endif %}
@@ -26,8 +27,9 @@
 	{{N}}_ptr  = urecord_to_erlptr_{{types|fetch:type|getNth:2|getNth:1|getNth:2}}(env, {{erlarg}});
 	err = enif_get_tuple(env, {{N}}_ptr, &{{N}}_ar, (const ERL_NIF_TERM**)(&{{N}}_tpl));
 	if (err) {
-		err = nifty_get_ptr(env, {{N}}_tpl[0], (ptr_t*)(&{{carg}}));
+		err = nifty_get_ptr(env, {{N}}_tpl[0], (ptr_t*)(&{{N}}_union));
 	}
+	{{carg}} = *{{N}}_union;
 	{% else %}
 	{{carg}}_ptr  = urecord_to_erlptr_{{types|fetch:type|getNth:2|getNth:1|getNth:2}}(env, {{erlarg}});
 	err = enif_get_tuple(env, {{carg}}_ptr, &{{carg}}_ar, (const ERL_NIF_TERM**)(&{{carg}}_tpl));

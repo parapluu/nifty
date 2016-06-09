@@ -120,13 +120,13 @@ call_functions_unions() ->
                          U = {'union _u', 42, undefined},
                          nt_unions:check_i(U)
                      end()),
-   ?_assertEqual(42, fun () ->
+   ?_assertNotEqual(42, fun () ->
                          U = {'union _u', 42, 0.0},
                          nt_unions:check_i(U)
                      end()),
    ?_assert(fun() ->
                 S = {'struct _s', {'union _u', undefined, 12.42}, 100},
-                abs(nt_unions:check_f(S)-12.42) < 0.0001
+                abs(nt_unions:check_sf(S)-12.42) < 0.0001
             end())].
 
 -spec unions_test_() -> term().
