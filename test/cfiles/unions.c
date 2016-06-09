@@ -1,19 +1,11 @@
 #include "unions.h"
 
 int
-check_i(union_t u, int i) {
-	if (u.i == i) {
-		return 1;
-	} else {
-		return 0;
-	}
+check_i(union_t u) {
+	return u.i;
 }
 
-int
-check_f(complex s, float f) {
-	if ((s.u.f - f) < 0.0001) {
-		return 1;
-	} else {
-		return 0;
-	}
+float
+check_f(complex s) {
+	return s.u.f;
 }

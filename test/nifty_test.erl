@@ -116,18 +116,18 @@ compile_unions() ->
 
 -spec  call_functions_unions() -> ok.
 call_functions_unions() ->
-  [?_assertEqual(1, fun () ->
-                        U = {'union _u', 42, undefined},
-                        nt_unions:check_i(U, 42)
-                    end()),
-   ?_assertEqual(0, fun () ->
-                        U = {'union _u', 42, 0.0},
-                        nt_unions:check_i(U, 42)
-                    end()),
-   ?_assertEqual(1, fun() ->
-                        S = {'struct _s', {'union _u', undefined, 12.42}, 100},
-                        nt_unions:check_f(S, 12.42)
-                    end())].
+  [?_assertEqual(42, fun () ->
+                         U = {'union _u', 42, undefined},
+                         nt_unions:check_i(U)
+                     end()),
+   ?_assertEqual(42, fun () ->
+                         U = {'union _u', 42, 0.0},
+                         nt_unions:check_i(U)
+                     end()),
+   ?_assert(fun() ->
+                S = {'struct _s', {'union _u', undefined, 12.42}, 100},
+                abs(nt_unions:check_f(S)-12.42) < 0.0001
+            end())].
 
 -spec unions_test_() -> term().
 unions_test_() ->
