@@ -18,12 +18,22 @@ BEAMS = ebin$(SEP)nifty_clangparse.beam \
 
 REBAR := .$(SEP)rebar
 
+# nifty_root
+ifndef NIFTY_ROOT_CONFIG
+	NIFTY_ROOT_CONFIG := NIFTY_ROOT=$(PWD)
+else
+	NIFTY_ROOT_CONFIG :=
+endif
+
 # LLVM config
 ifdef NIFTY_LLVM_VERSION
-	LLVM_CONFIG := NIFTY_LLVM_VERSION_CONFIG=-$(NIFTY_LLVM_VERSION)
+	LLVM_CONFIG := NIFTY_LLVM_CONFIG=llvm-config-$(NIFTY_LLVM_VERSION)
 else
-	LLVM_CONFIG :=
+	LLVM_CONFIG := NIFTY_LLVM_CONFIG=llvm-config
 endif
+
+CONFIG := $(NIFTY_ROOT_CONFIG) $(LLVM_CONFIG)
+
 
 DIALYZER_APPS = erts kernel stdlib compiler crypto syntax_tools tools
 DIALYZER_FLAGS = -Wunmatched_returns -Wunderspecs
@@ -38,7 +48,7 @@ get-deps:
 	$(REBAR) get-deps
 
 compile:
-	$(LLVM_CONFIG) $(REBAR) compile
+	$(CONFIG) $(REBAR) compile
 
 dialyze: compile .nifty_plt
 	dialyzer --plt .nifty_plt $(DIALYZER_FLAGS) ebin
@@ -50,7 +60,7 @@ fdialyze: compile .nifty_plt
 	-dialyzer --build_plt --output_plt $@ --apps $(DIALYZER_APPS) deps/*/ebin
 
 tests: compile
-	ERL_LIBS=$(ERL_INCLUDE) $(REBAR) clean compile eunit skip_deps=true
+	$(CONFIG) ERL_LIBS=$(ERL_INCLUDE) $(REBAR) clean compile eunit skip_deps=true
 
 rebar_regression: compile
 	erl -noshell -pa `pwd`/ebin -pa `pwd`/deps/*/ebin \
