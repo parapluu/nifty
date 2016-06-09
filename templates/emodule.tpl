@@ -5,6 +5,8 @@
 	get_enum_aliases/0,
 	erlptr_to_record/1,
 	record_to_erlptr/1,
+	erlptr_to_urecord/1,
+	urecord_to_erlptr/1,
 	new/1,
 	size_of/1
 	]).
@@ -43,6 +45,15 @@ erlptr_to_record(_) ->
 -spec record_to_erlptr(tuple()) -> ptr().
 record_to_erlptr(_) ->
     erlang:nif_error(nif_library_not_loaded).
+
+-spec erlptr_to_urecord(ptr()) -> tuple().
+erlptr_to_urecord(_) ->
+    erlang:nif_error(nif_library_not_loaded).
+
+-spec urecord_to_erlptr(tuple()) -> ptr().
+urecord_to_erlptr(_) ->
+    erlang:nif_error(nif_library_not_loaded).
+
 
 -spec get_types() -> dict:dict().
 get_types() -> ?TYPES.
