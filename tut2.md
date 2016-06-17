@@ -14,7 +14,7 @@ In the <a href="{{ site.url }}/tutorial1">previous tutorial</a> we saw how we ca
 create simple NIF modules and compile them together with some C code. In reality
 the process of compiling is not that simple. We might need to specify additional
 paths for included files or link against a library. This tutorial shows how you
-can set arbitrary compile options. 
+can set arbitrary compile options.
 
 ## Setup
 
@@ -32,7 +32,7 @@ of the library look like this:
     └── ...
 ```
 
-We have two header files in `include/`, a `Makefile` and a static library that was built 
+We have two header files in `include/`, a `Makefile` and a static library that was built
 by invoking make. There are also a couple of C files in `src`.
 
 ## Setting Compiler Parameters
@@ -56,7 +56,7 @@ Typically we pass this information as parts of `CFLAGS` environment variable. Th
 takes care of the rest:
 
 {% highlight erlang %}
-1> nifty:compile("include/answer.h", 
+1> nifty:compile("include/answer.h",
                  answer,
                  [{port_specs,[{".*", "$NIF", [],
                                [{env,[{"CFLAGS","$CFLAGS -Iinclude/"}]}]}]}]).
@@ -70,14 +70,14 @@ that it should include `libanswer.a` when linking everything:
 
 
 {% highlight erlang %}
-1> nifty:compile("include/answer.h", 
+1> nifty:compile("include/answer.h",
                  answer,
                  [{port_specs,[{".*", "$NIF", [],
                                [{env,[{"CFLAGS","$CFLAGS -Iinclude/"},
                                       {"LDFLAGS", "$LDFLAGS $NIFTY_ROOT/libanswer.a"}]}]}]}]).
 {% endhighlight %}
 
-In order for Nifty to find `libanswer.a` we have to specify the correct path. Nifty does not create 
+In order for Nifty to find `libanswer.a` we have to specify the correct path. Nifty does not create
 the NIF module directly in the currend working directory, but a complete package:
 
 ```
@@ -98,7 +98,7 @@ answer/
 When compiling the module Nifty changes to `answer/` and calls `rebar compile`. `rebar` now needs to find
 all files from this directory. This means, that we either have to use absolute paths or relative paths starting
 from `answer/`. Thanksfully Nifty provides the envrionment variable `NIFTY_ROOT` that points to the directory which you are
-currently in, when you call `nifty:compile/3`. 
+currently in, when you call `nifty:compile/3`.
 
 ## Compile Hooks
 
@@ -109,7 +109,7 @@ compile hooks are actions that are executed before or after compilation. In this
 want to invoke `make` before compilation:
 
 {% highlight erlang %}
-1> nifty:compile("include/answer.h", 
+1> nifty:compile("include/answer.h",
                  answer,
                  [{port_specs,[{".*", "$NIF", [],
                                [{env,[{"CFLAGS","$CFLAGS -Iinclude/"},
@@ -128,7 +128,7 @@ ERROR: Command [compile] failed!
 We have to again adjust the path for make:
 
 {% highlight erlang %}
-1> nifty:compile("include/answer.h", 
+1> nifty:compile("include/answer.h",
                  answer,
                  [{port_specs,[{".*", "$NIF", [],
                                [{env,[{"CFLAGS","$CFLAGS -Iinclude/"},
@@ -139,7 +139,7 @@ We have to again adjust the path for make:
 In a similar way we can call `make clean` after we have built our NIF:
 
 {% highlight erlang %}
-1> nifty:compile("include/answer.h", 
+1> nifty:compile("include/answer.h",
                  answer,
                  [{port_specs,[{".*", "$NIF", [],
                                [{env,[{"CFLAGS","$CFLAGS -Iinclude/"},
@@ -148,6 +148,10 @@ In a similar way we can call `make clean` after we have built our NIF:
                   {post_hooks, [{compile, "sh -c \"cd $NIFTY_ROOT && make clean\""}]}]).
 {% endhighlight %}
 
-
-| <a  href="{{ site.url }}/tutorial1">Previous Tutorial</a> | <a  href="{{ site.url }}/files/tut2.tar.gz">Tutorial Files</a> | <a  href="{{ site.url }}/tutorial3">Next Tutorial</a> |
-|-----------------------------------------------------------|----------------------------------------------------------------|-------------------------------------------------------|
+<table>
+<tr>
+<th><a  href="{{ site.url }}/tutorial1">Previous Tutorial</a></th>
+<th><a  href="{{ site.url }}/files/tut2.tar.gz">Tutorial Files</a></th>
+<th><a  href="{{ site.url }}/tutorial3">Next Tutorial</a></th>
+</tr>
+</table>

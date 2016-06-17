@@ -10,5 +10,10 @@ image:
 
 ## Coming Soon
 
-| <a  href="{{ site.url }}/tutorial2">Previous Tutorial</a> | <a  href="{{ site.url }}/tutorial4">Next Tutorial</a> |
-|-----------------------------------------------------------|-------------------------------------------------------|
+
+<table>
+<tr>
+<th><a  href="{{ site.url }}/tutorial2">Previous Tutorial</a></th>
+<th><a  href="{{ site.url }}/tutorial4">Next Tutorial</a></th>
+</tr>
+</table>

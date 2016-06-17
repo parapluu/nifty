@@ -35,12 +35,12 @@ Now we can create a NIF module, using Nifty:
 
 {% highlight erlang %}
 1> nifty:compile("fib.h", fib, []).
-generating fib.h -> fib_nif.c fib.erl 
+generating fib.h -> fib_nif.c fib.erl
 ==> fib (compile)
 Compiled src/fib_remote.erl
 Compiled src/fib.erl
 Compiling c_src/fib_nif.c
-ok 
+ok
 {% endhighlight %}
 
 Now let's try to load the module:
@@ -48,7 +48,7 @@ Now let's try to load the module:
 {% highlight erlang %}
 2> l(fib).
 =ERROR REPORT==== 4-Apr-2014::14:30:16 ===
-The on_load function for module fib returned 
+The on_load function for module fib returned
 {error,
  {load_failed,
   "Failed to load NIF library: '.../fib/priv/fib_nif.so: undefined symbol: fib'"}}
@@ -59,7 +59,7 @@ Nifty that it should also compile `fib.c`:
 
 {% highlight erlang %}
 3> nifty:compile("fib.h", fib, nifty_utils:add_sources(["fib.c"], [])).
-generating fib.h -> fib_nif.c fib.erl 
+generating fib.h -> fib_nif.c fib.erl
 ==> fib (compile)
 Compiled src/fib_remote.erl
 Compiled src/fib.erl
@@ -72,10 +72,10 @@ ok
 55
 {% endhighlight %}
 
-The third arguments specifies the compile options which are equivalent to the options that you can set in a `rebar.config`. 
+The third arguments specifies the compile options which are equivalent to the options that you can set in a `rebar.config`.
 To add a source file or compile options to your NIF module, you have to use the target
-`{".*", "$NIF", [<source files>], <optional options>}` in the port_specs option. Fortunatley, Nifty comes with 
-some utility functions, that help creating such a configuration. We want to add a source file to an empty configuration. an empty 
+`{".*", "$NIF", [<source files>], <optional options>}` in the port_specs option. Fortunatley, Nifty comes with
+some utility functions, that help creating such a configuration. We want to add a source file to an empty configuration. an empty
 configuration is `[]` and we can add the source `fib.c` with `nifty_utils:add_sources`.
 
 When you leave the interactive interpreter, you will see that Nifty created a complete Erlang project:
@@ -95,8 +95,9 @@ fib
     └── fib.erl
 ```
 
-
-| <a  href="{{ site.url }}/files/tut1.tar.gz">Tutorial Files</a> | <a  href="{{ site.url }}/tutorial2">Next Tutorial</a> |
-|----------------------------------------------------------------|-------------------------------------------------------|
-
-
+<table>
+<tr>
+<th><a  href="{{ site.url }}/files/tut1.tar.gz">Tutorial Files</a></th>
+<th><a  href="{{ site.url }}/tutorial2">Next Tutorial</a></th>
+</tr>
+</table>

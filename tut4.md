@@ -172,5 +172,10 @@ $
 As you will see, a segfault will crash the Erlang runtime. You can however catch segafaults as demonstrated in the
 <a  href="{{ site.url }}/tutorial5">next tutorial</a>.
 
-| <a  href="{{ site.url }}/tutorial3">Previous Tutorial</a> | <a  href="{{ site.url }}/tutorial5">Next Tutorial</a> |
-|-----------------------------------------------------------|-------------------------------------------------------|
+
+<table>
+<tr>
+<th><a  href="{{ site.url }}/tutorial3">Previous Tutorial</a> </th>
+<th><a  href="{{ site.url }}/tutorial5">Next Tutorial</a></th>
+</tr>
+</table>

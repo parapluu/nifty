@@ -14,16 +14,25 @@
 
 
 <h2><a name="index">Function Index</a></h2>
-<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#as_type-2">as_type/2</a></td><td></td></tr>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#array_element-2">array_element/2</a></td><td></td></tr>
+<tr><td valign="top"><a href="#array_ith-2">array_ith/2</a></td><td></td></tr>
+<tr><td valign="top"><a href="#array_new-2">array_new/2</a></td><td></td></tr>
+<tr><td valign="top"><a href="#array_set-3">array_set/3</a></td><td></td></tr>
+<tr><td valign="top"><a href="#array_to_list-2">array_to_list/2</a></td><td></td></tr>
+<tr><td valign="top"><a href="#as_type-2">as_type/2</a></td><td></td></tr>
 <tr><td valign="top"><a href="#compile-3">compile/3</a></td><td></td></tr>
 <tr><td valign="top"><a href="#cstr_to_list-1">cstr_to_list/1</a></td><td></td></tr>
 <tr><td valign="top"><a href="#dereference-1">dereference/1</a></td><td></td></tr>
+<tr><td valign="top"><a href="#enum_value-2">enum_value/2</a></td><td></td></tr>
 <tr><td valign="top"><a href="#free-1">free/1</a></td><td></td></tr>
 <tr><td valign="top"><a href="#get_config-0">get_config/0</a></td><td></td></tr>
 <tr><td valign="top"><a href="#get_env-0">get_env/0</a></td><td></td></tr>
 <tr><td valign="top"><a href="#get_types-0">get_types/0</a></td><td></td></tr>
+<tr><td valign="top"><a href="#list_to_array-2">list_to_array/2</a></td><td></td></tr>
 <tr><td valign="top"><a href="#list_to_cstr-1">list_to_cstr/1</a></td><td></td></tr>
+<tr><td valign="top"><a href="#malloc-1">malloc/1</a></td><td></td></tr>
 <tr><td valign="top"><a href="#mem_alloc-1">mem_alloc/1</a></td><td></td></tr>
+<tr><td valign="top"><a href="#mem_copy-3">mem_copy/3</a></td><td></td></tr>
 <tr><td valign="top"><a href="#mem_read-2">mem_read/2</a></td><td></td></tr>
 <tr><td valign="top"><a href="#mem_write-1">mem_write/1</a></td><td></td></tr>
 <tr><td valign="top"><a href="#mem_write-2">mem_write/2</a></td><td></td></tr>
@@ -38,94 +47,139 @@
 
 <h2><a name="functions">Function Details</a></h2>
 
+<h3 class="function"><a name="array_element-2">array_element/2</a></h3>
+<div class="spec">
+<p><tt>array_element(X0::<a href="nifty.html#type-ptr">nifty:ptr()</a>, X1::integer()) -&gt; <a href="nifty.html#type-cvalue">nifty:cvalue()</a></tt><br></p>
+</div>
+
+<h3 class="function"><a name="array_ith-2">array_ith/2</a></h3>
+<div class="spec">
+<p><tt>array_ith(X0::<a href="nifty.html#type-ptr">nifty:ptr()</a>, X1::integer()) -&gt; <a href="nifty.html#type-ptr">nifty:ptr()</a></tt><br></p>
+</div>
+
+<h3 class="function"><a name="array_new-2">array_new/2</a></h3>
+<div class="spec">
+<p><tt>array_new(X0::nonempty_string(), X1::non_neg_integer()) -&gt; <a href="nifty.html#type-ptr">nifty:ptr()</a></tt><br></p>
+</div>
+
+<h3 class="function"><a name="array_set-3">array_set/3</a></h3>
+<div class="spec">
+<p><tt>array_set(X0::<a href="nifty.html#type-ptr">nifty:ptr()</a>, X1::term(), X2::integer()) -&gt; ok</tt><br></p>
+</div>
+
+<h3 class="function"><a name="array_to_list-2">array_to_list/2</a></h3>
+<div class="spec">
+<p><tt>array_to_list(X0::<a href="nifty.html#type-ptr">nifty:ptr()</a>, X1::non_neg_integer()) -&gt; [<a href="nifty.html#type-cvalue">nifty:cvalue()</a>]</tt><br></p>
+</div>
+
 <h3 class="function"><a name="as_type-2">as_type/2</a></h3>
 <div class="spec">
-<p><tt>as_type(X0::term(), X1::term()) -&gt; term()</tt><br></p>
+<p><tt>as_type(X0::<a href="nifty.html#type-ptr">nifty:ptr()</a>, X1::nonempty_string()) -&gt; <a href="nifty.html#type-ptr">nifty:ptr()</a> | undef | {error, node_down}</tt><br></p>
 </div>
 
 <h3 class="function"><a name="compile-3">compile/3</a></h3>
 <div class="spec">
-<p><tt>compile(X0::term(), X1::term(), X2::term()) -&gt; term()</tt><br></p>
+<p><tt>compile(X0::string(), X1::module(), X2::<a href="nifty.html#type-options">nifty:options()</a>) -&gt; <a href="nifty.html#type-comp_ret">nifty:comp_ret()</a> | {error, node_down}</tt><br></p>
 </div>
 
 <h3 class="function"><a name="cstr_to_list-1">cstr_to_list/1</a></h3>
 <div class="spec">
-<p><tt>cstr_to_list(X0::term()) -&gt; term()</tt><br></p>
+<p><tt>cstr_to_list(X0::<a href="nifty.html#type-ptr">nifty:ptr()</a>) -&gt; string() | {error, node_down}</tt><br></p>
 </div>
 
 <h3 class="function"><a name="dereference-1">dereference/1</a></h3>
 <div class="spec">
-<p><tt>dereference(X0::term()) -&gt; term()</tt><br></p>
+<p><tt>dereference(X0::<a href="nifty.html#type-ptr">nifty:ptr()</a>) -&gt; <a href="nifty.html#type-cvalue">nifty:cvalue()</a> | {error, node_down}</tt><br></p>
+</div>
+
+<h3 class="function"><a name="enum_value-2">enum_value/2</a></h3>
+<div class="spec">
+<p><tt>enum_value(X0::atom(), X1::nonempty_string() | atom()) -&gt; integer() | undef</tt><br></p>
 </div>
 
 <h3 class="function"><a name="free-1">free/1</a></h3>
 <div class="spec">
-<p><tt>free(X0::term()) -&gt; term()</tt><br></p>
+<p><tt>free(X0::<a href="nifty.html#type-ptr">nifty:ptr()</a>) -&gt; ok | {error, node_down}</tt><br></p>
 </div>
 
 <h3 class="function"><a name="get_config-0">get_config/0</a></h3>
 <div class="spec">
-<p><tt>get_config() -&gt; term()</tt><br></p>
+<p><tt>get_config() -&gt; <a href="proplists.html#type-proplist">proplists:proplist()</a> | {error, node_down}</tt><br></p>
 </div>
 
 <h3 class="function"><a name="get_env-0">get_env/0</a></h3>
 <div class="spec">
-<p><tt>get_env() -&gt; term()</tt><br></p>
+<p><tt>get_env() -&gt; {integer(), nonempty_string()} | {error, node_down}</tt><br></p>
 </div>
 
 <h3 class="function"><a name="get_types-0">get_types/0</a></h3>
 <div class="spec">
-<p><tt>get_types() -&gt; term()</tt><br></p>
+<p><tt>get_types() -&gt; <a href="dict.html#type-dict">dict:dict()</a> | {error, node_down}</tt><br></p>
+</div>
+
+<h3 class="function"><a name="list_to_array-2">list_to_array/2</a></h3>
+<div class="spec">
+<p><tt>list_to_array(X0::list(), X1::nonempty_string()) -&gt; <a href="nifty.html#type-ptr">nifty:ptr()</a></tt><br></p>
 </div>
 
 <h3 class="function"><a name="list_to_cstr-1">list_to_cstr/1</a></h3>
 <div class="spec">
-<p><tt>list_to_cstr(X0::term()) -&gt; term()</tt><br></p>
+<p><tt>list_to_cstr(X0::string()) -&gt; <a href="nifty.html#type-ptr">nifty:ptr()</a> | {error, node_down}</tt><br></p>
+</div>
+
+<h3 class="function"><a name="malloc-1">malloc/1</a></h3>
+<div class="spec">
+<p><tt>malloc(X0::non_neg_integer()) -&gt; <a href="nifty.html#type-ptr">nifty:ptr()</a></tt><br></p>
 </div>
 
 <h3 class="function"><a name="mem_alloc-1">mem_alloc/1</a></h3>
 <div class="spec">
-<p><tt>mem_alloc(X0::term()) -&gt; term()</tt><br></p>
+<p><tt>mem_alloc(X0::non_neg_integer()) -&gt; <a href="nifty.html#type-ptr">nifty:ptr()</a> | {error, node_down}</tt><br></p>
+</div>
+
+<h3 class="function"><a name="mem_copy-3">mem_copy/3</a></h3>
+<div class="spec">
+<p><tt>mem_copy(X0::<a href="nifty.html#type-ptr">nifty:ptr()</a>, X1::<a href="nifty.html#type-ptr">nifty:ptr()</a>, X2::non_neg_integer()) -&gt; ok</tt><br></p>
 </div>
 
 <h3 class="function"><a name="mem_read-2">mem_read/2</a></h3>
 <div class="spec">
-<p><tt>mem_read(X0::term(), X1::term()) -&gt; term()</tt><br></p>
+<p><tt>mem_read(X0::term(), X1::term()) -&gt; term() | {error, node_down}</tt><br></p>
 </div>
 
 <h3 class="function"><a name="mem_write-1">mem_write/1</a></h3>
 <div class="spec">
-<p><tt>mem_write(X0::term()) -&gt; term()</tt><br></p>
+<p><tt>mem_write(X0::binary() | list()) -&gt; <a href="nifty.html#type-ptr">nifty:ptr()</a> | {error, node_down}</tt><br></p>
 </div>
 
 <h3 class="function"><a name="mem_write-2">mem_write/2</a></h3>
 <div class="spec">
-<p><tt>mem_write(X0::term(), X1::term()) -&gt; term()</tt><br></p>
+<p><tt>mem_write(X0::<a href="nifty.html#type-ptr">nifty:ptr()</a>, X1::binary() | list()) -&gt; <a href="nifty.html#type-ptr">nifty:ptr()</a> | {error, node_down}</tt><br></p>
 </div>
 
 <h3 class="function"><a name="pointer-0">pointer/0</a></h3>
 <div class="spec">
-<p><tt>pointer() -&gt; term()</tt><br></p>
+<p><tt>pointer() -&gt; <a href="nifty.html#type-ptr">nifty:ptr()</a> | {error, node_down}</tt><br></p>
 </div>
 
 <h3 class="function"><a name="pointer-1">pointer/1</a></h3>
 <div class="spec">
-<p><tt>pointer(X0::term()) -&gt; term()</tt><br></p>
+<p><tt>pointer(X0::nonempty_string()) -&gt; <a href="nifty.html#type-ptr">nifty:ptr()</a> | undef | {error, node_down}</tt><br></p>
 </div>
 
 <h3 class="function"><a name="pointer_of-1">pointer_of/1</a></h3>
 <div class="spec">
-<p><tt>pointer_of(X0::term()) -&gt; term()</tt><br></p>
+<p><tt>pointer_of(X0::<a href="nifty.html#type-ptr">nifty:ptr()</a>) -&gt; <a href="nifty.html#type-ptr">nifty:ptr()</a> | undef | {error, node_down}</tt><br></p>
 </div>
 
 <h3 class="function"><a name="pointer_of-2">pointer_of/2</a></h3>
 <div class="spec">
-<p><tt>pointer_of(X0::term(), X1::term()) -&gt; term()</tt><br></p>
+<p><tt>pointer_of(X0::term(), X1::string()) -&gt; <a href="nifty.html#type-ptr">nifty:ptr()</a> | undef | {error, node_down}</tt><br></p>
 </div>
 
 <h3 class="function"><a name="size_of-1">size_of/1</a></h3>
 <div class="spec">
-<p><tt>size_of(X0::term()) -&gt; term()</tt><br></p>
+<p><tt>size_of(X0::nonempty_string()) -&gt; integer() | undef | {error, node_down}</tt><br></p>
 </div>
 
 <h3 class="function"><a name="start-0">start/0</a></h3>
@@ -140,6 +194,6 @@
 <hr>
 
 <div class="navbar"><a name="#navbar_bottom"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
-<p><i>Generated by EDoc, Oct 21 2015, 10:08:45.</i></p>
+<p><i>Generated by EDoc, Jun 17 2016, 15:06:51.</i></p>
 </body>
 </html>

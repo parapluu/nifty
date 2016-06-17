@@ -19,6 +19,22 @@
 <p><tt>addr() = integer()</tt></p>
 
 
+<h3 class="typedecl"><a name="type-comp_ret">comp_ret()</a></h3>
+<p><tt>comp_ret() = ok | {error, <a href="#type-error_reason">error_reason()</a>} | {warning, {not_complete, [nonempty_string()]}}</tt></p>
+
+
+<h3 class="typedecl"><a name="type-cvalue">cvalue()</a></h3>
+<p><tt>cvalue() = <a href="#type-ptr">ptr()</a> | integer() | float() | tuple() | {string(), integer()} | {error, <a href="#type-cvalue_error">cvalue_error()</a>}</tt></p>
+
+
+<h3 class="typedecl"><a name="type-cvalue_error">cvalue_error()</a></h3>
+<p><tt>cvalue_error() = undefined | unknown_builtin_type | unknown_type</tt></p>
+
+
+<h3 class="typedecl"><a name="type-error_reason">error_reason()</a></h3>
+<p><tt>error_reason() = compile | no_file</tt></p>
+
+
 <h3 class="typedecl"><a name="type-options">options()</a></h3>
 <p><tt>options() = <a href="proplists.html#type-proplist">proplists:proplist()</a></tt></p>
 
@@ -27,65 +43,115 @@
 <p><tt>ptr() = {<a href="#type-addr">addr()</a>, nonempty_string()}</tt></p>
 
 
-<h3 class="typedecl"><a name="type-reason">reason()</a></h3>
-<p><tt>reason() = atom()</tt></p>
-
-
 <h2><a name="index">Function Index</a></h2>
-<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#as_type-2">as_type/2</a></td><td>Casts a pointer to <code>Type</code>; returns <code>undef</code>
-   if the specified type is invalid.</td></tr>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#array_element-2">array_element/2</a></td><td>returns the element at position <code>Index</code> of the array.</td></tr>
+<tr><td valign="top"><a href="#array_ith-2">array_ith/2</a></td><td>returns a pointer to the element at position
+  <code>Index</code> of the array.</td></tr>
+<tr><td valign="top"><a href="#array_new-2">array_new/2</a></td><td>Allocates an array with <code>Size</code> elements of type
+  <code>Type</code></td></tr>
+<tr><td valign="top"><a href="#array_set-3">array_set/3</a></td><td>updates the element at position <code>Index</code> of the array.</td></tr>
+<tr><td valign="top"><a href="#array_to_list-2">array_to_list/2</a></td><td></td></tr>
+<tr><td valign="top"><a href="#as_type-2">as_type/2</a></td><td>Casts a pointer to <code>Type</code>; returns <code>undef</code>
+  if the specified type is invalid.</td></tr>
 <tr><td valign="top"><a href="#compile-2">compile/2</a></td><td>same as compile(InterfaceFile, Module, []).</td></tr>
 <tr><td valign="top"><a href="#compile-3">compile/3</a></td><td>Generates a NIF module out of a C header file and compiles it,
   generating wrapper functions for all functions present in the header file.</td></tr>
-<tr><td valign="top"><a href="#cstr_to_list-1">cstr_to_list/1</a></td><td>Converts a nifty pointer to a 0 terminated C string into a erlang string.</td></tr>
+<tr><td valign="top"><a href="#cstr_to_list-1">cstr_to_list/1</a></td><td>Converts a nifty pointer to a 0 terminated C string into a
+  erlang string.</td></tr>
 <tr><td valign="top"><a href="#dereference-1">dereference/1</a></td><td>Dereference a nifty pointer.</td></tr>
 <tr><td valign="top"><a href="#enum_value-2">enum_value/2</a></td><td>Returns the integer value associated with an enum alias.</td></tr>
 <tr><td valign="top"><a href="#free-1">free/1</a></td><td>Free's the memory associated with a nifty pointer.</td></tr>
 <tr><td valign="top"><a href="#get_config-0">get_config/0</a></td><td>Returns the platform specific configuration of nifty.</td></tr>
 <tr><td valign="top"><a href="#get_env-0">get_env/0</a></td><td>Returns erlangs NIF environment.</td></tr>
 <tr><td valign="top"><a href="#get_types-0">get_types/0</a></td><td>Returns nifty's base types as a dict.</td></tr>
-<tr><td valign="top"><a href="#list_to_cstr-1">list_to_cstr/1</a></td><td>Converts an erlang string into a 0 terminated C string and returns a nifty pointer to it.</td></tr>
+<tr><td valign="top"><a href="#list_to_array-2">list_to_array/2</a></td><td></td></tr>
+<tr><td valign="top"><a href="#list_to_cstr-1">list_to_cstr/1</a></td><td>Converts an erlang string into a 0 terminated C string and
+  returns a nifty pointer to it.</td></tr>
+<tr><td valign="top"><a href="#malloc-1">malloc/1</a></td><td>Allocates the specified amount of bytes and returns a pointer
+  to the allocated memory.</td></tr>
 <tr><td valign="top"><a href="#mem_alloc-1">mem_alloc/1</a></td><td>Allocates <code>X1</code> bytes and returns a pointer to it.</td></tr>
-<tr><td valign="top"><a href="#mem_read-2">mem_read/2</a></td><td>Reads <code>X2</code> bytes from the pointer <code>X1</code> and returns it as list.</td></tr>
-<tr><td valign="top"><a href="#mem_write-1">mem_write/1</a></td><td>Writes the <code>Data</code> to memory and returns a nifty pointer to it; the list elements are interpreted as byte values.</td></tr>
-<tr><td valign="top"><a href="#mem_write-2">mem_write/2</a></td><td>Writes the <code>Data</code> to the memory area pointed to by <code>Ptr</code> and returns a the pointer; the list elements are interpreted as byte values.</td></tr>
+<tr><td valign="top"><a href="#mem_copy-3">mem_copy/3</a></td><td>Copies <code>Size</code> bytes from <code>Ptr1</code> to
+  <code>Ptr2</code></td></tr>
+<tr><td valign="top"><a href="#mem_read-2">mem_read/2</a></td><td>Reads <code>X2</code> bytes from the pointer <code>X1</code>
+  and returns it as list.</td></tr>
+<tr><td valign="top"><a href="#mem_write-1">mem_write/1</a></td><td>Writes the <code>Data</code> to memory and returns a nifty
+  pointer to it; the list elements are interpreted as byte values.</td></tr>
+<tr><td valign="top"><a href="#mem_write-2">mem_write/2</a></td><td>Writes the <code>Data</code> to the memory area pointed to by
+  <code>Ptr</code> and returns a the pointer; the list elements are
+  interpreted as byte values.</td></tr>
 <tr><td valign="top"><a href="#pointer-0">pointer/0</a></td><td>Returns a pointer to a memory area that is the size of a pointer.</td></tr>
 <tr><td valign="top"><a href="#pointer-1">pointer/1</a></td><td>Returns a pointer to the specified <code>Type</code>.</td></tr>
 <tr><td valign="top"><a href="#pointer_of-1">pointer_of/1</a></td><td>Returns a pointer to the given pointer.</td></tr>
-<tr><td valign="top"><a href="#pointer_of-2">pointer_of/2</a></td><td>Returns a pointer to the <code>Value</code> with the type <code>Type</code></td></tr>
+<tr><td valign="top"><a href="#pointer_of-2">pointer_of/2</a></td><td>Returns a pointer to the <code>Value</code> with the type
+  <code>Type</code></td></tr>
 <tr><td valign="top"><a href="#size_of-1">size_of/1</a></td><td>size of a base type, no error handling.</td></tr>
 </table>
 
 <h2><a name="functions">Function Details</a></h2>
 
+<h3 class="function"><a name="array_element-2">array_element/2</a></h3>
+<div class="spec">
+<p><tt>array_element(Array::<a href="#type-ptr">ptr()</a>, Index::integer()) -&gt; <a href="#type-cvalue">cvalue()</a></tt><br></p>
+</div><p>returns the element at position <code>Index</code> of the array</p>
+
+<h3 class="function"><a name="array_ith-2">array_ith/2</a></h3>
+<div class="spec">
+<p><tt>array_ith(Array::<a href="#type-ptr">ptr()</a>, Index::integer()) -&gt; <a href="#type-ptr">ptr()</a></tt><br></p>
+</div><p>returns a pointer to the element at position
+  <code>Index</code> of the array</p>
+
+<h3 class="function"><a name="array_new-2">array_new/2</a></h3>
+<div class="spec">
+<p><tt>array_new(Type::nonempty_string(), Size::non_neg_integer()) -&gt; <a href="#type-ptr">ptr()</a></tt><br></p>
+</div><p>Allocates an array with <code>Size</code> elements of type
+  <code>Type</code></p>
+
+<h3 class="function"><a name="array_set-3">array_set/3</a></h3>
+<div class="spec">
+<p><tt>array_set(Array::<a href="#type-ptr">ptr()</a>, Value::term(), Index::integer()) -&gt; ok</tt><br></p>
+</div><p>updates the element at position <code>Index</code> of the array</p>
+
+<h3 class="function"><a name="array_to_list-2">array_to_list/2</a></h3>
+<div class="spec">
+<p><tt>array_to_list(Array::<a href="#type-ptr">ptr()</a>, N::non_neg_integer()) -&gt; [<a href="#type-cvalue">cvalue()</a>]</tt><br></p>
+</div>
+
 <h3 class="function"><a name="as_type-2">as_type/2</a></h3>
 <div class="spec">
 <p><tt>as_type(Ptr::<a href="#type-ptr">ptr()</a>, Type::nonempty_string()) -&gt; <a href="#type-ptr">ptr()</a> | undef</tt><br></p>
 </div><p>Casts a pointer to <code>Type</code>; returns <code>undef</code>
-   if the specified type is invalid</p>
+  if the specified type is invalid</p>
 
 <h3 class="function"><a name="compile-2">compile/2</a></h3>
 <div class="spec">
-<p><tt>compile(InterfaceFile::string(), Module::module()) -&gt; ok | {error, <a href="#type-reason">reason()</a>} | {warning, {not_complete, [nonempty_string()]}}</tt><br></p>
+<p><tt>compile(InterfaceFile::string(), Module::module()) -&gt; <a href="#type-comp_ret">comp_ret()</a></tt><br></p>
 </div><p>same as compile(InterfaceFile, Module, []).</p>
 
 <h3 class="function"><a name="compile-3">compile/3</a></h3>
 <div class="spec">
-<p><tt>compile(InterfaceFile::string(), Module::module(), Options::<a href="#type-options">options()</a>) -&gt; ok | {error, <a href="#type-reason">reason()</a>} | {warning, {not_complete, [nonempty_string()]}}</tt><br></p>
+<p><tt>compile(InterfaceFile::string(), Module::module(), Options::<a href="#type-options">options()</a>) -&gt; <a href="#type-comp_ret">comp_ret()</a></tt><br></p>
 </div><p>Generates a NIF module out of a C header file and compiles it,
   generating wrapper functions for all functions present in the header file.
-  <code>InterfaceFile</code> specifies the header file. <code>Module</code> specifies
-  the module name of the translated NIF. <code>Options</code> specifies the compile
-  options. These options are equivalent to rebar's config options.</p>
+  <code>InterfaceFile</code> specifies the header file.
+  <code>Module</code> specifies the module name of the translated NIF.
+  <code>Options</code> specifies the compile options.
+  These options are a superset rebar's config options and include
+  additional Nifty options: <br>
+      <code>{nifty, NiftyOptions}</code> <br>
+  where NiftyOptions is a list of options, which can be: <br>
+  <table border="1">
+  <tr><td><code>schedule_dirty</code></td><td>use dirty schedulers</td></tr>
+  </table></p>
 
 <h3 class="function"><a name="cstr_to_list-1">cstr_to_list/1</a></h3>
 <div class="spec">
 <p><tt>cstr_to_list(X1::<a href="#type-ptr">ptr()</a>) -&gt; string()</tt><br></p>
-</div><p>Converts a nifty pointer to a 0 terminated C string into a erlang string.</p>
+</div><p>Converts a nifty pointer to a 0 terminated C string into a
+  erlang string.</p>
 
 <h3 class="function"><a name="dereference-1">dereference/1</a></h3>
 <div class="spec">
-<p><tt>dereference(Pointer::<a href="#type-ptr">ptr()</a>) -&gt; <a href="#type-ptr">ptr()</a> | integer() | float() | list() | {string(), integer()} | {error, <a href="#type-reason">reason()</a>}</tt><br></p>
+<p><tt>dereference(Pointer::<a href="#type-ptr">ptr()</a>) -&gt; <a href="#type-cvalue">cvalue()</a></tt><br></p>
 </div><p>Dereference a nifty pointer</p>
 
 <h3 class="function"><a name="enum_value-2">enum_value/2</a></h3>
@@ -113,30 +179,52 @@
 <p><tt>get_types() -&gt; <a href="dict.html#type-dict">dict:dict()</a></tt><br></p>
 </div><p>Returns nifty's base types as a dict</p>
 
+<h3 class="function"><a name="list_to_array-2">list_to_array/2</a></h3>
+<div class="spec">
+<p><tt>list_to_array(List::list(), Type::nonempty_string()) -&gt; <a href="#type-ptr">ptr()</a></tt><br></p>
+</div>
+
 <h3 class="function"><a name="list_to_cstr-1">list_to_cstr/1</a></h3>
 <div class="spec">
 <p><tt>list_to_cstr(X1::string()) -&gt; <a href="#type-ptr">ptr()</a></tt><br></p>
-</div><p>Converts an erlang string into a 0 terminated C string and returns a nifty pointer to it</p>
+</div><p>Converts an erlang string into a 0 terminated C string and
+  returns a nifty pointer to it</p>
+
+<h3 class="function"><a name="malloc-1">malloc/1</a></h3>
+<div class="spec">
+<p><tt>malloc(Size::non_neg_integer()) -&gt; <a href="#type-ptr">ptr()</a></tt><br></p>
+</div><p>Allocates the specified amount of bytes and returns a pointer
+  to the allocated memory</p>
 
 <h3 class="function"><a name="mem_alloc-1">mem_alloc/1</a></h3>
 <div class="spec">
 <p><tt>mem_alloc(X1::non_neg_integer()) -&gt; <a href="#type-ptr">ptr()</a></tt><br></p>
 </div><p>Allocates <code>X1</code> bytes and returns a pointer to it</p>
 
+<h3 class="function"><a name="mem_copy-3">mem_copy/3</a></h3>
+<div class="spec">
+<p><tt>mem_copy(X1::<a href="#type-ptr">ptr()</a>, X2::<a href="#type-ptr">ptr()</a>, X3::non_neg_integer()) -&gt; ok</tt><br></p>
+</div><p>Copies <code>Size</code> bytes from <code>Ptr1</code> to
+  <code>Ptr2</code></p>
+
 <h3 class="function"><a name="mem_read-2">mem_read/2</a></h3>
 <div class="spec">
 <p><tt>mem_read(X1::<a href="#type-ptr">ptr()</a>, X2::integer()) -&gt; list()</tt><br></p>
-</div><p>Reads <code>X2</code> bytes from the pointer <code>X1</code> and returns it as list</p>
+</div><p>Reads <code>X2</code> bytes from the pointer <code>X1</code>
+  and returns it as list</p>
 
 <h3 class="function"><a name="mem_write-1">mem_write/1</a></h3>
 <div class="spec">
 <p><tt>mem_write(Data::binary() | list()) -&gt; <a href="#type-ptr">ptr()</a></tt><br></p>
-</div><p>Writes the <code>Data</code> to memory and returns a nifty pointer to it; the list elements are interpreted as byte values</p>
+</div><p>Writes the <code>Data</code> to memory and returns a nifty
+  pointer to it; the list elements are interpreted as byte values</p>
 
 <h3 class="function"><a name="mem_write-2">mem_write/2</a></h3>
 <div class="spec">
 <p><tt>mem_write(Ptr::<a href="#type-ptr">ptr()</a>, Data::binary() | list()) -&gt; <a href="#type-ptr">ptr()</a></tt><br></p>
-</div><p>Writes the <code>Data</code> to the memory area pointed to by <code>Ptr</code> and returns a the pointer; the list elements are interpreted as byte values</p>
+</div><p>Writes the <code>Data</code> to the memory area pointed to by
+  <code>Ptr</code> and returns a the pointer; the list elements are
+  interpreted as byte values</p>
 
 <h3 class="function"><a name="pointer-0">pointer/0</a></h3>
 <div class="spec">
@@ -146,7 +234,8 @@
 <h3 class="function"><a name="pointer-1">pointer/1</a></h3>
 <div class="spec">
 <p><tt>pointer(Type::nonempty_string()) -&gt; <a href="#type-ptr">ptr()</a> | undef</tt><br></p>
-</div><p>Returns a pointer to the specified <code>Type</code>. This function allocates memory of <b>sizeof(</b><code>Type</code><b>)</b></p>
+</div><p>Returns a pointer to the specified <code>Type</code>. This
+  function allocates memory of <b>sizeof(</b><code>Type</code><b>)</b></p>
 
 <h3 class="function"><a name="pointer_of-1">pointer_of/1</a></h3>
 <div class="spec">
@@ -156,7 +245,8 @@
 <h3 class="function"><a name="pointer_of-2">pointer_of/2</a></h3>
 <div class="spec">
 <p><tt>pointer_of(Value::term(), Type::string()) -&gt; <a href="#type-ptr">ptr()</a> | undef</tt><br></p>
-</div><p>Returns a pointer to the <code>Value</code> with the type <code>Type</code></p>
+</div><p>Returns a pointer to the <code>Value</code> with the type
+  <code>Type</code></p>
 
 <h3 class="function"><a name="size_of-1">size_of/1</a></h3>
 <div class="spec">
@@ -165,6 +255,6 @@
 <hr>
 
 <div class="navbar"><a name="#navbar_bottom"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
-<p><i>Generated by EDoc, Oct 21 2015, 10:08:45.</i></p>
+<p><i>Generated by EDoc, Jun 17 2016, 15:06:51.</i></p>
 </body>
 </html>
