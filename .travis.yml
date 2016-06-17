@@ -12,18 +12,33 @@ env:
   - LLVM_VERSION=3.6.2
   - LLVM_VERSION=3.7.1
   - LLVM_VERSION=3.8.0
+matrix:
+  include:
+    - language: c
+      env: >
+        LLVM_VERSION=3.8.0
+        TRAVIS_OTP_RELEASE=19.prerelease
+        PATH=cache/OTP_19_INSTALL/bin:$PATH
+        CPATH=$PWD/cache/OTP_19_INSTALL/lib/erlang/include
+        LD_LIBRARY_PATH=$PWD/cache/OTP_19_INSTALL/lib/erlang/lib
 addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
     packages:
       - g++-4.9
+      - libncurses5
+      - libncurses5-dev
+      - autoconf
+      - libssl-dev
 script: "make all rebar_regression"
 sudo: false
 before_cache:
   - ./travis/store_plt.sh
 before_script:
   - ./travis/install_deps.sh
+  - make get-deps
+  - ./travis/fix_deps.sh
   - export LLVM_DIR=$PWD/cache/clang+llvm-$LLVM_VERSION
   - export PATH=$LLVM_DIR/bin:$PATH
   - export LD_LIBRARY_PATH=$LLVM_DIR/lib
