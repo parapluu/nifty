@@ -44,8 +44,8 @@ else
 fi
 
 # Erlang OTP from GIT
-if [ "$TRAVIS_OTP_RELEASE"=="19.prerelease" ] ; then
-	echo "OTP 19 ($TRAVIS_OTP_RELEASE)"
+if [ "$TRAVIS_OTP_RELEASE" = "19.prerelease" ] ; then
+	echo "OTP 19  ($TRAVIS_OTP_RELEASE)"
 	OTP_SRC="cache/OTP_19_SRC"
 	OTP_DIR="$PWD/cache/OTP_19_INSTALL"
 	OTP_GIT="https://github.com/erlang/otp.git"
