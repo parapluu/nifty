@@ -45,20 +45,21 @@ fi
 
 # Erlang OTP from GIT
 if [ "$TRAVIS_OTP_RELEASE"=="19.prerelease" ] ; then
+	echo "OTP 19 ($TRAVIS_OTP_RELEASE)"
 	OTP_SRC="cache/OTP_19_SRC"
 	OTP_DIR="$PWD/cache/OTP_19_INSTALL"
 	OTP_GIT="https://github.com/erlang/otp.git"
 	OTP_REF="2ce17d4"
 	if [ ! -d $OTP_DIR ] ; then
 		rm -rf $OTP_SRC || true
-		git clone $OTP_GIT -b master $OTP_DIR
+		git clone $OTP_GIT -b master $OTP_SRC
 		if [ ! $? -eq 0 ] ; then
 			echo "Error: could not clone OTP repo"
 			rm -rf $OTP_SRC || true
 			exit 1
 		fi
 		export ROOT=$PWD
-		cd $OTP_DIR
+		cd $OTP_SRC
 		export ERL_TOP=`pwd`
 		git checkout $OTP_REF
 		./otp_build autoconf
@@ -66,7 +67,7 @@ if [ "$TRAVIS_OTP_RELEASE"=="19.prerelease" ] ; then
 		make
 		make install
 		if [ ! $? -eq 0 ] ; then
-			echo "Error: could not build OTP repo"
+			echo "Error: could not build OTP"
 			cd $ROOT
 			rm -rf $OTP_DIR || true
 			exit 1
