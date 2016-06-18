@@ -302,7 +302,7 @@ visitor_cb(CXCursor cursor, CXCursor parent, CXClientData client_data)
       enif_make_reverse_list(env, enumd->enum_values, &etmp2);
       etmp = enif_make_tuple2(env, etmp, etmp2);
       data->constr_table = enif_make_list_cell(env, etmp, data->constr_table);
-      // defaults to long long
+      /* defaults to long long */
       etmp3 = enif_make_string(env, "long long", ERL_NIF_LATIN1);
       data->types = enif_make_list_cell(env, etmp3, data->types);
       enif_free(enumd);
@@ -317,13 +317,14 @@ visitor_cb(CXCursor cursor, CXCursor parent, CXClientData client_data)
 
 static ERL_NIF_TERM
 walk_cursor(ErlNifEnv* env, CXTranslationUnit t, CXCursor c) {
+  CXCursorVisitor visitor = visitor_cb;
   Data* data = enif_alloc(sizeof(Data));
+
   data->env = env;
   data->func_file = enif_make_list(env, 0);
   data->types = enif_make_list(env, 0);
   data->symbol_table = enif_make_list(env, 0);
   data->constr_table = enif_make_list(env, 0);
-  CXCursorVisitor visitor = visitor_cb;
   clang_visitChildren(c, visitor, (CXClientData)data);
   return enif_make_tuple4(env,
 			  data->func_file,
@@ -335,6 +336,7 @@ walk_cursor(ErlNifEnv* env, CXTranslationUnit t, CXCursor c) {
 static void print_fails(CXTranslationUnit t)
 {
   unsigned i, n;
+
   for (i = 0, n = clang_getNumDiagnostics(t); i!=n; i++) {
     CXDiagnostic diag = clang_getDiagnostic(t, i);
     CXString s = clang_formatDiagnostic(diag, clang_defaultDiagnosticDisplayOptions());
@@ -436,4 +438,4 @@ int upgrade(ErlNifEnv* env, void** priv_data, void** old_priv_data, ERL_NIF_TERM
   return 0;
 }
 
-ERL_NIF_INIT(nifty_clangparse, nif_funcs, NULL, NULL, upgrade, NULL);
+ERL_NIF_INIT(nifty_clangparse, nif_funcs, NULL, NULL, upgrade, NULL)
