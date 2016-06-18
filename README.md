@@ -75,9 +75,8 @@ make tests
 | ```<type> *```                 | ```{integer(), string()}``` | ```<module>.<type> *```
 
 ## Known Limitations
-* Unions are not supported.
 * Function pointers are only partially supported.
-* There is no support for anonymous structs.
+* There is no support for anonymous structs and unions.
 * Functions using unsupported types are not translated and a warning is issued.
 * Functions with a variable number of arguments (`va_list` or `...`) are not supported. If `va_list` as type is used, Nifty will print a warning. If `...` is used, then the function is translated **without** the variable arguments: `int printf(const char *format, ...)` will be translated into `printf/1`.
 * The usage of incomplete types is limited.
