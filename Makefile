@@ -71,6 +71,7 @@ doc:
 
 clean:
 	$(REBAR) clean
+	rm .nifty_plt
 
 mrproper: clean
 	rm -rf deps/
