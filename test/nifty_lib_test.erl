@@ -43,9 +43,7 @@ prop_read_write() ->
 
 -spec prop_short() -> proper:outer_test().
 prop_short() ->
-    ?FORALL(S,
-            integer(0,trunc(math:pow(2,16))-1),
-            short_comp(S)).
+    ?FORALL(S, integer(0,trunc(math:pow(2,16))-1), short_comp(S)).
 
 %% testcases
 -spec cstr_list_test() -> boolean().

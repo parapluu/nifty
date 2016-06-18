@@ -88,7 +88,7 @@ call_functions_arguments() ->
    ?_assertEqual(10, nt_arguments:f4(1,2,3,4))].
 
 -spec arguments_test_() -> term().
-arguments_test_()->
+arguments_test_() ->
   {timeout, 180, [compile_arguments(),
                   call_functions_arguments()]}.
 
@@ -147,9 +147,8 @@ call_functions_proxy() ->
   [?_assertMatch({0, _}, nt_proxy:fproxy({0, "void *"})),
    ?_assertEqual('none', proplists:lookup(strcmp, nt_proxy:module_info(exports)))].
 
-
 -spec proxy_test_() -> term().
-proxy_test_()->
+proxy_test_() ->
   {timeout, 180, [compile_proxy(),
                   call_functions_proxy()]}.
 
@@ -196,7 +195,7 @@ call_tut2() ->
   ?_assertEqual(42, nt_tut2:life_universe_and_everything()).
 
 -spec tut2_test_() -> term().
-tut2_test_()->
+tut2_test_() ->
   {timeout, 180, [compile_tut2(),
                   call_tut2()]}.
 
@@ -213,14 +212,13 @@ call_dereference_regression() ->
   ?_assert(begin
              P = nifty:pointer("dereference_regression.struct s"),
              PP = nifty:pointer_of(P),
-             P == nifty:dereference(PP)
+             P =:= nifty:dereference(PP)
            end).
 
 -spec dereference_regression_test_() -> term().
-dereference_regression_test_()->
+dereference_regression_test_() ->
   {timeout, 180, [compile_dereference_regression(),
                   call_dereference_regression()]}.
-
 
 -spec enum_test_() -> term().
 enum_test_() ->
@@ -253,6 +251,6 @@ call_functions_arguments_dirt() ->
    ?_assertEqual(10, nt_arguments_dirty:f4(1,2,3,4))].
 
 -spec arguments_dirty_test_() -> term().
-arguments_dirty_test_()->
+arguments_dirty_test_() ->
   {timeout, 180, [compile_arguments_dirty(),
                   call_functions_arguments_dirt()]}.
