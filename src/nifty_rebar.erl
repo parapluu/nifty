@@ -76,7 +76,7 @@ main(Args) ->
     Error ->
       %% Nothing should percolate up from rebar_core;
       %% Dump this error to console
-      io:format("Uncaught error in rebar_core: ~p\n", [Error]),
+      io:format("Uncaught error in rebar_core: ~p~n", [Error]),
       rebar_utils:delayed_halt(1)
   end.
 
@@ -125,7 +125,7 @@ run(RawArgs) ->
 
   case rebar_config:get_xconf(BaseConfig1, enable_profiling, false) of
     true ->
-      io:format("Profiling!\n"),
+      io:format("Profiling!~n"),
       try
         fprof:apply(fun run_aux/2, [BaseConfig1, Cmds])
       after
@@ -177,7 +177,7 @@ init_config1(BaseConfig) ->
   %% resources out of the escript
   %%     ScriptName = filename:absname(escript:script_name()),
   %%     BaseConfig1 = rebar_config:set_xconf(BaseConfig, escript, ScriptName),
-  %%     ?DEBUG("Rebar location: ~p\n", [ScriptName]),
+  %%     ?DEBUG("Rebar location: ~p~n", [ScriptName]),
   %% Note the top-level directory for reference
   AbsCwd = filename:absname(rebar_utils:get_cwd()),
   rebar_config:set_xconf(BaseConfig, base_dir, AbsCwd).
@@ -307,7 +307,7 @@ set_log_level(Config, Options) ->
 -spec version() -> ok.
 version() ->
   {ok, Vsn} = application:get_key(rebar, vsn),
-  ?CONSOLE("rebar ~s ~s ~s ~s\n",
+  ?CONSOLE("rebar ~s ~s ~s ~s~n",
            [Vsn, ?OTP_INFO, ?BUILD_TIME, ?VCS_INFO]).
 
 
@@ -450,7 +450,7 @@ filter_flags(Config, [Item | Rest], Commands) ->
       Config1 = rebar_config:set_global(Config, Key, Value),
       filter_flags(Config1, Rest, Commands);
     Other ->
-      ?CONSOLE("Ignoring command line argument: ~p\n", [Other]),
+      ?CONSOLE("Ignoring command line argument: ~p~n", [Other]),
       filter_flags(Config, Rest, Commands)
   end.
 
