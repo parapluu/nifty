@@ -45,6 +45,8 @@ links:
     url: /install
   - title: Tutorials
     url: /tutorial
+  - title: Publications
+    url: /publications
   - title: GitHub
     url: https://github.com/parapluu/nifty
     external: true
