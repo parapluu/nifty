@@ -12,6 +12,6 @@ comments:
 share:
 ---
 We are giving a presentation about Nifty at the <a
-href="http://erlang.org/workshop/2016/">Erlang Workshop 2016</a>.
+href="http://erlang.org/workshop/2016/">Erlang Workshop 2016</a> on September 23rd in Nara (Japan).
 
 You can find the preprint of the paper we present <a href="{{ site.url}}/erlang16-preprint.pdf">here</a> and on the <a href="{{ site.url }}/publications">publications</a> page.
