@@ -8,7 +8,7 @@ share: true
 
 ## Publications
 
-+ A. Löscher and K. Sagonas, "The Nifty Way to Call Hell from Heaven" in <a href="http://erlang.org/workshop/2016/"">*Fifteenth ACM SIGPLAN Erlang Workshop*</a>, Nara, Japan, September 23, 2016 <a href="{{ site.url}}/erlang16-preprint.pdf">[PDF]</a>
++ A. Löscher and K. Sagonas, "The Nifty Way to Call Hell from Heaven" in <a href="http://erlang.org/workshop/2016/">*Fifteenth ACM SIGPLAN Erlang Workshop*</a>, Nara, Japan, September 23, 2016 <a href="{{ site.url}}/erlang16-preprint.pdf">[PDF]</a>
 
 ## Talks
 
