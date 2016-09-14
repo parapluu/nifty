@@ -16,6 +16,6 @@
 			nifty_tags,
 			nifty_types,
 			nifty_utils]},
-		{applications,[kernel,stdlib,compile]}
+		{applications,[kernel,stdlib]}
 	]
 }.

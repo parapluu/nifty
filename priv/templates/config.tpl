@@ -1,7 +1,7 @@
 {erl_opts, [debug_info]}.
 {deps, []}.
 
-{plugins, [{ pc, {git, "git@github.com:blt/port_compiler.git", {branch, "master"}}}]}.
+{plugins, [{ pc, {git, "https://github.com/blt/port_compiler.git", {branch, "master"}}}]}.
 
 {provider_hooks,
  [{pre,[{compile, {pc, compile}},

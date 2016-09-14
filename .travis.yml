@@ -9,8 +9,6 @@ otp_release:
   - 19.0
   - 18.3
   - 18.0
-  - 17.4
-  - 17.0
 env:
   - LLVM_VERSION=6.0.0
   - LLVM_VERSION=5.0.2

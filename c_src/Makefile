@@ -25,7 +25,7 @@ else ifeq ($(UNAME_SYS), Linux)
 endif
 
 # LLVM config
-ifdef LLVM_VERSION
+ifdef NIFTY_LLVM_VERSION
 	NIFTY_LLVM_CONFIG := llvm-config-$(NIFTY_LLVM_VERSION)
 else
 	NIFTY_LLVM_CONFIG := llvm-config

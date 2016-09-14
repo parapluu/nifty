@@ -40,7 +40,6 @@ NIFTY_CPATH := `$(NIFTY_LLVM_CONFIG) --libdir`/clang/`$(NIFTY_LLVM_CONFIG) --ver
 
 CONFIG := $(NIFTY_ROOT_CONFIG) $(LLVM_CONFIG)
 
-
 DIALYZER_APPS = erts kernel stdlib compiler crypto syntax_tools tools
 DIALYZER_FLAGS = -Wunmatched_returns -Wunderspecs
 
