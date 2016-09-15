@@ -100,9 +100,7 @@ load_dependency(Module) ->
 %% Compile
 %%---------------------------------------------------------------------------
 
--type comp_ret() :: 'ok'
-		  | {'error', error_reason()}
-		  | {'warning', {'not_complete', [nonempty_string()]}}.
+-type comp_ret() :: 'ok' | {'error', error_reason()} | {'warning', {'not_complete', [nonempty_string()]}}.
 
 %% @doc same as compile(InterfaceFile, Module, []).
 -spec compile(string(), module()) -> comp_ret().
