@@ -1,4 +1,5 @@
 -module({{module}}_remote).
+
 -export([{% with fn=symbols|fetch_keys %}{% for name in fn %}
 	'{{name}}'/{{ symbols|fetch:name|length|add:-1 }},{% endfor %}{% endwith %}
 	start/0,
@@ -10,10 +11,8 @@
 	new/1
 	]).
 
-
-
 -type addr() :: integer().
--type typename() :: string.
+-type typename() :: string().
 -type ptr() :: {addr(), typename()}.
 -type reason() :: atom().
 -type error() :: {error, reason()}.

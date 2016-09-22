@@ -1,4 +1,5 @@
 -module({{module}}).
+
 -export([{% with fn=symbols|fetch_keys %}{% for name in fn %}
 	'{{name}}'/{{ symbols|fetch:name|length|add:-1 }},{% endfor %}{% endwith %}
 	get_types/0,
@@ -18,10 +19,10 @@
 -on_load(init/0).
 
 -type addr() :: integer().
--type typename() :: string.
+-type typename() :: string().
 -type ptr() :: {addr(), typename()}.
 
-init() -> %% loading code from jiffy
+init() ->
     PrivDir = case code:priv_dir(?MODULE) of
         {error, _} ->
             EbinDir = filename:dirname(code:which(?MODULE)),
@@ -53,7 +54,6 @@ erlptr_to_urecord(_) ->
 -spec urecord_to_erlptr(tuple()) -> ptr().
 urecord_to_erlptr(_) ->
     erlang:nif_error(nif_library_not_loaded).
-
 
 -spec get_types() -> dict:dict().
 get_types() -> ?TYPES.
