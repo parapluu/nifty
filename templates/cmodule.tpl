@@ -60,7 +60,7 @@ typedef uint64_t ptr_t;
  */
 static ErlNifFunc nif_functions[] = {
 	{% with fn=symbols|fetch_keys %}{% for name in fn %}
-	{"{{name}}", {{ symbols|fetch:name|length|add:-1 }}, _nifty_{{name}}},
+	{"{{name}}", {{ symbols|fetch:name|length|add:-1 }}, _nifty_{{name}}, {% if config|config_schedule_dirty %} ERL_NIF_DIRTY_JOB_CPU_BOUND {% endif %}},
 	{% endfor %}{% endwith %}
 	{"erlptr_to_record", 1, erlptr_to_record},
 	{"record_to_erlptr", 1, record_to_erlptr},
