@@ -174,7 +174,7 @@ render(InterfaceFile, ModuleName, CFlags, Options) ->
           Constructors = check_constructors(Unsave_Constructors),
           Unsave_Types = nifty_clangparse:build_type_table(Raw_Types, Constructors),
           Types = check_types(Unsave_Types, Constructors),
-          Unsave_Symbols = filter_symbols(InterfaceFile, Raw_Symbols, FuncLoc),
+          Unsave_Symbols = filter_symbols(InterfaceFile, Raw_Symbols, FuncLoc, Options),
           {Symbols, Lost} = check_symbols(Unsave_Symbols, Types),
           RenderVars = [{"module", ModuleName},
                         {"header", InterfaceFile},
@@ -222,12 +222,35 @@ check_constructors(Constr) ->
   Pred = fun (_, Fields) -> length(Fields) > 0 end,
   dict:filter(Pred, Constr).
 
-filter_symbols(InterfaceFile, Symbols, FuncLoc) ->
-  BaseName = filename:basename(InterfaceFile),
-  Pred = fun (Key, _) ->
-             filename:basename(dict:fetch(Key, FuncLoc)) =:= BaseName
+filter_symbols(InterfaceFile, Symbols, FuncLoc, Options) ->
+  Pred = case get_filter_option(Options) of
+           none ->
+             BaseName = filename:basename(InterfaceFile),
+             fun (Key, _) ->
+                 filename:basename(dict:fetch(Key, FuncLoc)) =:= BaseName
+             end;
+           RegEx ->
+             fun (Key, _) ->
+                 Location = dict:fetch(Key, FuncLoc),
+                 case re:run(Location, RegEx, [{capture, none}]) of
+                   match -> true;
+                   {error, _} -> error(nifty_bad_regex);
+                   _ -> false
+                 end
+             end
          end,
   dict:filter(Pred, Symbols).
+
+get_filter_option(Options) ->
+  case proplists:lookup(nifty, Options) of
+    {nifty, NiftyOptions} ->
+      case proplists:lookup(filter_headers, NiftyOptions) of
+        {filter_headers, RegEx} -> RegEx;
+        _ -> none
+      end;
+    _ -> none
+  end.
+
 
 check_symbols(Symbols, Types) ->
   Pred = fun (_, Args) -> check_args(Args, Types) end,
