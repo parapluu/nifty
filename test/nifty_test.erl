@@ -254,3 +254,26 @@ call_functions_arguments_dirt() ->
 arguments_dirty_test_() ->
   {timeout, 180, [compile_arguments_dirty(),
                   call_functions_arguments_dirt()]}.
+
+compile_function_filter() ->
+  ?_assertEqual(ok, nifty:compile("../test/cfiles/proxy_header.h",
+                                  nt_function_filter,
+                                  nifty_utils:add_sources(
+                                    ["../test/cfiles/proxy_header.c", "../test/cfiles/arguments.c"],
+                                    nifty_utils:add_cflags("-I../test/cfiles",
+                                    [{nifty, [{filter_headers, ".*cfiles.*"}]}])))).
+
+-spec call_functions_function_filter() -> term().
+call_functions_function_filter() ->
+  [?_assertMatch({0, _}, nt_function_filter:fproxy({0, "void *"})),
+   ?_assertEqual('none', proplists:lookup(strcmp, nt_proxy:module_info(exports))),
+   ?_assertEqual(ok, nt_function_filter:f1()),
+    ?_assertEqual(0, nt_function_filter:f3(0,0,0,0)),
+    ?_assertEqual(ok, nt_function_filter:f2()),
+    ?_assertEqual(1, nt_function_filter:f3(0,0,0,0)),
+    ?_assertEqual(10, nt_function_filter:f4(1,2,3,4))].
+
+-spec function_filter_test_() -> term().
+function_filter_test_() ->
+  {timeout, 180, [compile_function_filter(),
+                  call_functions_function_filter()]}.
