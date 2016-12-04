@@ -64,7 +64,7 @@ if [ "$TRAVIS_OTP_RELEASE" = "19.prerelease" ] ; then
 		git checkout $OTP_REF
 		./otp_build autoconf
 		./otp_build configure --enable-dirty-schedulers --prefix=$OTP_DIR
-		make
+		make -j 4
 		make install
 		if [ ! $? -eq 0 ] ; then
 			echo "Error: could not build OTP"
@@ -74,7 +74,7 @@ if [ "$TRAVIS_OTP_RELEASE" = "19.prerelease" ] ; then
 		fi
 		cd $ROOT
 	else
-		echo "OPT 19 Pre-Release Found"
+		echo "OTP 19 Pre-Release Found"
 	fi
 fi
 
