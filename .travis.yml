@@ -13,7 +13,8 @@ env:
   - LLVM_VERSION=3.5.2
   - LLVM_VERSION=3.6.2
   - LLVM_VERSION=3.7.1
-  - LLVM_VERSION=3.8.0
+  - LLVM_VERSION=3.8.1
+  - LLVM_VERSION=3.9.0
 matrix:
   include:
     - language: c
@@ -28,7 +29,7 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-      - g++
+      - g++-4.9
       - libncurses5
       - libncurses5-dev
       - autoconf
