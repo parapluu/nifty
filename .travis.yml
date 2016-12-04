@@ -3,6 +3,7 @@ branches:
     - master
 language: erlang
 otp_release:
+  - 19.1
   - 19.0
   - 18.3
   - 18.0
@@ -27,7 +28,7 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-      - g++-4.9
+      - g++
       - libncurses5
       - libncurses5-dev
       - autoconf
