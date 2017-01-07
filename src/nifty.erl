@@ -139,6 +139,7 @@ compile(InterfaceFile, Module, Options) ->
         ok ->
           ModulePath = filename:absname(filename:join([ModuleName, "ebin"])),
           true = code:add_patha(ModulePath),
+          purge_code(Module),
           case Lost of
             [] -> ok;
             _ -> {warning, {not_complete, Lost}}
@@ -146,6 +147,21 @@ compile(InterfaceFile, Module, Options) ->
         fail ->
           {error, compile}
       end
+  end.
+
+purge_code(Module) ->
+  case code:is_loaded(Module) of
+    false ->
+      false;
+    {file, _Loaded} ->
+      case check_old_code(Module) of
+        false ->
+          code:delete(Module);
+        true ->
+          nop
+      end,
+      code:purge(Module),
+      true
   end.
 
 -type renderout() :: {iolist(), iolist(), iolist(), iolist(), iolist(), iolist()}.
