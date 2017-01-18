@@ -8,14 +8,12 @@ Web page: [http://parapluu.github.io/nifty/]
 
 ## A Simple Example
 
-Let's say we have two C files `mylib.h` and `mylib.c` which we want to use in our Erlang application:
+Let's say we have two C files **mylib.h** and **mylib.c** which we want to use in our Erlang application:
 
 ```C
 /* mylib.h */
 extern int fib(int n);
-```
 
-```C
 /* mylib.c */
 int
 fib(int n) {

@@ -71,7 +71,7 @@ doc:
 
 clean:
 	$(REBAR) clean
-	$(RM) .nifty_plt
+	rm .nifty_plt
 
 mrproper: clean
-	$(RM) -r deps/
+	rm -rf deps/
