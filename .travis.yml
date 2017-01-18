@@ -3,18 +3,18 @@ branches:
     - master
 language: erlang
 otp_release:
-  - 19.1
+  - 19.2
   - 19.0
   - 18.3
   - 18.0
   - 17.4
   - 17.0
 env:
-  - LLVM_VERSION=3.5.2
-  - LLVM_VERSION=3.6.2
-  - LLVM_VERSION=3.7.1
+  - LLVM_VERSION=3.9.1
   - LLVM_VERSION=3.8.1
-  - LLVM_VERSION=3.9.0
+  - LLVM_VERSION=3.7.1
+  - LLVM_VERSION=3.6.2
+  - LLVM_VERSION=3.5.2
 matrix:
   include:
     - language: c
