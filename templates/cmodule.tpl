@@ -66,8 +66,8 @@ static ErlNifFunc nif_functions[] = {
 	{"record_to_erlptr", 1, record_to_erlptr},
 	{"erlptr_to_urecord", 1, erlptr_to_urecord},
 	{"urecord_to_erlptr", 1, urecord_to_erlptr},
-	{"new", 1, new_type_object},
-	{"size_of", 1, size_of}
+	{"__nifty__new", 1, new_type_object},
+	{"__nifty__size_of", 1, size_of}
 	};
 
 int upgrade(ErlNifEnv* env, void** priv_data, void** old_priv_data, ERL_NIF_TERM load_info)
