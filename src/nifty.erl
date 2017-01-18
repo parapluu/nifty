@@ -154,7 +154,7 @@ purge_code(Module) ->
     false ->
       false;
     {file, _Loaded} ->
-      case check_old_code(Module) of
+      case erlang:check_old_code(Module) of
         false ->
           code:delete(Module);
         true ->
