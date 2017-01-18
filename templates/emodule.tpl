@@ -2,15 +2,14 @@
 
 -export([{% with fn=symbols|fetch_keys %}{% for name in fn %}
 	'{{name}}'/{{ symbols|fetch:name|length|add:-1 }},{% endfor %}{% endwith %}
-	get_types/0,
-	get_enum_aliases/0,
 	erlptr_to_record/1,
 	record_to_erlptr/1,
 	erlptr_to_urecord/1,
 	urecord_to_erlptr/1,
-	new/1,
-	size_of/1
-	]).
+	'__nifty__get_types'/0,
+	'__nifty__get_enum_aliases'/0,
+	'__nifty__new'/1,
+	'__nifty__size_of'/1]).
 
 -define(TYPES, {{types}}).
 
@@ -18,9 +17,9 @@
 
 -on_load(init/0).
 
--type addr() :: integer().
+-type addr()     :: integer().
 -type typename() :: string().
--type ptr() :: {addr(), typename()}.
+-type ptr()      :: {addr(), typename()}.
 
 init() ->
     PrivDir = case code:priv_dir(?MODULE) of
@@ -55,16 +54,18 @@ erlptr_to_urecord(_) ->
 urecord_to_erlptr(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
--spec get_types() -> dict:dict().
-get_types() -> ?TYPES.
+-spec '__nifty__get_types'() -> nifty_clangparse:type_table().
+'__nifty__get_types'() ->
+    ?TYPES.
 
--spec get_enum_aliases() -> proplist:proplist().
-get_enum_aliases() -> ?ENUM_ALIASES.
+-spec '__nifty__get_enum_aliases'() -> proplist:proplist().
+'__nifty__get_enum_aliases'() ->
+    ?ENUM_ALIASES.
 
--spec new(typename()) -> term().
-new(_) ->
+-spec '__nifty__new'(typename()) -> term().
+'__nifty__new'(_) ->
     erlang:nif_error(nif_library_not_loaded).
 
--spec size_of(typename()) -> integer() | undef.
-size_of(_) ->
+-spec '__nifty__size_of'(typename()) -> integer() | undef.
+'__nifty__size_of'(_) ->
     erlang:nif_error(nif_library_not_loaded).

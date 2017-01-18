@@ -5,11 +5,10 @@
 	start/0,
 	stop/0,
 	restart/0,
-	get_types/0,
 	erlptr_to_record/1,
 	record_to_erlptr/1,
-	new/1
-	]).
+	'__nifty__get_types'/0,
+	'__nifty__new'/1]).
 
 -type addr() :: integer().
 -type typename() :: string().
@@ -42,10 +41,10 @@ erlptr_to_record(Ptr) ->
 record_to_erlptr(Rec) ->
     nifty_remotecall:call_remote({{module}}, record_to_erlptr, [Rec]).
 
--spec get_types() -> dict:dict() | error().
-get_types() ->
-    nifty_remotecall:call_remote({{module}}, get_types, []).
+-spec '__nifty__get_types'() -> nifty_clangparse:type_table() | error().
+'__nifty__get_types'() ->
+    nifty_remotecall:call_remote({{module}}, '__nifty__get_types', []).
 
--spec new(typename()) -> term().
-new(Type) ->
-    nifty_remotecall:call_remote({{module}}, new, [Type]).
+-spec '__nifty__new'(typename()) -> term().
+'__nifty__new'(Type) ->
+    nifty_remotecall:call_remote({{module}}, '__nifty__new', [Type]).

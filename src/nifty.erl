@@ -1,6 +1,6 @@
 %%% -*- erlang-indent-level: 2 -*-
 %%% -------------------------------------------------------------------
-%%% Copyright (c) 2015-2016, Andreas Löscher <andreas.loscher@it.uu.se>
+%%% Copyright (c) 2015-2017, Andreas Löscher <andreas.loscher@it.uu.se>
 %%%                     and  Konstantinos Sagonas <kostis@it.uu.se>
 %%% All rights reserved.
 %%%
@@ -139,7 +139,7 @@ compile(InterfaceFile, Module, Options) ->
         ok ->
           ModulePath = filename:absname(filename:join([ModuleName, "ebin"])),
           true = code:add_patha(ModulePath),
-          case Lost of
+	  case Lost of
             [] -> ok;
             _ -> {warning, {not_complete, Lost}}
           end;
@@ -482,7 +482,7 @@ norm_sources(S) ->
 %%---------------------------------------------------------------------------
 
 %% @doc Returns nifty's base types as a dict
--spec get_types() -> dict:dict().
+-spec get_types() -> nifty_clangparse:type_table().
 get_types() ->
   %% builtin types:
   %%  int types ( [(short|long)] [(long|short)] int; [(signed|unsigned)] char )
@@ -523,8 +523,11 @@ get_types() ->
      {"char *",{base,["*","char","signed","none"]}}
     ]).
 
+get_types(?MODULE) -> get_types();
+get_types(Module) -> Module:'__nifty__get_types'().
+
 get_derefed_type(Type, Module) ->
-  Types = Module:get_types(),
+  Types = get_types(Module),
   case dict:is_key(Type, Types) of
     true ->
       ResType = nifty_types:resolve_type(Type, Types),
@@ -603,7 +606,7 @@ dereference(Pointer) ->
 %%     end.
 
 build_type(Module, Type, Address) ->
-  Types = Module:get_types(),
+  Types = get_types(Module),
   case dict:is_key(Type, Types) of
     true ->
       RType = nifty_types:resolve_type(Type, Types),
@@ -747,9 +750,9 @@ size_of(Type) ->
         [ModuleName, TypeName] ->
           Mod = list_to_atom(ModuleName),
           case {module, Mod} =:= code:ensure_loaded(Mod) andalso
-            proplists:is_defined(size_of, Mod:module_info(exports)) of
+            lists:member({'__nifty__size_of',1}, Mod:module_info(exports)) of
             true ->
-              Mod:size_of(TypeName);
+              Mod:'__nifty__size_of'(TypeName);
             false ->
               undef
           end;
@@ -764,9 +767,9 @@ enum_value(Module, Value) when is_atom(Value) ->
   enum_value(Module, atom_to_list(Value));
 enum_value(Module, Value) ->
   case {module, Module} =:= code:ensure_loaded(Module) andalso
-    proplists:is_defined(get_enum_aliases, Module:module_info(exports)) of
+    lists:member({'__nifty__get_enum_aliases',0}, Module:module_info(exports)) of
     true ->
-      case proplists:lookup(Value, Module:get_enum_aliases()) of
+      case proplists:lookup(Value, Module:'__nifty__get_enum_aliases'()) of
         {Value, IntValue} -> IntValue;
         _ -> undef
       end;
@@ -778,7 +781,7 @@ enum_value(Module, Value) ->
 %% @doc Returns a pointer to a memory area that is the size of a pointer
 -spec pointer() -> ptr().
 pointer() ->
-  {_, Size} = proplists:get_value("arch", nifty:get_config()),
+  {_, Size} = proplists:get_value("arch", get_config()),
   mem_alloc(Size).
 
 referred_type(Type) ->
@@ -811,7 +814,7 @@ pointer_of(Value, Type) ->
       {Addr, VType} = Value,
       case VType =:= Type of
         true ->
-          {_, Size} = proplists:get_value("arch", nifty:get_config()),
+          {_, Size} = proplists:get_value("arch", get_config()),
           {NAddr, _} = int_constr(Addr, Size),
           {NAddr, Type++"*"};
         false ->
@@ -832,7 +835,7 @@ pointer_of(Value, Type) ->
               %% no base type, try the module
               %% resolve type and try again
               Module = list_to_atom(ModuleName),
-              Types = Module:get_types(),
+              Types = Module:'__nifty__get_types'(),
               case nifty_types:resolve_type(T, Types) of
                 undef ->
                   %% can (right now) only be a struct or a union
@@ -871,17 +874,18 @@ builtin_pointer_of(Value, Type) ->
           float_ref(Value);
         {base, ["double", _, _]}->
           double_ref(Value);
-        _ -> case size_of(Type) of
-               undef ->
-                 undef;
-               Size ->
-                 case is_integer(Value) of
-                   true ->
-                     as_type(int_constr(Value, Size), "nifty."++Type++" *");
-                   false ->
-                     undef
-                 end
-             end
+        _ ->
+	  case size_of(Type) of
+	    undef ->
+	      undef;
+	    Size ->
+	      case is_integer(Value) of
+		true ->
+		  as_type(int_constr(Value, Size), "nifty."++Type++" *");
+		false ->
+		  undef
+	      end
+	  end
       end;
     false ->
       undef
@@ -969,8 +973,7 @@ as_type({Address, _} = Ptr, Type) ->
                _ ->
                  []
              end,
-  Types = get_types(),
-  case dict:is_key(BaseType, Types) of
+  case dict:is_key(BaseType, get_types()) of
     true ->
       {Address, "nifty."++Type};
     false ->
@@ -981,16 +984,17 @@ as_type({Address, _} = Ptr, Type) ->
         [ModuleName, TypeName] ->
           Mod = list_to_atom(ModuleName),
           case {module, Mod} =:= code:ensure_loaded(Mod) andalso
-            proplists:is_defined(get_types, Mod:module_info(exports)) of
+            lists:member({'__nifty__get_types',0}, Mod:module_info(exports)) of
             true ->
               %% resolve and build but we are looking for the basetype
               %% if the base type is defined or basetype * we are allowing
               %% casting
               [RBUType] = string:tokens(TypeName, "*"),
               RBType = string:strip(RBUType),
-              case nifty_types:resolve_type(RBType, Mod:get_types()) of
+	      ModTypes = Mod:'__nifty__get_types'(),
+              case nifty_types:resolve_type(RBType, ModTypes) of
                 undef ->
-                  case nifty_types:resolve_type(RBType++" *", Mod:get_types()) of
+                  case nifty_types:resolve_type(RBType++" *", ModTypes) of
                     undef ->
                       %% unknown type
                       undef;
