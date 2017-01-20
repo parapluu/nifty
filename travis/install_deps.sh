@@ -2,7 +2,14 @@
 mkdir -p cache
 
 # LLVM
-LLVM_URL="http://llvm.org/releases/$LLVM_VERSION/clang+llvm-$LLVM_VERSION-x86_64-linux-gnu-ubuntu-14.04.tar.xz"
+case $LLVM_VERSION in
+    "3.9.1")
+	LLVM_URL="http://llvm.org/releases/$LLVM_VERSION/clang+llvm-$LLVM_VERSION-x86_64-linux-gnu-ubuntu-16.04.tar.xz"
+    ;;
+    ?*)
+	LLVM_URL="http://llvm.org/releases/$LLVM_VERSION/clang+llvm-$LLVM_VERSION-x86_64-linux-gnu-ubuntu-14.04.tar.xz"
+    ;;
+esac
 LLVM_DEP="cache/$LLVM_VERSION.tar.xz"
 LLVM_DIR="cache/clang+llvm-$LLVM_VERSION"
 
@@ -33,7 +40,10 @@ if [ ! -d $LLVM_DIR ] ; then
 	fi
 	case $LLVM_VERSION in
 		"3.5.2")
-			mv cache/clang+llvm-3.5.2-x86_64-linux-gnu cache/clang+llvm-3.5.2
+			mv cache/clang+llvm-$LLVM_VERSION-x86_64-linux-gnu cache/clang+llvm-$LLVM_VERSION
+		;;
+		"3.9.1")
+			mv cache/clang+llvm-$LLVM_VERSION-x86_64-linux-gnu-ubuntu-16.04 cache/clang+llvm-$LLVM_VERSION
 		;;
 		?*)
 			mv cache/clang+llvm-$LLVM_VERSION-x86_64-linux-gnu-ubuntu-14.04 cache/clang+llvm-$LLVM_VERSION
@@ -44,12 +54,12 @@ else
 fi
 
 # Erlang OTP from GIT
-if [ "$TRAVIS_OTP_RELEASE" = "19.prerelease" ] ; then
-	echo "OTP 19  ($TRAVIS_OTP_RELEASE)"
+if [ "$TRAVIS_OTP_RELEASE" = "19.2.dirtyschedulers" ] ; then
+	echo "OTP 19.2  ($TRAVIS_OTP_RELEASE)"
 	OTP_SRC="cache/OTP_19_SRC"
 	OTP_DIR="$PWD/cache/OTP_19_INSTALL"
 	OTP_GIT="https://github.com/erlang/otp.git"
-	OTP_REF="2ce17d4"
+	OTP_REF="3473ecd"
 	if [ ! -d $OTP_DIR ] ; then
 		rm -rf $OTP_SRC || true
 		git clone $OTP_GIT -b master $OTP_SRC
@@ -74,7 +84,7 @@ if [ "$TRAVIS_OTP_RELEASE" = "19.prerelease" ] ; then
 		fi
 		cd $ROOT
 	else
-		echo "OTP 19 Pre-Release Found"
+		echo "OTP 19.2 Found"
 	fi
 fi
 
