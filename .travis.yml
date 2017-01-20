@@ -41,7 +41,6 @@ before_cache:
 before_script:
   - ./travis/install_deps.sh
   - make get-deps
-  - ./travis/fix_deps.sh
   - export LLVM_DIR=$PWD/cache/clang+llvm-$LLVM_VERSION
   - export PATH=$LLVM_DIR/bin:$PATH
   - export LD_LIBRARY_PATH=$LLVM_DIR/lib
