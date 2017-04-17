@@ -13,6 +13,7 @@
 -export([start/0,
          stop/0,
          restart/0,
+         slave_server/1,
          call_remote/3]).
 
 
@@ -25,12 +26,31 @@ start() ->
   case net_kernel:start([mastername(), shortnames]) of
     {ok, Pid} ->
       Pid;
+    {error, {{already_started, Pid},_}} ->
+      Pid;
     {error, {already_started, Pid}} ->
       Pid
   end,
+  F =fun(Str,Binding) ->
+    {ok,Ts,_} = erl_scan:string(Str),
+    Ts1 = case lists:reverse(Ts) of
+              [{dot,_}|_] -> Ts;
+              TsR -> lists:reverse([{dot,1} | TsR])
+          end,
+    {ok,Expr} = erl_parse:parse_exprs(Ts1),
+    erl_eval:exprs(Expr, Binding) end,
+  {_,FUN,_} = F("fun() ->
+      receive
+        stop ->
+          ok;
+        {P, Paths} ->
+          lists:foreach(fun code:add_patha/1, Paths),
+          nifty_remotecall:slave_server(P)
+      end
+  end",[]),
   case slave:start_link(Host, slavename()) of
     {ok, Node} ->
-      SlavePid = spawn(Node, fun slave_server/0),
+      SlavePid = spawn(Node, FUN),
       SlavePid ! {self(), code:get_path()},
       undefined = put(slave_pid, SlavePid),
       ok;
@@ -58,15 +78,6 @@ stop() ->
 restart() ->
   stop(),
   start().
-
-slave_server() ->
-  receive
-    stop ->
-      ok;
-    {P, Paths} ->
-      lists:foreach(fun code:add_patha/1, Paths),
-      slave_server(P)
-  end.
 
 slave_server(P) ->
   receive
