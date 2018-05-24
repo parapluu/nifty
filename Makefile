@@ -32,6 +32,8 @@ else
 	LLVM_CONFIG := NIFTY_LLVM_CONFIG=llvm-config
 endif
 
+NIFTY_CPATH=`$(NIFTY_LLVM_CONFIG) --libdir`/clang/`$(NIFTY_LLVM_CONFIG) --version`/include/:$(CPATH)
+
 CONFIG := $(NIFTY_ROOT_CONFIG) $(LLVM_CONFIG)
 
 
@@ -60,7 +62,7 @@ fdialyze: compile .nifty_plt
 	-dialyzer --build_plt --output_plt $@ --apps $(DIALYZER_APPS) deps/*/ebin
 
 tests: compile
-	$(CONFIG) ERL_LIBS=$(ERL_INCLUDE) $(REBAR) clean compile eunit skip_deps=true
+	CPATH=$(NIFTY_CPATH) $(CONFIG) ERL_LIBS=$(ERL_INCLUDE) $(REBAR) clean compile eunit skip_deps=true
 
 rebar_regression: compile
 	erl -noshell -pa `pwd`/ebin -pa `pwd`/deps/*/ebin \
