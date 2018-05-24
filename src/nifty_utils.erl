@@ -64,7 +64,7 @@ store_nifspec([H|T], Spec, Acc) ->
   end.
 
 %% @doc Returns an empty configuration
--spec new_config() -> [].
+-spec new_config() -> config().
 new_config() -> [].
 
 %% @doc Adds the sources <code>S</code> to the NIF module
