@@ -11,6 +11,8 @@ do
 		;;
 		"-Wdelete-non-virtual-dtor")
 		;;
+		"-Wstring-conversion")
+		;;
 		-D*)
 		;;
 		?*)
