@@ -12,6 +12,8 @@ do
 		"-Wdelete-non-virtual-dtor")
 		;;
 		"-Wstring-conversion")
+                ;;
+                "-Werror=unguarded-availability-new")
 		;;
 		-D*)
 		;;
