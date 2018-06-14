@@ -72,6 +72,8 @@ clean: rebar3
 mrproper: clean
 	$(RM) -r _build/
 	$(RM) -rf nt_* dereference_regression/
+	$(RM) rebar3
+	$(RM) rebar.lock
 
 shell: rebar3
 	$(REBAR) shell
