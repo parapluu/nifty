@@ -47,7 +47,7 @@ default: fast
 
 fast: compile
 
-all: default tests dialyze doc
+all: default tests
 
 get-deps: rebar3
 	$(REBAR) get-deps
@@ -56,27 +56,18 @@ get-deps: rebar3
 compile: get-deps rebar3
 	$(CONFIG) $(REBAR) compile
 
-dialyze: compile .nifty_plt
-	dialyzer --plt .nifty_plt $(DIALYZER_FLAGS) _build/default/lib/nifty/ebin/
-
-fdialyze: compile .nifty_plt
-	dialyzer -n -nn --plt .nifty_plt $(DIALYZER_FLAGS) $(BEAMS)
-
-.nifty_plt:
-	-dialyzer --build_plt --output_plt $@ --apps $(DIALYZER_APPS)
-
-# dialyze: rebar3
-# 	$(REBAR) dialyzer
+dialyze: rebar3
+	$(REBAR) dialyzer
 
 tests: compile rebar3
 	CC=$(CLANG) \
 	CPATH=$(NIFTY_CPATH) \
 	$(CONFIG) \
 	ERL_LIBS=$(ERL_INCLUDE) \
-	$(REBAR) eunit
+	$(REBAR) eunit skip_deps=true
 
 doc: rebar3
-	$(REBAR) edoc
+	$(REBAR) doc skip_deps=true
 
 clean: rebar3
 	$(REBAR) clean

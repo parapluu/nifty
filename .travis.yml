@@ -29,8 +29,6 @@ addons:
       - libssl-dev
 script: "make all"
 sudo: false
-before_cache:
-  - ./travis/store_plt.sh
 before_script:
   - ./travis/install_deps.sh
   - make get-deps
