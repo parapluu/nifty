@@ -47,7 +47,7 @@ default: fast
 
 fast: compile
 
-all: default tests
+all: default tests dialyze doc
 
 get-deps: rebar3
 	$(REBAR) get-deps
@@ -57,17 +57,20 @@ compile: get-deps rebar3
 	$(CONFIG) $(REBAR) compile
 
 dialyze: rebar3
+	sed -i "s/^{provider/%% {provider/g" rebar.config
+	rm _build/default/lib/nifty/ebin/*template.beam
 	$(REBAR) dialyzer
+	sed -i "s/^%% {provider/{provider/g" rebar.config
 
 tests: compile rebar3
 	CC=$(CLANG) \
 	CPATH=$(NIFTY_CPATH) \
 	$(CONFIG) \
 	ERL_LIBS=$(ERL_INCLUDE) \
-	$(REBAR) eunit skip_deps=true
+	$(REBAR) eunit
 
 doc: rebar3
-	$(REBAR) doc skip_deps=true
+	$(REBAR) edoc
 
 clean: rebar3
 	$(REBAR) clean
@@ -77,6 +80,7 @@ mrproper: clean
 	$(RM) -rf nt_* dereference_regression/
 	$(RM) rebar3
 	$(RM) rebar.lock
+	$(RM) doc
 
 shell: rebar3
 	$(REBAR) shell
