@@ -40,11 +40,14 @@ NIFTY_CPATH := `$(NIFTY_LLVM_CONFIG) --libdir`/clang/`$(NIFTY_LLVM_CONFIG) --ver
 
 CONFIG := $(NIFTY_ROOT_CONFIG) $(LLVM_CONFIG)
 
+DIALYZER_APPS = erts kernel stdlib compiler crypto syntax_tools tools
+DIALYZER_FLAGS = -Wunmatched_returns -Wunderspecs
+
 default: fast
 
 fast: compile
 
-all: default tests doc
+all: default tests dialyze doc
 
 get-deps: rebar3
 	$(REBAR) get-deps
@@ -53,8 +56,17 @@ get-deps: rebar3
 compile: get-deps rebar3
 	$(CONFIG) $(REBAR) compile
 
-dialyze: rebar3
-	$(REBAR) dialyzer
+dialyze: compile .nifty_plt
+	dialyzer --plt .nifty_plt $(DIALYZER_FLAGS) _build/default/lib/nifty/ebin/
+
+fdialyze: compile .nifty_plt
+	dialyzer -n -nn --plt .nifty_plt $(DIALYZER_FLAGS) $(BEAMS)
+
+.nifty_plt:
+	-dialyzer --build_plt --output_plt $@ --apps $(DIALYZER_APPS)
+
+# dialyze: rebar3
+# 	$(REBAR) dialyzer
 
 tests: compile rebar3
 	CC=$(CLANG) \
