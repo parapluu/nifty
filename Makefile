@@ -16,7 +16,7 @@ BEAMS = ebin$(SEP)nifty_clangparse.beam \
 	ebin$(SEP)nifty_types.beam \
 	ebin$(SEP)nifty_utils.beam
 
-REBAR := .$(SEP)rebar
+REBAR := .$(SEP)rebar3
 
 # nifty_root
 ifndef NIFTY_ROOT_CONFIG
@@ -46,12 +46,12 @@ DIALYZER_FLAGS = -Wunmatched_returns -Wunderspecs
 
 default: fast
 
-fast: get-deps compile
+fast: compile
 
 all: default tests dialyze
 
-get-deps:
-	$(REBAR) get-deps
+# get-deps:
+# 	$(REBAR) get-deps
 
 compile:
 	$(CONFIG) $(REBAR) compile
@@ -84,4 +84,4 @@ clean:
 	$(RM) .nifty_plt
 
 mrproper: clean
-	$(RM) -r deps/
+	$(RM) -r _build/

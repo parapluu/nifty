@@ -3,11 +3,11 @@
 	nifty,
 	[
 		{description,
-			"NIF interface generator"}, 
+			"NIF interface generator"},
 		{vsn,
 			"0.1"},
 		{modules, [
-			nifty, 
+			nifty,
 			nifty_clangparse,
 			nifty_filters,
 			nifty_rebar,

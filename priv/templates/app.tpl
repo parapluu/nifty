@@ -2,6 +2,8 @@
 	application,
 	{{module}},
 	[
+		{vsn,
+			"1.0"},
 		{description,
 			"Nifty interface of {{module}}"},
 		{modules, [
