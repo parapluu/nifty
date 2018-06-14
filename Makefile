@@ -49,10 +49,11 @@ fast: compile
 
 all: default tests dialyze
 
-# get-deps:
-# 	$(REBAR) get-deps
+get-deps:
+	$(REBAR) get-deps
+	travis/fix_exports.sh
 
-compile:
+compile: get-deps
 	$(CONFIG) $(REBAR) compile
 
 dialyze: compile .nifty_plt
@@ -69,7 +70,7 @@ tests: compile
 	CPATH=$(NIFTY_CPATH) \
 	$(CONFIG) \
 	ERL_LIBS=$(ERL_INCLUDE) \
-	$(REBAR) clean compile eunit skip_deps=true
+	$(REBAR) eunit skip_deps=true
 
 rebar_regression: compile
 	erl -noshell -pa `pwd`/ebin -pa `pwd`/deps/*/ebin \
@@ -84,3 +85,7 @@ clean:
 
 mrproper: clean
 	$(RM) -r _build/
+	$(RM) -rf nt_* dereference_regression/
+
+shell:
+	$(REBAR) shell

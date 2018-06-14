@@ -100,10 +100,10 @@ compile_structs() ->
 
 -spec  call_functions_structs() -> ok.
 call_functions_structs() ->
-  [?_assertMatch({_,_,_,_,_}, nifty:dereference(nt_structs:record_to_erlptr(nt_structs:new("struct s1")))),
-   ?_assertMatch({_,_,_}, nifty:dereference(nt_structs:record_to_erlptr(nt_structs:new("struct s2")))),
-   ?_assertMatch({_,_,_}, nifty:dereference(nt_structs:record_to_erlptr(nt_structs:new("struct s3")))),
-   ?_assertMatch({_,_,_}, nifty:dereference(nt_structs:record_to_erlptr(nt_structs:new("struct s4")))),
+  [?_assertMatch({_,_,_,_,_}, nifty:dereference(nt_structs:record_to_erlptr(nt_structs:'__nifty__new'("struct s1")))),
+   ?_assertMatch({_,_,_}, nifty:dereference(nt_structs:record_to_erlptr(nt_structs:'__nifty__new'("struct s2")))),
+   ?_assertMatch({_,_,_}, nifty:dereference(nt_structs:record_to_erlptr(nt_structs:'__nifty__new'("struct s3")))),
+   ?_assertMatch({_,_,_}, nifty:dereference(nt_structs:record_to_erlptr(nt_structs:'__nifty__new'("struct s4")))),
    ?_assertEqual({'struct s4', 0.5, 10}, nifty:dereference(nifty:pointer_of({'struct s4', 0.5, 10}, "nt_structs.struct s4")))].
 
 -spec structs_test_() -> term().
