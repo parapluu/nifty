@@ -27,7 +27,7 @@ addons:
       - libncurses5-dev
       - autoconf
       - libssl-dev
-script: "make all rebar_regression"
+script: "make all"
 sudo: false
 before_cache:
   - ./travis/store_plt.sh
