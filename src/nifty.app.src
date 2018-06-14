@@ -17,7 +17,7 @@
 			nifty_types,
 			nifty_utils]},
 		{applications,[kernel,stdlib]},
-		{maintainers, ["Andreas Löscher"]},
+		{maintainers, ["Andreas Loscher"]},
 	  {licenses, ["BSD-2-Clause"]},
 	  {links, [{"Github", "https://github.com/parapluu/nifty"}, {"Website", "http://parapluu.github.io/nifty/"}]}
 	]
