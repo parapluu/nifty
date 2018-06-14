@@ -49,11 +49,11 @@ fast: compile
 
 all: default tests dialyze
 
-get-deps:
+get-deps: rebar3
 	$(REBAR) get-deps
 	travis/fix_exports.sh
 
-compile: get-deps
+compile: get-deps rebar3
 	$(CONFIG) $(REBAR) compile
 
 dialyze: compile .nifty_plt
@@ -65,21 +65,17 @@ fdialyze: compile .nifty_plt
 .nifty_plt:
 	-dialyzer --build_plt --output_plt $@ --apps $(DIALYZER_APPS) deps/*/ebin
 
-tests: compile
+tests: compile rebar3
 	CC=$(CLANG) \
 	CPATH=$(NIFTY_CPATH) \
 	$(CONFIG) \
 	ERL_LIBS=$(ERL_INCLUDE) \
 	$(REBAR) eunit skip_deps=true
 
-rebar_regression: compile
-	erl -noshell -pa `pwd`/ebin -pa `pwd`/deps/*/ebin \
-	-eval 'erlang:halt(try nifty:compile("test/cfiles/types.h",foo,[]),0 catch _:_ -> io:format("~p~n",[erlang:get_stacktrace()]),1 end)'
-
-doc:
+doc: rebar3
 	$(REBAR) doc skip_deps=true
 
-clean:
+clean: rebar3
 	$(REBAR) clean
 	$(RM) .nifty_plt
 
@@ -87,5 +83,9 @@ mrproper: clean
 	$(RM) -r _build/
 	$(RM) -rf nt_* dereference_regression/
 
-shell:
+shell: rebar3
 	$(REBAR) shell
+
+rebar3:
+	wget https://s3.amazonaws.com/rebar3/rebar3
+	chmod +x rebar3

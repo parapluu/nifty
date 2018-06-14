@@ -5,7 +5,7 @@
 		{description,
 			"NIF interface generator"},
 		{vsn,
-			"0.1"},
+			"0.9"},
 		{modules, [
 			nifty,
 			nifty_clangparse,
@@ -16,6 +16,9 @@
 			nifty_tags,
 			nifty_types,
 			nifty_utils]},
-		{applications,[kernel,stdlib]}
+		{applications,[kernel,stdlib]},
+		{maintainers, ["Andreas Löscher"]},
+	  {licenses, ["BSD-2-Clause"]},
+	  {links, [{"Github", "https://github.com/parapluu/nifty"}, {"Website", "http://parapluu.github.io/nifty/"}]}
 	]
 }.
