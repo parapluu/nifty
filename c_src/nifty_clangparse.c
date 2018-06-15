@@ -433,8 +433,7 @@ static ErlNifFunc nif_funcs[] = {
   {"cparse", 1, parse_impl},
 };
 
-static int
-upgrade(ErlNifEnv* env, void** priv_data, void** old_priv_data, ERL_NIF_TERM load_info)
+int upgrade(ErlNifEnv* env, void** priv_data, void** old_priv_data, ERL_NIF_TERM load_info)
 {
   return 0;
 }

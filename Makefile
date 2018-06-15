@@ -16,7 +16,7 @@ BEAMS = ebin$(SEP)nifty_clangparse.beam \
 	ebin$(SEP)nifty_types.beam \
 	ebin$(SEP)nifty_utils.beam
 
-REBAR := .$(SEP)rebar3
+REBAR := .$(SEP)rebar
 
 # nifty_root
 ifndef NIFTY_ROOT_CONFIG
@@ -40,51 +40,48 @@ NIFTY_CPATH := `$(NIFTY_LLVM_CONFIG) --libdir`/clang/`$(NIFTY_LLVM_CONFIG) --ver
 
 CONFIG := $(NIFTY_ROOT_CONFIG) $(LLVM_CONFIG)
 
+
 DIALYZER_APPS = erts kernel stdlib compiler crypto syntax_tools tools
 DIALYZER_FLAGS = -Wunmatched_returns -Wunderspecs
 
 default: fast
 
-fast: compile
+fast: get-deps compile
 
-all: default tests dialyze doc
+all: default tests dialyze
 
-get-deps: rebar3
+get-deps:
 	$(REBAR) get-deps
-	travis/fix_exports.sh
 
-compile: get-deps rebar3
+compile:
 	$(CONFIG) $(REBAR) compile
 
-dialyze: rebar3
-	sed -i "s/^{provider/%% {provider/g" rebar.config
-	rm _build/default/lib/nifty/ebin/*template.beam
-	$(REBAR) dialyzer
-	sed -i "s/^%% {provider/{provider/g" rebar.config
+dialyze: compile .nifty_plt
+	dialyzer --plt .nifty_plt $(DIALYZER_FLAGS) ebin
 
-tests: compile rebar3
+fdialyze: compile .nifty_plt
+	dialyzer -n -nn --plt .nifty_plt $(DIALYZER_FLAGS) $(BEAMS)
+
+.nifty_plt:
+	-dialyzer --build_plt --output_plt $@ --apps $(DIALYZER_APPS) deps/*/ebin
+
+tests: compile
 	CC=$(CLANG) \
 	CPATH=$(NIFTY_CPATH) \
 	$(CONFIG) \
 	ERL_LIBS=$(ERL_INCLUDE) \
-	$(REBAR) eunit
+	$(REBAR) clean compile eunit skip_deps=true
 
-doc: rebar3
-	$(REBAR) edoc
+rebar_regression: compile
+	erl -noshell -pa `pwd`/ebin -pa `pwd`/deps/*/ebin \
+	-eval 'erlang:halt(try nifty:compile("test/cfiles/types.h",foo,[]),0 catch _:_ -> io:format("~p~n",[erlang:get_stacktrace()]),1 end)'
 
-clean: rebar3
+doc:
+	$(REBAR) doc skip_deps=true
+
+clean:
 	$(REBAR) clean
+	$(RM) .nifty_plt
 
 mrproper: clean
-	$(RM) -r _build/
-	$(RM) -rf nt_* dereference_regression/
-	$(RM) rebar3
-	$(RM) rebar.lock
-	$(RM) doc
-
-shell: rebar3
-	$(REBAR) shell
-
-rebar3:
-	wget https://s3.amazonaws.com/rebar3/rebar3
-	chmod +x rebar3
+	$(RM) -r deps/
