@@ -57,10 +57,7 @@ compile: get-deps rebar3
 	$(CONFIG) $(REBAR) compile
 
 dialyze: rebar3
-	sed -i "s/^{provider/%% {provider/g" rebar.config
-	rm _build/default/lib/nifty/ebin/*template.beam
 	$(REBAR) dialyzer
-	sed -i "s/^%% {provider/{provider/g" rebar.config
 
 tests: compile rebar3
 	CC=$(CLANG) \

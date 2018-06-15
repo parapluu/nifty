@@ -1,6 +1,6 @@
 %%% -------------------------------------------------------------------
-%%% Copyright (c) 2015, Andreas Löscher <andreas.loscher@it.uu.se> and
-%%%                     Konstantinos Sagonas <kostis@it.uu.se>
+%%% Copyright (c) 2015-2018, Andreas Löscher <andreas.loscher@it.uu.se>
+%%%                      and Konstantinos Sagonas <kostis@it.uu.se>
 %%% All rights reserved.
 %%%
 %%% This file is distributed under the Simplified BSD License.
@@ -8,15 +8,13 @@
 %%% -------------------------------------------------------------------
 
 -module(nifty_test).
--compile(export_all).
 
 -include_lib("eunit/include/eunit.hrl").
 
--define(TIMEOUT, 600).
-
-%% supress warning for test/0
+%% supress warning for test/0, a generated function automatically exported
 -spec test() -> term().
 
+-define(TIMEOUT, 600).
 -define(OPTS(F), [{port_specs, [{".*", "$NIF", [F]}]}]).
 
 -spec compile_builtin() -> ok.
