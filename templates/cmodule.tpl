@@ -42,18 +42,18 @@ typedef uint64_t ptr_t;
  * forward declarations
  */
 {% with prototypes=1 %}
-{% include "lib/structures.tpl" %}
+{% include "structures.tpl" %}
 {% endwith %}
 
 /*
  * Structs
  */
-{% include "lib/structures.tpl" %}
+{% include "structures.tpl" %}
 
 /*
  * Build Function Definitions
  */
-{% include "lib/function.tpl" %}
+{% include "function.tpl" %}
 
 /*
  * Function definitions for ErLang

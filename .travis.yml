@@ -9,6 +9,8 @@ otp_release:
   - 19.0
   - 18.3
   - 18.0
+  - 17.4
+  - 17.0
 env:
   - LLVM_VERSION=6.0.0
   - LLVM_VERSION=5.0.2
@@ -27,8 +29,10 @@ addons:
       - libncurses5-dev
       - autoconf
       - libssl-dev
-script: "make all"
+script: "make all rebar_regression"
 sudo: false
+before_cache:
+  - ./travis/store_plt.sh
 before_script:
   - ./travis/install_deps.sh
   - make get-deps
