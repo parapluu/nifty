@@ -78,7 +78,7 @@ init() -> %% loading code from jiffy
   load_dependencies().
 
 load_dependencies() ->
-  ok = load_dependency(rebar),
+  ok = load_dependency(rebar3),
   ok = load_dependency(erlydtl).
 
 load_dependency(Module) ->
@@ -100,9 +100,7 @@ load_dependency(Module) ->
 %% Compile
 %%---------------------------------------------------------------------------
 
--type comp_ret() :: 'ok'
-		  | {'error', error_reason()}
-		  | {'warning', {'not_complete', [nonempty_string()]}}.
+-type comp_ret() :: 'ok' | {'error', error_reason()} | {'warning', {'not_complete', [nonempty_string()]}}.
 
 %% @doc same as compile(InterfaceFile, Module, []).
 -spec compile(string(), module()) -> comp_ret().
@@ -124,14 +122,12 @@ compile(InterfaceFile, Module) ->
 
 -spec compile(string(), module(), options()) -> comp_ret().
 compile(InterfaceFile, Module, Options) ->
-  nifty_rebar:init(),
   ModuleName = atom_to_list(Module),
   os:putenv("NIF", libname(ModuleName)),
   {ok, NiftyRoot} = file:get_cwd(),
   os:putenv("NIFTY_ROOT", NiftyRoot),
   UCO = update_compile_options(InterfaceFile, ModuleName, Options),
-  Env = build_env(ModuleName, UCO),
-  CFlags = string:tokens(proplists:get_value("CFLAGS", Env, ""), " "),
+  CFlags = build_cflags(ModuleName, UCO),
   case render(InterfaceFile, ModuleName, CFlags, UCO) of
     {error, _} = E ->
       E;
@@ -139,7 +135,7 @@ compile(InterfaceFile, Module, Options) ->
       ok = store_files(InterfaceFile, ModuleName, UCO, Output),
       case compile_module(ModuleName) of
         ok ->
-          ModulePath = filename:absname(filename:join([ModuleName, "ebin"])),
+          ModulePath = filename:absname(filename:join([ModuleName, "_build", "default", "lib", ModuleName, "ebin"])),
           true = code:add_patha(ModulePath),
 	  case Lost of
             [] -> ok;
@@ -185,12 +181,12 @@ render(InterfaceFile, ModuleName, CFlags, Options) ->
                         {"symbols", Symbols},
                         {"constructors", Constructors},
                         {"none", none}],
-          COutput = render_with_errors(nifty_c_template, RenderVars),
-          ErlOutput = render_with_errors(nifty_erl_template, RenderVars),
-          SaveErlOutput = render_with_errors(nifty_save_erl_template, RenderVars),
-          HrlOutput = render_with_errors( nifty_hrl_template, RenderVars),
-          AppOutput = render_with_errors(nifty_app_template, RenderVars),
-          ConfigOutput = render_with_errors(nifty_config_template, RenderVars),
+          COutput = render_with_errors(cmodule_nifty_template, RenderVars),
+          ErlOutput = render_with_errors(emodule_nifty_template, RenderVars),
+          SaveErlOutput = render_with_errors(save_emodule_nifty_template, RenderVars),
+          HrlOutput = render_with_errors( hrlmodule_nifty_template, RenderVars),
+          AppOutput = render_with_errors(app_nifty_template, RenderVars),
+          ConfigOutput = render_with_errors(config_nifty_template, RenderVars),
           {{ErlOutput, SaveErlOutput, HrlOutput, COutput, AppOutput, ConfigOutput}, Lost}
       end
   end.
@@ -277,19 +273,12 @@ check_args([H|T], Types) ->
 
 store_files(InterfaceFile, ModuleName, Options, RenderOutput) ->
   {ok, Path} = file:get_cwd(),
-  store_files(InterfaceFile, ModuleName, Options, RenderOutput, Path).
+  {ok, _} = rebar3:run(["new", "lib", ModuleName]),
+  ok = file:set_cwd(filename:join([Path, ModuleName])),
+  store_files(InterfaceFile, ModuleName, Options, RenderOutput, Path),
+  ok = file:set_cwd(Path).
 
 store_files(_, ModuleName, _, RenderOutput, Path) ->
-  ok = case file:make_dir(filename:join([Path, ModuleName])) of
-         ok -> ok;
-         {error,eexist} -> ok;
-         _ -> fail
-       end,
-  ok = case file:make_dir(filename:join([Path, ModuleName, "src"])) of
-         ok -> ok;
-         {error,eexist} -> ok;
-         _ -> fail
-       end,
   ok = case file:make_dir(filename:join([Path, ModuleName, "include"])) of
          ok -> ok;
          {error,eexist} -> ok;
@@ -300,7 +289,7 @@ store_files(_, ModuleName, _, RenderOutput, Path) ->
          {error,eexist} -> ok;
          _ -> fail
        end,
-  ok = case file:make_dir(filename:join([Path, ModuleName, "ebin"])) of
+  ok = case file:make_dir(filename:join([Path, ModuleName, "priv"])) of
          ok -> ok;
          {error,eexist} -> ok;
          _ -> fail
@@ -308,9 +297,9 @@ store_files(_, ModuleName, _, RenderOutput, Path) ->
   {ErlOutput, SaveErlOutput, HrlOutput, COutput, AppOutput, ConfigOutput} = RenderOutput,
   ok = fwrite_render(Path, ModuleName, "src", ModuleName++".erl", ErlOutput),
   ok = fwrite_render(Path, ModuleName, "src", ModuleName++"_remote"++".erl", SaveErlOutput),
+  ok = fwrite_render(Path, ModuleName, "src", ModuleName++".app.src", AppOutput),
   ok = fwrite_render(Path, ModuleName, "include", ModuleName++".hrl", HrlOutput),
   ok = fwrite_render(Path, ModuleName, "c_src", ModuleName++"_nif.c", COutput),
-  ok = fwrite_render(Path, ModuleName, "ebin", ModuleName++".app", AppOutput),
   ok = fwrite_render(Path, ModuleName, ".", "rebar.config", ConfigOutput).
 
 fwrite_render(Path, ModuleName, Dir, FileName, Template) ->
@@ -319,7 +308,7 @@ fwrite_render(Path, ModuleName, Dir, FileName, Template) ->
 compile_module(ModuleName) ->
   {ok, Path} = file:get_cwd(),
   ok = file:set_cwd(filename:join([Path, ModuleName])),
-  try rebar_commands(["compile"]) of
+  try rebar3:run(["compile"]) of
       _ -> file:set_cwd(Path)
   catch
     throw:rebar_abort ->
@@ -327,14 +316,7 @@ compile_module(ModuleName) ->
       fail
   end.
 
-rebar_commands(RawArgs) ->
-  Args = nifty_rebar:parse_args(RawArgs),
-  BaseConfig = nifty_rebar:init_config(Args),
-  {BaseConfig1, Cmds} = nifty_rebar:save_options(BaseConfig, Args),
-  nifty_rebar:run(BaseConfig1, Cmds).
-
-
-build_env(ModuleName, Options) ->
+build_cflags(ModuleName, Options) ->
   Env = case proplists:get_value(port_env, Options) of
           undefined -> [];
           EnvList -> EnvList
@@ -344,8 +326,20 @@ build_env(ModuleName, Options) ->
              SpecList ->
                lists:concat([Env, get_spec_env(ModuleName, SpecList)])
            end,
-  Config = rebar_config:set(rebar_config:new(), port_env, EnvAll),
-  rebar_port_compiler:setup_env(Config).
+  OrigCFlags = os:getenv("CFLAGS", ""),
+  os:putenv("CFLAGS", OrigCFlags),
+  Retval = merge_cflags(proplists:get_all_values("CFLAGS", EnvAll)),
+  os:putenv("CFLAGS", OrigCFlags),
+  Retval.
+
+merge_cflags([]) ->
+  string:tokens(os:getenv("CFLAGS"), " ");
+merge_cflags([Flag|T]) ->
+  Expanded = nifty_utils:expand(Flag),
+  os:putenv("CFLAGS", Expanded),
+  merge_cflags(T).
+
+
 
 get_spec_env(_, []) -> [];
 get_spec_env(ModuleName, [S|T]) ->
@@ -587,7 +581,7 @@ dereference(Pointer) ->
   Module = list_to_atom(ModuleName),
   %% case Module of
   %%  nifty ->
-  %%      build_builtin_type(Type, Address);
+  %%      _builtin_type(Type, Address);
   %%  _ ->
   NType = get_derefed_type(Type, Module),
   case NType of
@@ -673,9 +667,14 @@ int_deref([E|T], Acc) ->
   int_deref(T, (Acc bsl 8) + E).
 
 %% @doc Free's the memory associated with a nifty pointer
--spec free(ptr()) -> 'ok'.
+-spec free(ptr() | list(ptr())) -> 'ok'.
+free([]) -> ok;
+free([H|T]) ->
+  free(H),
+  free(T);
 free({Addr, _}) ->
   raw_free(Addr).
+
 
 %% @doc Allocates the specified amount of bytes and returns a pointer
 %% to the allocated memory
