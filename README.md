@@ -2,6 +2,7 @@
 [![Erlang Versions][erlang versions badge]][erlang]
 [![LLVM Versions][llvm versions badge]][llvm]
 
+
 # Nifty - Erlang NIF Wrapper Generator
 
 Nifty is an interface generator that allows the use of C modules from Erlang.
@@ -93,5 +94,5 @@ make tests
 
 <!-- Badges (alphabetically) -->
 [erlang versions badge]: https://img.shields.io/badge/erlang-18.0%20to%2021.1-blue.svg?style=flat-square
-[llvm versions badge]: https://img.shields.io/badge/llvm-3.5.2%20to%206.0.0-ff69b4.svg?style=flat-square
+[llvm versions badge]: https://img.shields.io/badge/llvm-3.5.2%20to%207.0.0-ff69b4.svg?style=flat-square
 [travis badge]: https://img.shields.io/travis/parapluu/nifty.svg?branch=master?style=flat-square
