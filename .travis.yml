@@ -38,6 +38,7 @@ before_script:
   - export PATH=$LLVM_DIR/bin:$PATH
   - export LD_LIBRARY_PATH=$LLVM_DIR/lib
   - export NIFTY_ROOT=$PWD
+  - clang --version             # just for sanity
 after_failure:
   - ./travis/after_failure.sh
 cache:
