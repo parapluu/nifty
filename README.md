@@ -1,6 +1,7 @@
 [![Travis][travis badge]][travis]
 [![Erlang Versions][erlang versions badge]][erlang]
 [![LLVM Versions][llvm versions badge]][llvm]
+[![Last Commit][commit badge]][commit]
 
 
 # Nifty - Erlang NIF Wrapper Generator
@@ -88,11 +89,13 @@ make tests
 * Nifty has not been tested under Windows.
 
 <!-- Links (alphabetically) -->
+[commit]: https://github.com/parapluu/nifty/commit/HEAD
 [erlang]: http://www.erlang.org
 [llvm]: http://llvm.org
 [travis]: https://travis-ci.org/parapluu/nifty
 
 <!-- Badges (alphabetically) -->
+[commit badge]: https://img.shields.io/github/last-commit/parapluu/nifty.svg?style=flat-square
 [erlang versions badge]: https://img.shields.io/badge/erlang-18.0%20to%2021.1-blue.svg?style=flat-square
 [llvm versions badge]: https://img.shields.io/badge/llvm-3.5.2%20to%207.0.0-ff69b4.svg?style=flat-square
 [travis badge]: https://img.shields.io/travis/parapluu/nifty.svg?branch=master?style=flat-square
