@@ -1,4 +1,6 @@
-[![Build Status](https://travis-ci.org/parapluu/nifty.svg?branch=master)](https://travis-ci.org/parapluu/nifty)
+[![Travis][travis badge]][travis]
+[![Erlang Versions][erlang versions badge]][erlang]
+[![LLVM Versions][llvm versions badge]][llvm]
 
 # Nifty - Erlang NIF Wrapper Generator
 
@@ -19,7 +21,7 @@ extern int fib(int n);
 /* mylib.c */
 int
 fib(int n) {
-  if (n<=2) {
+  if (n <= 2) {
     return 1;
   } else {
     return fib(n-1) + fib(n-2);
@@ -83,3 +85,13 @@ make tests
 * Functions with a variable number of arguments (`va_list` or `...`) are not supported. If `va_list` as type is used, Nifty will print a warning. If `...` is used, then the function is translated **without** the variable arguments: `int printf(const char *format, ...)` will be translated into `printf/1`.
 * The usage of incomplete types is limited.
 * Nifty has not been tested under Windows.
+
+<!-- Links (alphabetically) -->
+[erlang]: http://www.erlang.org
+[llvm]: http://llvm.org
+[travis]: https://travis-ci.org/parapluu/nifty
+
+<!-- Badges (alphabetically) -->
+[erlang versions badge]: https://img.shields.io/badge/erlang-18.0%20to%2021.1-blue.svg?style=flat-square
+[llvm versions badge]: https://img.shields.io/badge/llvm-3.5.2%20to%206.0.0-ff69b4.svg?style=flat-square
+[travis badge]: https://img.shields.io/travis/parapluu/nifty.svg?branch=master?style=flat-square
