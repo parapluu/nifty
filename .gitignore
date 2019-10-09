@@ -5,6 +5,5 @@ deps
 *.o
 *.beam
 *.plt
-*.so
 rebar.lock
 _build/
