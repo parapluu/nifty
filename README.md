@@ -64,7 +64,7 @@ make tests
 
 ## Dependencies
 * The [clang](http://clang.llvm.org/) compiler and **libclang**, including the header files.
-* **[Optional]** [PropEr](https://github.com/manopapad/proper) for the unit tests.
+* **[Optional]** [PropEr](https://github.com/proper-testing/proper) for the unit tests.
 
 ## Base Types
 
