@@ -1,9 +1,12 @@
 .eunit
 .nifty_plt
 .rebar
+cache/
 deps
+doc/
 *.o
 *.beam
 *.plt
+rebar3
 rebar.lock
 _build/
