@@ -97,5 +97,5 @@ make tests
 <!-- Badges (alphabetically) -->
 [clang versions badge]: https://img.shields.io/badge/clang-3.8.1%20to%209.0.0-ff69b4.svg?style=flat-square
 [commit badge]: https://img.shields.io/github/last-commit/parapluu/nifty.svg?style=flat-square
-[erlang versions badge]: https://img.shields.io/badge/erlang-19.0%20to%2022.2-blue.svg?style=flat-square
+[erlang versions badge]: https://img.shields.io/badge/erlang-19.0%20to%2022.3-blue.svg?style=flat-square
 [travis badge]: https://img.shields.io/travis/parapluu/nifty.svg?branch=master?style=flat-square
