@@ -7,7 +7,7 @@ case $LLVM_VERSION in
 	LLVM_URL="http://llvm.org/releases/$LLVM_VERSION/clang+llvm-$LLVM_VERSION-x86_64-linux-gnu-ubuntu-16.04.tar.xz"
     ;;
     ?*)
-	LLVM_URL="http://llvm.org/releases/$LLVM_VERSION/clang+llvm-$LLVM_VERSION-x86_64-linux-gnu-ubuntu-14.04.tar.xz"
+	LLVM_URL="http://llvm.org/releases/$LLVM_VERSION/clang+llvm-$LLVM_VERSION-x86_64-linux-gnu-ubuntu-16.04.tar.xz"
     ;;
 esac
 LLVM_DEP="cache/$LLVM_VERSION.tar.xz"
@@ -39,14 +39,11 @@ if [ ! -d $LLVM_DIR ] ; then
 		exit 1
 	fi
 	case $LLVM_VERSION in
-		"3.5.2")
-			mv cache/clang+llvm-$LLVM_VERSION-x86_64-linux-gnu cache/clang+llvm-$LLVM_VERSION
-		;;
 		"3.9.1")
 			mv cache/clang+llvm-$LLVM_VERSION-x86_64-linux-gnu-ubuntu-16.04 cache/clang+llvm-$LLVM_VERSION
 		;;
 		?*)
-			mv cache/clang+llvm-$LLVM_VERSION-x86_64-linux-gnu-ubuntu-14.04 cache/clang+llvm-$LLVM_VERSION
+			mv cache/clang+llvm-$LLVM_VERSION-x86_64-linux-gnu-ubuntu-16.04 cache/clang+llvm-$LLVM_VERSION
 		;;
 	esac
 else
