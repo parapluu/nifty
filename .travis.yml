@@ -15,6 +15,7 @@ otp_release:
   - 20.3
   - 20.0
 env:
+  - LLVM_VERSION=10.0.0
   - LLVM_VERSION=9.0.0
   - LLVM_VERSION=8.0.0
   - LLVM_VERSION=7.0.1
@@ -28,7 +29,7 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-            #      - g++-4.9
+      - g++-4.8
       - libncurses5
       - libncurses5-dev
       - autoconf
