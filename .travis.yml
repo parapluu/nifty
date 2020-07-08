@@ -7,14 +7,13 @@ branches:
     - master
 
 otp_release:
+  - 23.0
   - 22.3
   - 22.0
   - 21.3
   - 21.0
   - 20.3
   - 20.0
-  - 19.3
-  - 19.0
 env:
   - LLVM_VERSION=9.0.0
   - LLVM_VERSION=8.0.0
