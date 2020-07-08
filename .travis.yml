@@ -29,8 +29,8 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
             #      - g++-4.9
-      - libncurses
-      - libncurses-dev
+      - libncurses5
+      - libncurses5-dev
       - autoconf
       - libssl-dev
 before_script:
