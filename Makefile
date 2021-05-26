@@ -82,5 +82,5 @@ shell: rebar3
 	$(REBAR) shell
 
 rebar3:
-	wget https://s3.amazonaws.com/rebar3/rebar3
+	wget https://github.com/erlang/rebar3/releases/download/3.13.2/rebar3
 	chmod +x rebar3
