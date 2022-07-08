@@ -522,7 +522,7 @@ new_type_object(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 	return enif_make_atom(env, "undef");
 error:
 	return enif_make_badarg(env);
-/* supress warnings */
+/* suppress warnings */
 	type_holder++;
 	retval++;
 }

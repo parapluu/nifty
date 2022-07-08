@@ -11,7 +11,7 @@
 
 -type mystring() :: [1..255].
 
-%% auxilary functions
+%% auxiliary functions
 -spec cstr_list_comp(mystring()) -> boolean().
 cstr_list_comp(Str) ->
     CStr = nifty:list_to_cstr(Str),

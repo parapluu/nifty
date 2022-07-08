@@ -11,7 +11,7 @@
 
 -include_lib("eunit/include/eunit.hrl").
 
-%% supress warning for test/0, a generated function automatically exported
+%% suppress warning for test/0, a generated function automatically exported
 -spec test() -> term().
 
 -define(TIMEOUT, 600).
